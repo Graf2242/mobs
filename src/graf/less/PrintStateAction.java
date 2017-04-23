@@ -4,7 +4,7 @@ public class PrintStateAction implements Action {
 
     private Mob mob;
 
-    public PrintStateAction(Mob mob) {
+    PrintStateAction(Mob mob) {
         this.mob = mob;
     }
 

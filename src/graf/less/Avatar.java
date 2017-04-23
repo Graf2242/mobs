@@ -3,6 +3,7 @@ package graf.less;
 import java.util.Random;
 import java.util.Scanner;
 
+@SuppressWarnings("unused")
 public class Avatar extends Mob {
 
 

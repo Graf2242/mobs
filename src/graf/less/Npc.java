@@ -1,7 +1,6 @@
 package graf.less;
 
 import java.util.Random;
-import java.util.Scanner;
 
 class Npc extends Mob {
     private Random random;

@@ -28,63 +28,59 @@ abstract class Mob implements Action {
         return name;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 
-    public int getHealth() {
+    int getHealth() {
         return health;
     }
 
-    public void setHealth(int health) {
+    private void setHealth(int health) {
         this.health = health;
     }
 
-    public int getDamage() {
+    int getDamage() {
         return damage;
     }
 
-    public void setDamage(int damage) {
+    private void setDamage(int damage) {
         this.damage = damage;
     }
 
-    public int getCriticalDamageChance() {
+    int getCriticalDamageChance() {
         return criticalDamageChance;
     }
 
-    public void setCriticalDamageChance(int criticalDamageChance) {
+    private void setCriticalDamageChance(int criticalDamageChance) {
         this.criticalDamageChance = criticalDamageChance;
     }
 
-    public MobBodyAreas getAttackArea() {
+    MobBodyAreas getAttackArea() {
         return attackArea;
     }
 
-    public void setAttackArea(MobBodyAreas attackArea) {
+    void setAttackArea(MobBodyAreas attackArea) {
         this.attackArea = attackArea;
     }
 
-    public MobBodyAreas getDefendArea() {
+    private MobBodyAreas getDefendArea() {
         return defendArea;
     }
 
-    public void setDefendArea(MobBodyAreas defendArea) {
+    void setDefendArea(MobBodyAreas defendArea) {
         this.defendArea = defendArea;
     }
 
-    public boolean isDoCriticalDamage() {
+    boolean isDoCriticalDamage() {
         return isDoCriticalDamage;
     }
 
-    public void setDoCriticalDamage(boolean doCriticalDamage) {
-        isDoCriticalDamage = doCriticalDamage;
-    }
-
-    public Mob getTarget() {
+    Mob getTarget() {
         return target;
     }
 
-    public void setTarget(Mob target) {
+    void setTarget(Mob target) {
         this.target = target;
     }
 
