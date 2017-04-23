@@ -1,8 +1,9 @@
 package graf.less;
 
 import java.util.Random;
+import java.util.Scanner;
 
-public class Npc extends Mob {
+class Npc extends Mob {
     private Random random;
 
     Npc(String name, int health, int damage, int criticalDamageChance, Random random) {
@@ -13,8 +14,14 @@ public class Npc extends Mob {
     @Override
     void defineAreas(Mob[] targets) {
         defineTarget(targets);
-        setAttackArea(random.nextInt(3));
-        setDefendArea(random.nextInt(3));
+        setAttackArea(selectArea());
+        setDefendArea(selectArea());
+    }
+
+    private MobBodyAreas selectArea() {
+        int option = random.nextInt(3);
+        MobBodyAreas[] areas = MobBodyAreas.values();
+        return areas[option];
     }
 
     @Override

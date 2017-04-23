@@ -3,7 +3,7 @@ package graf.less;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Main {
+public class GameLoop {
 
     private static Mob[] team1;
     private static Mob[] team2;
@@ -28,7 +28,7 @@ public class Main {
         team2 = new Mob[num];
         for (int i = 0; i < num; i++) {
             team1[i] = new Npc("Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), random);
-            team2[i] = new Npc("NPC"+i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), random);
+            team2[i] = new Npc("NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), random);
         }
     }
 
@@ -52,39 +52,43 @@ public class Main {
             int damage = damager.isDoCriticalDamage() ? damager.getDamage() * 2 : damager.getDamage();
             target.takeDamage(damage, damager.getAttackArea());
         }
+        for (Mob damager : team2) {
+            Mob target = damager.getTarget();
+            while (target.isDead()) {
+                damager.defineTarget(team1);
+                target = damager.getTarget();
+            }
+            int damage = damager.isDoCriticalDamage() ? damager.getDamage() * 2 : damager.getDamage();
+            target.takeDamage(damage, damager.getAttackArea());
+        }
 
         printFightLog(team1);
+        printFightLog(team2);
     }
 
     private static boolean isGameOver() {
-        if (team1IsDead() && team2IsDead()) {
+        if (teamIsDead(team1) && teamIsDead(team2)) {
             System.out.println("Обе команды мертвы");
             return true;
         }
-        if (team1IsDead()) {
+        if (teamIsDead(team1)) {
             System.out.println(("Первая команда мертва"));
             return true;
         }
-        if (team2IsDead()) {
+        if (teamIsDead(team2)) {
             System.out.println(("Вторая команда мертва"));
             return true;
         }
         return false;
     }
 
-    private static boolean team2IsDead() {
-        for (Mob mob : team1){
+    private static boolean teamIsDead(Mob[] team) {
+        for (Mob mob : team) {
             if (!mob.isDead()) return false;
         }
         return true;
     }
 
-    private static boolean team1IsDead() {
-        for (Mob mob : team1){
-            if (!mob.isDead()) return false;
-        }
-        return true;
-    }
 
     private static void printFullMobsState() {
         System.out.println("Команда 1:");
@@ -96,6 +100,7 @@ public class Main {
             System.out.println(mob.getName() + " HP: " + mob.getHealth() + " damage: " + mob.getDamage() + " critChance: " + mob.getCriticalDamageChance());
         }
     }
+
     //TODO
     private static void printFightLog(Mob[] participants) {
         for (Mob mob : participants) {

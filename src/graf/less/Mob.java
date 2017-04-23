@@ -8,8 +8,8 @@ abstract class Mob {
     private int health;
     private int damage;
     private int criticalDamageChance;
-    private int attackArea;
-    private int defendArea;
+    private MobBodyAreas attackArea;
+    private MobBodyAreas defendArea;
     private boolean isDoCriticalDamage;
     private Mob target;
     private Random random;
@@ -46,19 +46,19 @@ abstract class Mob {
         this.criticalDamageChance = criticalDamageChance;
     }
 
-    public int getAttackArea() {
+    public MobBodyAreas getAttackArea() {
         return attackArea;
     }
 
-    public void setAttackArea(int attackArea) {
+    public void setAttackArea(MobBodyAreas attackArea) {
         this.attackArea = attackArea;
     }
 
-    public int getDefendArea() {
+    public MobBodyAreas getDefendArea() {
         return defendArea;
     }
 
-    public void setDefendArea(int defendArea) {
+    public void setDefendArea(MobBodyAreas defendArea) {
         this.defendArea = defendArea;
     }
 
@@ -86,7 +86,7 @@ abstract class Mob {
         this.random = random;
     }
 
-    void takeDamage(int damage, int damagedArea) {
+    void takeDamage(int damage, MobBodyAreas damagedArea) {
         this.setHealth((damagedArea == getDefendArea()) ? this.getHealth() - damage / 2 : this.getHealth() - damage);
     }
 
@@ -99,5 +99,6 @@ abstract class Mob {
     }
 
     abstract void defineAreas(Mob[] targets);
+
     abstract void defineTarget(Mob[] targets);
 }

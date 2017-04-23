@@ -11,11 +11,20 @@ public class Avatar extends Mob {
     //TODO
     @Override
     void defineAreas(Mob[] targets) {
-        Scanner scanner = new Scanner(System.in);
         System.out.println(("Куда бить? 1 - Голова, 2 - Тело, 3 - Ноги."));
-        setAttackArea(scanner.nextInt()-1);
+        setAttackArea(selectArea());
         System.out.println(("Что защищать? 1 - Голова, 2 - Тело, 3 - Ноги."));
-        setDefendArea(scanner.nextInt()-1);
+        setDefendArea(selectArea());
+    }
+
+    private MobBodyAreas selectArea() {
+        Scanner scanner = new Scanner(System.in);
+        int option = scanner.nextInt() - 1;
+        MobBodyAreas[] areas = MobBodyAreas.values();
+        if (option > 0 && option < areas.length) {
+            return areas[option];
+        }
+        return areas[0];
     }
 
     @Override
