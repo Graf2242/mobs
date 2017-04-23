@@ -6,8 +6,8 @@ import java.util.Scanner;
 class Npc extends Mob {
     private Random random;
 
-    Npc(String name, int health, int damage, int criticalDamageChance, Random random) {
-        super(name, health, damage, criticalDamageChance, random);
+    Npc(String name, int health, int damage, int criticalDamageChance, Mob[] enemyTeam, Random random) {
+        super(name, health, damage, criticalDamageChance, enemyTeam, random);
         this.random = random;
     }
 
@@ -27,5 +27,21 @@ class Npc extends Mob {
     @Override
     void defineTarget(Mob[] targets) {
         setTarget(targets[random.nextInt(targets.length)]);
+    }
+
+    //TODO
+    @Override
+    public void step() {
+        if (isDead()) {
+            return;
+        }
+        randomizeCrit();
+        defineAreas(enemyTeam);
+        while (target.isDead()) {
+            defineTarget(enemyTeam);
+        }
+        int damage = isDoCriticalDamage() ? getDamage() * 2 : getDamage();
+        target.takeDamage(damage, getAttackArea());
+
     }
 }

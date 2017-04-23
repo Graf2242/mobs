@@ -4,8 +4,10 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Avatar extends Mob {
-    Avatar(String name, int health, int damage, int criticalDamageChance, Random random) {
-        super(name, health, damage, criticalDamageChance, random);
+
+
+    Avatar(String name, int health, int damage, int criticalDamageChance, Mob[] enemyTeam, Random random) {
+        super(name, health, damage, criticalDamageChance, enemyTeam, random);
     }
 
     //TODO
@@ -30,5 +32,11 @@ public class Avatar extends Mob {
     @Override
     void defineTarget(Mob[] targets) {
         setTarget(targets[0]);
+    }
+
+    //TODO
+    @Override
+    public void step() {
+
     }
 }

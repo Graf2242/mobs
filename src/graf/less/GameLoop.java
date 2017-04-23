@@ -1,5 +1,6 @@
 package graf.less;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -13,10 +14,9 @@ public class GameLoop {
         createTeams();
         printFullMobsState();
 
-        do {
-            nextRound();
-        } while (!isGameOver());
+        ArrayList<Action> actions = new ArrayList<>();
 
+        mainLoop(actions);
     }
 
     private static void createTeams() {
@@ -27,43 +27,30 @@ public class GameLoop {
         team1 = new Mob[num];
         team2 = new Mob[num];
         for (int i = 0; i < num; i++) {
-            team1[i] = new Npc("Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), random);
-            team2[i] = new Npc("NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), random);
+            team1[i] = new Npc("Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team2, random);
+            team2[i] = new Npc("NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team1, random);
         }
     }
 
-    private static void nextRound() {
-        System.out.println("------------------");
+    private static void mainLoop(ArrayList<Action> actions) {
         for (Mob mob : team1) {
-            mob.randomizeCrit();
-            mob.defineAreas(team2);
+            actions.add(mob);
+            actions.add(new PrintStateAction(mob));
         }
         for (Mob mob : team2) {
-            mob.randomizeCrit();
-            mob.defineAreas(team1);
-        }
-        //TODO Подобное для team2 и вывод printFightLog перенести в цикл
-        for (Mob damager : team1) {
-            Mob target = damager.getTarget();
-            while (target.isDead()) {
-                damager.defineTarget(team2);
-                target = damager.getTarget();
-            }
-            int damage = damager.isDoCriticalDamage() ? damager.getDamage() * 2 : damager.getDamage();
-            target.takeDamage(damage, damager.getAttackArea());
-        }
-        for (Mob damager : team2) {
-            Mob target = damager.getTarget();
-            while (target.isDead()) {
-                damager.defineTarget(team1);
-                target = damager.getTarget();
-            }
-            int damage = damager.isDoCriticalDamage() ? damager.getDamage() * 2 : damager.getDamage();
-            target.takeDamage(damage, damager.getAttackArea());
+            actions.add(mob);
+            actions.add(new PrintStateAction(mob));
         }
 
-        printFightLog(team1);
-        printFightLog(team2);
+        while (!isGameOver()) {
+            for (Action action : actions) {
+                if (teamIsDead(team1) || teamIsDead(team2)) {
+                    printFullMobsState();
+                    break;
+                }
+                action.step();
+            }
+        }
     }
 
     private static boolean isGameOver() {
@@ -101,13 +88,6 @@ public class GameLoop {
         }
     }
 
-    //TODO
-    private static void printFightLog(Mob[] participants) {
-        for (Mob mob : participants) {
-            String textIfCritical = mob.isDoCriticalDamage() ? " критическим ударом на " + mob.getDamage() * 2 : " на " + mob.getDamage();
-            System.out.println((mob.getName() + " атакует " + mob.getTarget().getName() + textIfCritical + ". У " + mob.getTarget().getName() + " остается " + mob.getTarget().getHealth() + " HP."));
-        }
-    }
 
     private static int makeDefaultHealth(Random random) {
         return 100 + random.nextInt(100);

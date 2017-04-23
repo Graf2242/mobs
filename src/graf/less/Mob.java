@@ -2,7 +2,7 @@ package graf.less;
 
 import java.util.Random;
 
-abstract class Mob {
+abstract class Mob implements Action {
 
     private String name;
     private int health;
@@ -11,8 +11,18 @@ abstract class Mob {
     private MobBodyAreas attackArea;
     private MobBodyAreas defendArea;
     private boolean isDoCriticalDamage;
-    private Mob target;
+    Mob target;
     private Random random;
+    Mob[] enemyTeam;
+
+    Mob(String name, int health, int damage, int criticalDamageChance, Mob[] enemyTeam, Random random) {
+        this.setName(name);
+        this.setHealth(health);
+        this.setDamage(damage);
+        this.setCriticalDamageChance(criticalDamageChance);
+        this.random = random;
+        this.enemyTeam = enemyTeam;
+    }
 
     String getName() {
         return name;
@@ -76,14 +86,6 @@ abstract class Mob {
 
     public void setTarget(Mob target) {
         this.target = target;
-    }
-
-    Mob(String name, int health, int damage, int criticalDamageChance, Random random) {
-        this.setName(name);
-        this.setHealth(health);
-        this.setDamage(damage);
-        this.setCriticalDamageChance(criticalDamageChance);
-        this.random = random;
     }
 
     void takeDamage(int damage, MobBodyAreas damagedArea) {
