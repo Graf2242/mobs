@@ -1,6 +1,7 @@
 package graf.less;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -21,24 +22,46 @@ public class GameLoop {
 
     private static void createTeams() {
         Random random = new Random();
+
         System.out.println("Введите количество участников для одной команды:");
         Scanner scanner = new Scanner(System.in);
         int num = scanner.nextInt();
+        System.out.println("Введите количество игроков в 1й команде:");
+        int firstTeamPlayers = scanner.nextInt();
+        System.out.println("Введите количество игроков во 2й команде:");
+        int secondTeamPlayers = scanner.nextInt();
+
         team1 = new Mob[num];
         team2 = new Mob[num];
+
         for (int i = 0; i < num; i++) {
-            team1[i] = new Npc("Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team2, random);
-            team2[i] = new Npc("NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team1, random);
+            if (firstTeamPlayers > 0) {
+                team1[i] = new Avatar("t1.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team2, random);
+                firstTeamPlayers--;
+            } else {
+                team1[i] = new Npc("t1.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team2, random);
+            }
+            if (secondTeamPlayers > 0) {
+                team2[i] = new Avatar("t2.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team1, random);
+                secondTeamPlayers--;
+            } else {
+                team2[i] = new Npc("t2.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team1, random);
+            }
         }
+
+
     }
 
     private static void mainLoop(ArrayList<Action> actions) {
+        Collections.addAll(actions, team1);
+        Collections.addAll(actions, team2);
+
         for (Mob mob : team1) {
-            actions.add(mob);
+            actions.add(new AttackAction(mob));
             actions.add(new PrintStateAction(mob));
         }
         for (Mob mob : team2) {
-            actions.add(mob);
+            actions.add(new AttackAction(mob));
             actions.add(new PrintStateAction(mob));
         }
 

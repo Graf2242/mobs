@@ -64,7 +64,7 @@ abstract class Mob implements Action {
         this.attackArea = attackArea;
     }
 
-    private MobBodyAreas getDefendArea() {
+    MobBodyAreas getDefendArea() {
         return defendArea;
     }
 
@@ -96,7 +96,7 @@ abstract class Mob implements Action {
         return (!(getHealth() > 0));
     }
 
-    abstract void defineAreas(Mob[] targets);
+    abstract void defineAreas();
 
     abstract void defineTarget(Mob[] targets);
 }

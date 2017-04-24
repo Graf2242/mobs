@@ -11,8 +11,7 @@ class Npc extends Mob {
     }
 
     @Override
-    void defineAreas(Mob[] targets) {
-        defineTarget(targets);
+    void defineAreas() {
         setAttackArea(selectArea());
         setDefendArea(selectArea());
     }
@@ -28,19 +27,17 @@ class Npc extends Mob {
         setTarget(targets[random.nextInt(targets.length)]);
     }
 
-    //TODO
     @Override
     public void step() {
         if (isDead()) {
             return;
         }
         randomizeCrit();
-        defineAreas(enemyTeam);
+        defineTarget(enemyTeam);
         while (target.isDead()) {
             defineTarget(enemyTeam);
         }
+        defineAreas();
         int damage = isDoCriticalDamage() ? getDamage() * 2 : getDamage();
-        target.takeDamage(damage, getAttackArea());
-
     }
 }

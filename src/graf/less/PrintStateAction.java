@@ -14,7 +14,7 @@ public class PrintStateAction implements Action {
             return;
         }
         String textIfCritical = mob.isDoCriticalDamage() ? " критическим ударом на " + mob.getDamage() * 2 : " на " + mob.getDamage();
-        System.out.println((mob.getName() + " атакует " + mob.getTarget().getName() + textIfCritical + ". У " + mob.getTarget().getName() + " остается " + mob.getTarget().getHealth() + " HP."));
+        System.out.println((mob.getName() + " атакует " + mob.getTarget().getName() + textIfCritical+ " в "+ mob.getAttackArea()+ " (противник защищает "+ mob.target.getDefendArea() + "). У " + mob.getTarget().getName() + " остается " + mob.getTarget().getHealth() + " HP."));
 
     }
 }
