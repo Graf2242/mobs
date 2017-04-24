@@ -10,12 +10,11 @@ public class Avatar extends Mob {
         super(name, health, damage, criticalDamageChance, enemyTeam, random);
     }
 
-    //TODO
     @Override
     void defineAreas() {
-        System.out.println((getName()+": Куда бить? 1 - Голова, 2 - Тело, 3 - Ноги."));
+        System.out.println((getName() + ": Куда бить? 1 - Голова, 2 - Тело, 3 - Ноги."));
         setAttackArea(selectArea());
-        System.out.println((getName()+": Что защищать? 1 - Голова, 2 - Тело, 3 - Ноги."));
+        System.out.println((getName() + ": Что защищать? 1 - Голова, 2 - Тело, 3 - Ноги."));
         setDefendArea(selectArea());
     }
 
@@ -31,16 +30,15 @@ public class Avatar extends Mob {
 
     @Override
     void defineTarget(Mob[] targets) {
-        System.out.println(getName()+": Выберите цель:");
+        System.out.println(getName() + ": Выберите цель:");
         for (int i = 0; i < enemyTeam.length; i++) {
-            int j=i+1;
+            int j = i + 1;
             System.out.println((j + ". " + enemyTeam[i].getName() + ". HP: " + enemyTeam[i].getHealth()));
         }
         Scanner scanner = new Scanner(System.in);
-        target = enemyTeam[scanner.nextInt()-1];
+        target = enemyTeam[scanner.nextInt() - 1];
     }
 
-    //TODO
     @Override
     public void step() {
         if (isDead()) {
@@ -49,10 +47,9 @@ public class Avatar extends Mob {
         randomizeCrit();
         defineTarget(enemyTeam);
         while (target.isDead()) {
-            System.out.println(getName()+": Выбранная цель мертва");
+            System.out.println(getName() + ": Выбранная цель мертва");
             defineTarget(enemyTeam);
         }
         defineAreas();
-        int damage = isDoCriticalDamage() ? getDamage() * 2 : getDamage();
     }
 }
