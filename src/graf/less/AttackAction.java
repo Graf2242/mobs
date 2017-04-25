@@ -5,6 +5,9 @@ public class AttackAction implements Action {
 
     @Override
     public void step() {
+        if (mob.isDead()) {
+            return;
+        }
         int damage = mob.isDoCriticalDamage() ? mob.getDamage() * 2 : mob.getDamage();
         mob.target.takeDamage(damage, mob.getAttackArea());
     }

@@ -25,19 +25,13 @@ class Npc extends Mob {
     @Override
     void defineTarget(Mob[] targets) {
         setTarget(targets[random.nextInt(targets.length)]);
+        while (target.isDead()) {
+            setTarget(targets[random.nextInt(targets.length)]);
+        }
     }
 
     @Override
     public void step() {
-        if (isDead()) {
-            return;
-        }
-        randomizeCrit();
         defineTarget(enemyTeam);
-        while (target.isDead()) {
-            defineTarget(enemyTeam);
-        }
-        defineAreas();
-        int damage = isDoCriticalDamage() ? getDamage() * 2 : getDamage();
     }
 }

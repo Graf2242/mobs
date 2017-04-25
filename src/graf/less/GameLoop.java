@@ -7,20 +7,19 @@ import java.util.Scanner;
 
 public class GameLoop {
 
-    private static Mob[] team1;
-    private static Mob[] team2;
+
 
     public static void main(String[] args) {
-
-        createTeams();
-        printFullMobsState();
+        GameState gameState = new GameState();
+        createTeams(gameState);
+        printFullMobsState(gameState);
 
         ArrayList<Action> actions = new ArrayList<>();
 
-        mainLoop(actions);
+        mainLoop(gameState, actions);
     }
 
-    private static void createTeams() {
+    private static void createTeams(GameState gameState) {
         Random random = new Random();
 
         System.out.println("Введите количество участников для одной команды:");
@@ -31,8 +30,10 @@ public class GameLoop {
         System.out.println("Введите количество игроков во 2й команде:");
         int secondTeamPlayers = scanner.nextInt();
 
-        team1 = new Mob[num];
-        team2 = new Mob[num];
+        Mob[] team1 = new Mob[num];
+        Mob[] team2 = new Mob[num];
+        gameState.setTeam1(team1);
+        gameState.setTeam2(team2);
 
         for (int i = 0; i < num; i++) {
             if (firstTeamPlayers > 0) {
@@ -52,31 +53,40 @@ public class GameLoop {
 
     }
 
-    private static void mainLoop(ArrayList<Action> actions) {
-        Collections.addAll(actions, team1);
-        Collections.addAll(actions, team2);
+    private static void mainLoop(GameState gameState, ArrayList<Action> actions) {
+        Collections.addAll(actions, gameState.getTeam1());
+        Collections.addAll(actions, gameState.getTeam2());
+
+        Mob[] team1 = gameState.getTeam1();
+        Mob[] team2 = gameState.getTeam2();
 
         for (Mob mob : team1) {
+            actions.add(new DefineAttackOptionsAction(mob));
             actions.add(new AttackAction(mob));
             actions.add(new PrintStateAction(mob));
         }
         for (Mob mob : team2) {
+            actions.add(new DefineAttackOptionsAction(mob));
             actions.add(new AttackAction(mob));
             actions.add(new PrintStateAction(mob));
         }
 
-        while (!isGameOver()) {
+        while (!isGameOver(gameState)) {
             for (Action action : actions) {
                 if (teamIsDead(team1) || teamIsDead(team2)) {
-                    printFullMobsState();
+                    printFullMobsState(gameState);
                     break;
                 }
                 action.step();
             }
+            System.out.println("----------------");
         }
     }
 
-    private static boolean isGameOver() {
+    private static boolean isGameOver(GameState gameState) {
+        Mob[] team1 = gameState.getTeam1();
+        Mob[] team2 = gameState.getTeam2();
+
         if (teamIsDead(team1) && teamIsDead(team2)) {
             System.out.println("Обе команды мертвы");
             return true;
@@ -100,7 +110,10 @@ public class GameLoop {
     }
 
 
-    private static void printFullMobsState() {
+    private static void printFullMobsState(GameState gameState) {
+        Mob[] team1 = gameState.getTeam1();
+        Mob[] team2 = gameState.getTeam2();
+
         System.out.println("Команда 1:");
         for (Mob mob : team1) {
             System.out.println(mob.getName() + " HP: " + mob.getHealth() + " damage: " + mob.getDamage() + " critChance: " + mob.getCriticalDamageChance());

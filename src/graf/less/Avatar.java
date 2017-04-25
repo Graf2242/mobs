@@ -30,26 +30,22 @@ public class Avatar extends Mob {
 
     @Override
     void defineTarget(Mob[] targets) {
-        System.out.println(getName() + ": Выберите цель:");
-        for (int i = 0; i < enemyTeam.length; i++) {
-            int j = i + 1;
-            System.out.println((j + ". " + enemyTeam[i].getName() + ". HP: " + enemyTeam[i].getHealth()));
-        }
-        Scanner scanner = new Scanner(System.in);
-        target = enemyTeam[scanner.nextInt() - 1];
+        do {
+            System.out.println(getName() + ": Выберите цель:");
+            for (int i = 0; i < enemyTeam.length; i++) {
+                int j = i + 1;
+                System.out.println((j + ". " + enemyTeam[i].getName() + ". HP: " + enemyTeam[i].getHealth()));
+            }
+            Scanner scanner = new Scanner(System.in);
+            target = enemyTeam[scanner.nextInt() - 1];
+            if (target.isDead()) {
+                System.out.println("Выбранная цель мертва");
+            }
+        } while (target.isDead());
     }
 
     @Override
     public void step() {
-        if (isDead()) {
-            return;
-        }
-        randomizeCrit();
         defineTarget(enemyTeam);
-        while (target.isDead()) {
-            System.out.println(getName() + ": Выбранная цель мертва");
-            defineTarget(enemyTeam);
-        }
-        defineAreas();
     }
 }
