@@ -18,7 +18,7 @@ abstract class Mob implements Action {
         this.setName(name);
         this.setHealth(health);
         this.setDamage(damage);
-        criticalDamageChance = random.nextFloat();
+        this.criticalDamageChance = random.nextFloat();
         this.random = random;
         this.enemyTeam = enemyTeam;
     }

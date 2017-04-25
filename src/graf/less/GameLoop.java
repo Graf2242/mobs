@@ -7,8 +7,6 @@ import java.util.Scanner;
 
 public class GameLoop {
 
-
-
     public static void main(String[] args) {
         GameState gameState = new GameState();
         createTeams(gameState);
@@ -24,33 +22,29 @@ public class GameLoop {
 
         System.out.println("Введите количество участников для одной команды:");
         Scanner scanner = new Scanner(System.in);
-        int num = scanner.nextInt();
+        int participantNumberEachTeam = scanner.nextInt();
         System.out.println("Введите количество игроков в 1й команде:");
         int firstTeamPlayers = scanner.nextInt();
         System.out.println("Введите количество игроков во 2й команде:");
         int secondTeamPlayers = scanner.nextInt();
 
-        Mob[] team1 = new Mob[num];
-        Mob[] team2 = new Mob[num];
+        Mob[] team1 = new Mob[participantNumberEachTeam];
+        Mob[] team2 = new Mob[participantNumberEachTeam];
         gameState.setTeam1(team1);
         gameState.setTeam2(team2);
 
-        for (int i = 0; i < num; i++) {
-            if (firstTeamPlayers > 0) {
-                team1[i] = new Avatar("t1.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), team2, random);
-                firstTeamPlayers--;
-            } else {
-                team1[i] = new Npc("t1.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), team2, random);
-            }
-            if (secondTeamPlayers > 0) {
-                team2[i] = new Avatar("t2.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random),  team1, random);
-                secondTeamPlayers--;
-            } else {
-                team2[i] = new Npc("t2.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random),  team1, random);
-            }
+        for (int i = 0; i < firstTeamPlayers; i++) {
+            team1[i] = new Avatar("t1.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), team2, random);
         }
-
-
+        for (int i = firstTeamPlayers; i < participantNumberEachTeam; i++) {
+            team1[i] = new Npc("t1.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), team2, random);
+        }
+        for (int i = 0; i < secondTeamPlayers; i++) {
+            team2[i] = new Avatar("t2.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), team1, random);
+        }
+        for (int i = secondTeamPlayers; i < participantNumberEachTeam; i++) {
+            team2[i] = new Npc("t2.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), team1, random);
+        }
     }
 
     private static void mainLoop(GameState gameState, ArrayList<Action> actions) {
