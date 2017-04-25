@@ -23,11 +23,19 @@ public class GameLoop {
         System.out.println("Введите количество участников для одной команды:");
         Scanner scanner = new Scanner(System.in);
         int participantNumberEachTeam = scanner.nextInt();
-        System.out.println("Введите количество игроков в 1й команде:");
-        int firstTeamPlayers = scanner.nextInt();
-        System.out.println("Введите количество игроков во 2й команде:");
-        int secondTeamPlayers = scanner.nextInt();
+        int firstTeamPlayers;
+        int secondTeamPlayers;
 
+        do {
+            System.out.println("Введите количество игроков в 1й команде:");
+            firstTeamPlayers = scanner.nextInt();
+        }
+        while (firstTeamPlayers > participantNumberEachTeam);
+
+        do {
+            System.out.println("Введите количество игроков во 2й команде:");
+            secondTeamPlayers = scanner.nextInt();
+        } while (secondTeamPlayers > participantNumberEachTeam);
         Mob[] team1 = new Mob[participantNumberEachTeam];
         Mob[] team2 = new Mob[participantNumberEachTeam];
         gameState.setTeam1(team1);

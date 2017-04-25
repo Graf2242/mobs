@@ -32,6 +32,6 @@ class Npc extends Mob {
 
     @Override
     public void step() {
-        defineTarget(enemyTeam);
+        defineAreas();
     }
 }

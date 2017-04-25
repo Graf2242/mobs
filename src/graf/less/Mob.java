@@ -10,8 +10,9 @@ abstract class Mob implements Action {
     private final float criticalDamageChance;
     private MobBodyAreas attackArea;
     private MobBodyAreas defendArea;
-    Mob target;
+    private boolean isLastAttackCrit;
     private Random random;
+    Mob target;
     Mob[] enemyTeam;
 
     Mob(String name, int health, int damage,  Mob[] enemyTeam, Random random) {
@@ -33,6 +34,10 @@ abstract class Mob implements Action {
 
     int getHealth() {
         return health;
+    }
+
+    boolean isLastAttackCrit() {
+        return isLastAttackCrit;
     }
 
     private void setHealth(int health) {
@@ -81,7 +86,8 @@ abstract class Mob implements Action {
     }
 
     boolean isDoCriticalDamage() {
-        return (getCriticalDamageChance() - random.nextFloat() > 0);
+        isLastAttackCrit = getCriticalDamageChance() - random.nextFloat() > 0;
+        return (isLastAttackCrit);
     }
 
     boolean isDead() {
