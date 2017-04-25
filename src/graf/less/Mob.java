@@ -7,19 +7,18 @@ abstract class Mob implements Action {
     private String name;
     private int health;
     private int damage;
-    private int criticalDamageChance;
+    private final float criticalDamageChance;
     private MobBodyAreas attackArea;
     private MobBodyAreas defendArea;
-    private boolean isDoCriticalDamage;
     Mob target;
     private Random random;
     Mob[] enemyTeam;
 
-    Mob(String name, int health, int damage, int criticalDamageChance, Mob[] enemyTeam, Random random) {
+    Mob(String name, int health, int damage,  Mob[] enemyTeam, Random random) {
         this.setName(name);
         this.setHealth(health);
         this.setDamage(damage);
-        this.setCriticalDamageChance(criticalDamageChance);
+        criticalDamageChance = random.nextFloat();
         this.random = random;
         this.enemyTeam = enemyTeam;
     }
@@ -48,12 +47,8 @@ abstract class Mob implements Action {
         this.damage = damage;
     }
 
-    int getCriticalDamageChance() {
+    float getCriticalDamageChance() {
         return criticalDamageChance;
-    }
-
-    private void setCriticalDamageChance(int criticalDamageChance) {
-        this.criticalDamageChance = criticalDamageChance;
     }
 
     MobBodyAreas getAttackArea() {
@@ -72,10 +67,6 @@ abstract class Mob implements Action {
         this.defendArea = defendArea;
     }
 
-    boolean isDoCriticalDamage() {
-        return isDoCriticalDamage;
-    }
-
     Mob getTarget() {
         return target;
     }
@@ -85,15 +76,16 @@ abstract class Mob implements Action {
     }
 
     void takeDamage(int damage, MobBodyAreas damagedArea) {
-        this.setHealth((damagedArea == getDefendArea()) ? this.getHealth() - damage / 2 : this.getHealth() - damage);
+        final int successfulBlockDamageScaler = 2;
+        this.setHealth((damagedArea == getDefendArea()) ? this.getHealth() - damage / successfulBlockDamageScaler : this.getHealth() - damage);
     }
 
-    void randomizeCrit() {
-        isDoCriticalDamage = (getCriticalDamageChance() - random.nextInt(100) > 0);
+    boolean isDoCriticalDamage() {
+        return (getCriticalDamageChance() - random.nextFloat() > 0);
     }
 
     boolean isDead() {
-        return (!(getHealth() > 0));
+        return (health <=0);
     }
 
     abstract void defineAreas();

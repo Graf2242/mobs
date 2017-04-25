@@ -37,16 +37,16 @@ public class GameLoop {
 
         for (int i = 0; i < num; i++) {
             if (firstTeamPlayers > 0) {
-                team1[i] = new Avatar("t1.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team2, random);
+                team1[i] = new Avatar("t1.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), team2, random);
                 firstTeamPlayers--;
             } else {
-                team1[i] = new Npc("t1.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team2, random);
+                team1[i] = new Npc("t1.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), team2, random);
             }
             if (secondTeamPlayers > 0) {
-                team2[i] = new Avatar("t2.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team1, random);
+                team2[i] = new Avatar("t2.Avatar" + i, makeDefaultHealth(random), makeDefaultDamage(random),  team1, random);
                 secondTeamPlayers--;
             } else {
-                team2[i] = new Npc("t2.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random), getDefaultCriticalDamageChance(random), team1, random);
+                team2[i] = new Npc("t2.NPC" + i, makeDefaultHealth(random), makeDefaultDamage(random),  team1, random);
             }
         }
 
@@ -126,14 +126,14 @@ public class GameLoop {
 
 
     private static int makeDefaultHealth(Random random) {
-        return 100 + random.nextInt(100);
+        final int basicHealth = 100;
+        final int additionalHealth = 100;
+        return basicHealth + random.nextInt(additionalHealth);
     }
 
     private static int makeDefaultDamage(Random random) {
-        return 10 + random.nextInt(10);
-    }
-
-    private static int getDefaultCriticalDamageChance(Random random) {
-        return random.nextInt(100);
+        final int basicDamage = 10;
+        final int additionalDamage = 10;
+        return basicDamage + random.nextInt(additionalDamage);
     }
 }

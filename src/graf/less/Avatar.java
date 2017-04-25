@@ -6,8 +6,8 @@ import java.util.Scanner;
 public class Avatar extends Mob {
 
 
-    Avatar(String name, int health, int damage, int criticalDamageChance, Mob[] enemyTeam, Random random) {
-        super(name, health, damage, criticalDamageChance, enemyTeam, random);
+    Avatar(String name, int health, int damage, Mob[] enemyTeam, Random random) {
+        super(name, health, damage, enemyTeam, random);
     }
 
     @Override

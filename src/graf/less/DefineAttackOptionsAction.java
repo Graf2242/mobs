@@ -12,7 +12,6 @@ public class DefineAttackOptionsAction implements Action {
         if (mob.isDead()) {
             return;
         }
-        mob.randomizeCrit();
         mob.defineTarget(mob.enemyTeam);
         mob.defineAreas();
     }

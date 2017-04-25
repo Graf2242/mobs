@@ -5,8 +5,8 @@ import java.util.Random;
 class Npc extends Mob {
     private Random random;
 
-    Npc(String name, int health, int damage, int criticalDamageChance, Mob[] enemyTeam, Random random) {
-        super(name, health, damage, criticalDamageChance, enemyTeam, random);
+    Npc(String name, int health, int damage, Mob[] enemyTeam, Random random) {
+        super(name, health, damage, enemyTeam, random);
         this.random = random;
     }
 
@@ -17,7 +17,7 @@ class Npc extends Mob {
     }
 
     private MobBodyAreas selectArea() {
-        int option = random.nextInt(3);
+        int option = random.nextInt(MobBodyAreas.values().length);
         MobBodyAreas[] areas = MobBodyAreas.values();
         return areas[option];
     }
