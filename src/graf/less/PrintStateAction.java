@@ -2,7 +2,7 @@ package graf.less;
 
 public class PrintStateAction implements Action {
 
-    private Mob mob;
+    private final Mob mob;
 
     PrintStateAction(Mob mob) {
         this.mob = mob;

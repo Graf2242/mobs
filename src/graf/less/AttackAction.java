@@ -1,7 +1,7 @@
 package graf.less;
 
 public class AttackAction implements Action {
-    private Mob mob;
+    private final Mob mob;
 
     @Override
     public void step() {

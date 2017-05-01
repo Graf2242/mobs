@@ -3,7 +3,7 @@ package graf.less;
 import java.util.Random;
 
 class Npc extends Mob {
-    private Random random;
+    private final Random random;
 
     Npc(String name, int health, int damage, Mob[] enemyTeam, Random random) {
         super(name, health, damage, enemyTeam, random);
@@ -11,9 +11,13 @@ class Npc extends Mob {
     }
 
     @Override
-    void defineAreas() {
-        setAttackArea(selectArea());
+    void defineDefendArea() {
         setDefendArea(selectArea());
+    }
+
+    @Override
+    void defineAttackArea() {
+        setAttackArea(selectArea());
     }
 
     private MobBodyAreas selectArea() {
@@ -32,6 +36,6 @@ class Npc extends Mob {
 
     @Override
     public void step() {
-        defineAreas();
+        defineDefendArea();
     }
 }

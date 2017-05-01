@@ -11,7 +11,13 @@ public class Avatar extends Mob {
     }
 
     @Override
-    void defineAreas() {
+    void defineDefendArea() {
+        System.out.println((getName() + ": Что защищать? 1 - Голова, 2 - Тело, 3 - Ноги."));
+        setDefendArea(selectArea());
+    }
+
+    @Override
+    void defineAttackArea() {
         System.out.println((getName() + ": Куда бить? 1 - Голова, 2 - Тело, 3 - Ноги."));
         setAttackArea(selectArea());
     }
@@ -44,7 +50,6 @@ public class Avatar extends Mob {
 
     @Override
     public void step() {
-        System.out.println((getName() + ": Что защищать? 1 - Голова, 2 - Тело, 3 - Ноги."));
-        setDefendArea(selectArea());
+        defineDefendArea();
     }
 }

@@ -1,7 +1,7 @@
 package graf.less;
 
 public class DefineAttackOptionsAction implements Action {
-    private Mob mob;
+    private final Mob mob;
 
     DefineAttackOptionsAction(Mob mob) {
         this.mob = mob;
@@ -13,6 +13,6 @@ public class DefineAttackOptionsAction implements Action {
             return;
         }
         mob.defineTarget(mob.enemyTeam);
-        mob.defineAreas();
+        mob.defineAttackArea();
     }
 }

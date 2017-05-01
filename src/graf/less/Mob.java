@@ -11,7 +11,7 @@ abstract class Mob implements Action {
     private MobBodyAreas attackArea;
     private MobBodyAreas defendArea;
     private boolean isLastAttackCrit;
-    private Random random;
+    private final Random random;
     Mob target;
     Mob[] enemyTeam;
 
@@ -94,7 +94,9 @@ abstract class Mob implements Action {
         return (health <=0);
     }
 
-    abstract void defineAreas();
+    abstract void defineDefendArea();
+
+    abstract void defineAttackArea();
 
     abstract void defineTarget(Mob[] targets);
 }
