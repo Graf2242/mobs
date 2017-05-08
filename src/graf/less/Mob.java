@@ -1,102 +1,109 @@
 package graf.less;
 
-import java.util.Random;
+import java.util.ArrayList;
 
 abstract class Mob implements Action {
 
+    protected final Fight fight;
+    private final int criticalDamageMultiplier;
+    private final int successfulBlockDamageScaler;
+    private final float criticalDamageChance;
     private String name;
     private int health;
     private int damage;
-    private final float criticalDamageChance;
     private MobBodyAreas attackArea;
     private MobBodyAreas defendArea;
     private boolean isLastAttackCrit;
-    private final Random random;
-    Mob target;
-    Mob[] enemyTeam;
+    private Team team;
+    private Mob target;
 
-    Mob(String name, int health, int damage,  Mob[] enemyTeam, Random random) {
-        this.setName(name);
-        this.setHealth(health);
-        this.setDamage(damage);
-        this.criticalDamageChance = random.nextFloat();
-        this.random = random;
-        this.enemyTeam = enemyTeam;
+    public Mob(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, Fight fight, Team team) {
+        this.name = name;
+        this.health = health;
+        this.damage = damage;
+        this.criticalDamageChance = criticalDamageChance;
+        this.fight = fight;
+        this.team = team;
+        this.criticalDamageMultiplier = criticalDamageMultiplier;
+        this.successfulBlockDamageScaler = successfulBlockDamageScaler;
     }
 
-    String getName() {
+    public int getCriticalDamageMultiplier() {
+        return criticalDamageMultiplier;
+    }
+
+    public int getSuccessfulBlockDamageScaler() {
+        return successfulBlockDamageScaler;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public String getName() {
         return name;
     }
 
-    private void setName(String name) {
-        this.name = name;
-    }
-
-    int getHealth() {
+    public int getHealth() {
         return health;
-    }
-
-    boolean isLastAttackCrit() {
-        return isLastAttackCrit;
     }
 
     private void setHealth(int health) {
         this.health = health;
     }
 
-    int getDamage() {
+    public boolean isLastAttackCrit() {
+        return isLastAttackCrit;
+    }
+
+    public int getDamage() {
         return damage;
     }
 
-    private void setDamage(int damage) {
-        this.damage = damage;
-    }
-
-    float getCriticalDamageChance() {
+    public float getCriticalDamageChance() {
         return criticalDamageChance;
     }
 
-    MobBodyAreas getAttackArea() {
+    public MobBodyAreas getAttackArea() {
         return attackArea;
     }
 
-    void setAttackArea(MobBodyAreas attackArea) {
+    public void setAttackArea(MobBodyAreas attackArea) {
         this.attackArea = attackArea;
     }
 
-    MobBodyAreas getDefendArea() {
+    public MobBodyAreas getDefendArea() {
         return defendArea;
     }
 
-    void setDefendArea(MobBodyAreas defendArea) {
+    public void setDefendArea(MobBodyAreas defendArea) {
         this.defendArea = defendArea;
     }
 
-    Mob getTarget() {
+    public Mob getTarget() {
         return target;
     }
 
-    void setTarget(Mob target) {
+    public void setTarget(Mob target) {
         this.target = target;
     }
 
-    void takeDamage(int damage, MobBodyAreas damagedArea) {
-        final int successfulBlockDamageScaler = 2;
+    public void takeDamage(int damage, MobBodyAreas damagedArea) {
         this.setHealth((damagedArea == getDefendArea()) ? this.getHealth() - damage / successfulBlockDamageScaler : this.getHealth() - damage);
     }
 
-    boolean isDoCriticalDamage() {
-        isLastAttackCrit = getCriticalDamageChance() - random.nextFloat() > 0;
+    public boolean isDoCriticalDamage() {
+        isLastAttackCrit = getCriticalDamageChance() - fight.gameState.getRandom().nextFloat() > 0;
         return (isLastAttackCrit);
     }
 
-    boolean isDead() {
-        return (health <=0);
+    public boolean isDead() {
+        return (health <= 0);
     }
 
-    abstract void defineDefendArea();
+    abstract public void defineDefendArea();
 
-    abstract void defineAttackArea();
+    abstract public void defineAttackArea();
 
-    abstract void defineTarget(Mob[] targets);
+    abstract public void defineTarget(ArrayList<Mob> targets);
 }
