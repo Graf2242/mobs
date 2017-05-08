@@ -1,0 +1,47 @@
+package graf.less;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+public class GameState {
+    private ArrayList<Team> teams = new ArrayList<>();
+    private ArrayList<Mob> participants = new ArrayList<>();
+    private Random random;
+
+    public GameState(Random random) {
+        this.random = random;
+
+    }
+
+    public Random getRandom() {
+        return random;
+    }
+
+    public ArrayList<Mob> getParticipants() {
+        participants.clear();
+        for (Team team : teams) {
+            participants.addAll(team.getParticipants());
+        }
+        return participants;
+    }
+
+    public ArrayList<Team> getTeams() {
+        return teams;
+    }
+
+    public ArrayList<Mob> getEnemies(Mob mob) {
+        ArrayList<Mob> enemies = new ArrayList<>();
+        ArrayList<Team> enemyTeams = new ArrayList<>();
+        enemyTeams.addAll(teams);
+        for (Team team : teams) {
+            if (team.getParticipants().contains(mob)) {
+                enemyTeams.remove(team);
+                for (Team enemyTeam : enemyTeams) {
+                    enemies.addAll(enemyTeam.getParticipants());
+                }
+            }
+        }
+        return enemies;
+    }
+}
+

@@ -1,23 +1,18 @@
 package graf.less;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
-import java.util.Scanner;
 
-class Fight {
+public class Fight {
 
-    private Mob[] team1;
-    private Mob[] team2;
-    private ArrayList<Mob> participants = new ArrayList<>();
+    public GameState gameState;
+
     private ArrayList<Action> actions = new ArrayList<>();
 
-    private Random random;
 
-
-    Fight(Random random) {
-        this.random = random;
-        createTeams();
+    public Fight(int teamsCount, int participantNumberEachTeam, int playersCount, Random random) {
+        gameState = new GameState(random);
+        createTeams(teamsCount, participantNumberEachTeam, playersCount);
         startFight();
     }
 
@@ -25,7 +20,7 @@ class Fight {
         fillStepActions();
 
         for (Action action : actions) {
-            if (isGameOver()) {
+            if (isGameOver(false)) {
                 return;
             }
             action.step();
@@ -35,19 +30,18 @@ class Fight {
 
     private void fillStepActions() {
         actions.clear();
-        Collections.addAll(actions, team1);
-        Collections.addAll(actions, team2);
+        for (Team team : gameState.getTeams()) {
+            actions.addAll(team.getParticipants());
+        }
 
-        ArrayList<Mob> stepParticipantsQueue = getRandomizedQueue(participants);
+        ArrayList<Mob> stepParticipantsQueue = getRandomizedQueue(gameState.getParticipants());
 
         for (Mob mob : stepParticipantsQueue) {
             actions.add(new DefineAttackOptionsAction(mob));
             actions.add(new AttackAction(mob));
-            actions.add(new PrintStateAction(mob));
         }
     }
 
-    //Берет список участников и возвращает в случайном порядке
     private ArrayList<Mob> getRandomizedQueue(ArrayList<Mob> queue) {
         ArrayList<Integer> queueNumbers = new ArrayList<>();
         ArrayList<Mob> resultQueue = new ArrayList<>();
@@ -57,90 +51,78 @@ class Fight {
         }
 
         while (!queueNumbers.isEmpty()) {
-            int position = random.nextInt(queueNumbers.size());
+            int position = gameState.getRandom().nextInt(queueNumbers.size());
             resultQueue.add(queue.get(queueNumbers.get(position)));
             queueNumbers.remove(position);
         }
         return resultQueue;
     }
 
-    private boolean teamIsDead(Mob[] team) {
-        for (Mob mob : team) {
-            if (!mob.isDead()) return false;
+    private boolean teamIsLive(Team team) {
+        for (Mob mob : team.getParticipants()) {
+            if (!mob.isDead()) return true;
         }
-        return true;
+        return false;
     }
 
     private void startFight() {
-        Collections.addAll(participants, team1);
-        Collections.addAll(participants, team2);
-
         printFullMobsState();
-        while (!isGameOver()) {
+        while (!isGameOver(true)) {
             step();
         }
     }
 
-    private boolean isGameOver() {
+    private int aliveTeamCount() {
+        int result = 0;
+        for (Team team : gameState.getTeams()) {
+            if (teamIsLive(team)) {
+                result++;
+            }
+        }
+        return result;
+    }
 
-        if (teamIsDead(team1) && teamIsDead(team2)) {
-            System.out.println("Обе команды мертвы");
-            return true;
-        }
-        if (teamIsDead(team1)) {
-            System.out.println(("Первая команда мертва"));
-            return true;
-        }
-        if (teamIsDead(team2)) {
-            System.out.println(("Вторая команда мертва"));
+    private boolean isGameOver(boolean needPrint) {
+        if (aliveTeamCount() < 2) {
+            for (Team team : gameState.getTeams()) {
+                if (teamIsLive(team)) {
+                    if (needPrint) {
+                        System.out.println("Победила " + team.getName());
+                    }
+                    return true;
+                }
+            }
+            if (needPrint) {
+                System.out.println("Все команды мертвы");
+            }
             return true;
         }
         return false;
     }
 
-    private void createTeams() {
-        System.out.println("Введите количество участников для одной команды:");
-        Scanner scanner = new Scanner(System.in);
-        int participantNumberEachTeam = scanner.nextInt();
-        int firstTeamPlayers;
-        int secondTeamPlayers;
+    private void createTeams(int teamsCount, int participantNumberEachTeam, int players) {
 
-        do {
-            System.out.println("Введите количество игроков в 1й команде:");
-            firstTeamPlayers = scanner.nextInt();
-        }
-        while (firstTeamPlayers > participantNumberEachTeam);
+        for (int i = 0; i < teamsCount; i++) {
+            Team team = new Team("Team" + gameState.getTeams().size(), new ArrayList<>());
+            gameState.getTeams().add(team);
+            for (int j = 0; j < participantNumberEachTeam; j++) {
+                if (players > 0) {
+                    team.getParticipants().add(new Avatar("Avatar" + j, RandomMobStats.makeDefaultHealth(gameState.getRandom()), RandomMobStats.makeDefaultDamage(gameState.getRandom()), gameState.getRandom().nextFloat(), 2, 2, this, team));
+                    players--;
+                    continue;
+                }
+                team.getParticipants().add(new Npc("Mob" + j, RandomMobStats.makeDefaultHealth(gameState.getRandom()), RandomMobStats.makeDefaultDamage(gameState.getRandom()), gameState.getRandom().nextFloat(), 2, 2, this, team));
 
-        do {
-            System.out.println("Введите количество игроков во 2й команде:");
-            secondTeamPlayers = scanner.nextInt();
-        } while (secondTeamPlayers > participantNumberEachTeam);
-        team1 = new Mob[participantNumberEachTeam];
-        team2 = new Mob[participantNumberEachTeam];
-
-        for (int i = 0; i < firstTeamPlayers; i++) {
-            team1[i] = new Avatar("t1.Avatar" + i, RandomizedDefaults.makeDefaultHealth(random), RandomizedDefaults.makeDefaultDamage(random), team2, random);
-        }
-        for (int i = firstTeamPlayers; i < participantNumberEachTeam; i++) {
-            team1[i] = new Npc("t1.NPC" + i, RandomizedDefaults.makeDefaultHealth(random), RandomizedDefaults.makeDefaultDamage(random), team2, random);
-        }
-        for (int i = 0; i < secondTeamPlayers; i++) {
-            team2[i] = new Avatar("t2.Avatar" + i, RandomizedDefaults.makeDefaultHealth(random), RandomizedDefaults.makeDefaultDamage(random), team1, random);
-        }
-        for (int i = secondTeamPlayers; i < participantNumberEachTeam; i++) {
-            team2[i] = new Npc("t2.NPC" + i, RandomizedDefaults.makeDefaultHealth(random), RandomizedDefaults.makeDefaultDamage(random), team1, random);
+            }
         }
     }
 
     private void printFullMobsState() {
-
-        System.out.println("Команда 1:");
-        for (Mob mob : team1) {
-            System.out.println(mob.getName() + " HP: " + mob.getHealth() + " damage: " + mob.getDamage() + " critChance: " + mob.getCriticalDamageChance());
-        }
-        System.out.println("Команда 2:");
-        for (Mob mob : team2) {
-            System.out.println(mob.getName() + " HP: " + mob.getHealth() + " damage: " + mob.getDamage() + " critChance: " + mob.getCriticalDamageChance());
+        for (Team team : gameState.getTeams()) {
+            System.out.println(team.getName());
+            for (Mob mob : team.getParticipants()) {
+                System.out.println(mob.getName() + " HP: " + mob.getHealth() + " damage: " + mob.getDamage() + " critChance: " + mob.getCriticalDamageChance());
+            }
         }
     }
 

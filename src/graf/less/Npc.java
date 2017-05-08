@@ -1,36 +1,34 @@
 package graf.less;
 
-import java.util.Random;
+import java.util.ArrayList;
 
 class Npc extends Mob {
-    private final Random random;
 
-    Npc(String name, int health, int damage, Mob[] enemyTeam, Random random) {
-        super(name, health, damage, enemyTeam, random);
-        this.random = random;
+    Npc(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, Fight fight, Team team) {
+        super(name, health, damage, criticalDamageChance, criticalDamageMultiplier, successfulBlockDamageScaler, fight, team);
     }
 
     @Override
-    void defineDefendArea() {
+    public void defineDefendArea() {
         setDefendArea(selectArea());
     }
 
     @Override
-    void defineAttackArea() {
+    public void defineAttackArea() {
         setAttackArea(selectArea());
     }
 
     private MobBodyAreas selectArea() {
-        int option = random.nextInt(MobBodyAreas.values().length);
+        int option = fight.gameState.getRandom().nextInt(MobBodyAreas.values().length);
         MobBodyAreas[] areas = MobBodyAreas.values();
         return areas[option];
     }
 
     @Override
-    void defineTarget(Mob[] targets) {
-        setTarget(targets[random.nextInt(targets.length)]);
-        while (target.isDead()) {
-            setTarget(targets[random.nextInt(targets.length)]);
+    public void defineTarget(ArrayList<Mob> targets) {
+        setTarget(targets.get(fight.gameState.getRandom().nextInt(targets.size())));
+        while (getTarget().isDead()) {
+            setTarget(targets.get(fight.gameState.getRandom().nextInt(targets.size())));
         }
     }
 
