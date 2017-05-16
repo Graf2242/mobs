@@ -88,7 +88,7 @@ abstract class Mob implements Action {
         this.target = target;
     }
 
-    public void takeDamage(int damage, MobBodyAreas damagedArea) {
+    public void takeDamage(Mob attacker, int damage, MobBodyAreas damagedArea) {
         this.setHealth((damagedArea == getDefendArea()) ? this.getHealth() - damage / successfulBlockDamageScaler : this.getHealth() - damage);
     }
 

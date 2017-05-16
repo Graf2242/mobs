@@ -12,7 +12,7 @@ public class DefineAttackOptionsAction implements Action {
         if (mob.isDead()) {
             return;
         }
-        mob.defineTarget(mob.fight.gameState.getEnemies(mob));
+        mob.defineTarget(mob.fight.gameState.getAliveEnemies(mob));
         mob.defineAttackArea();
     }
 }

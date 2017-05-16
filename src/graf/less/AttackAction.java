@@ -13,7 +13,7 @@ public class AttackAction implements Action {
             return;
         }
         int damage = mob.isDoCriticalDamage() ? mob.getDamage() * mob.getCriticalDamageMultiplier() : mob.getDamage();
-        mob.getTarget().takeDamage(damage, mob.getAttackArea());
+        mob.getTarget().takeDamage(mob, damage, mob.getAttackArea());
         new PrintStateAction(mob).step();
     }
 }

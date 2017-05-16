@@ -29,7 +29,7 @@ public class GameState {
         return teams;
     }
 
-    public ArrayList<Mob> getEnemies(Mob mob) {
+    public ArrayList<Mob> getAliveEnemies(Mob mob) {
         ArrayList<Mob> enemies = new ArrayList<>();
         ArrayList<Team> enemyTeams = new ArrayList<>();
         enemyTeams.addAll(teams);
@@ -37,6 +37,7 @@ public class GameState {
             if (team.getParticipants().contains(mob)) {
                 enemyTeams.remove(team);
                 for (Team enemyTeam : enemyTeams) {
+                    enemyTeam.getParticipants().removeIf(enemy -> enemy.getHealth() < 1);
                     enemies.addAll(enemyTeam.getParticipants());
                 }
             }
