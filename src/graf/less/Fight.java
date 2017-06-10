@@ -103,7 +103,7 @@ public class Fight {
     private void createTeams(int teamsCount, int participantNumberEachTeam, int players) {
 
         for (int i = 0; i < teamsCount; i++) {
-            Team team = new Team("Team" + gameState.getTeams().size(), new ArrayList<>());
+            Team team = new Team("Team" + gameState.getTeams().size(), new SimpleArrayList<>(participantNumberEachTeam));
             gameState.getTeams().add(team);
             for (int j = 0; j < participantNumberEachTeam; j++) {
                 if (players > 0) {
@@ -125,5 +125,4 @@ public class Fight {
             }
         }
     }
-
 }

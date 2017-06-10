@@ -1,6 +1,7 @@
 package graf.less;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class GameState {
@@ -37,8 +38,9 @@ public class GameState {
             if (team.getParticipants().contains(mob)) {
                 enemyTeams.remove(team);
                 for (Team enemyTeam : enemyTeams) {
-                    enemyTeam.getParticipants().removeIf(enemy -> enemy.getHealth() < 1);
-                    enemies.addAll(enemyTeam.getParticipants());
+                    List<Mob> participants = enemyTeam.getParticipants();
+                    participants.removeIf(enemy -> enemy.getHealth() < 1);
+                    enemies.addAll(participants);
                 }
             }
         }

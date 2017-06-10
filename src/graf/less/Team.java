@@ -1,21 +1,22 @@
 package graf.less;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Team {
-    private ArrayList<Mob> participants = new ArrayList<>();
+    private List<Mob> participants;
     private String name;
 
-    public Team(String name, ArrayList<Mob> participants) {
+    public Team(String name, List<Mob> participants) {
         this.name = name;
         this.participants = participants;
+
     }
 
     public String getName() {
         return name;
     }
 
-    public ArrayList<Mob> getParticipants() {
+    public List<Mob> getParticipants() {
         return participants;
     }
 

@@ -16,18 +16,18 @@ public class GameLoop {
         System.out.println("Введите количество участников для одной команды:");
         Scanner scanner = new Scanner(System.in);
         int participantNumberEachTeam = scanner.nextInt();
-        int firstTeamPlayers;
+        int teamPlayers;
         int teamsCount;
 
         System.out.println("Введите количество команд:");
         teamsCount = scanner.nextInt();
         do {
-            System.out.println("Введите количество игроков в 1й команде:");
-            firstTeamPlayers = scanner.nextInt();
+            System.out.println("Введите количество игроков в команде:");
+            teamPlayers = scanner.nextInt();
         }
-        while (firstTeamPlayers > participantNumberEachTeam);
+        while (teamPlayers > participantNumberEachTeam);
 
-        new Fight(teamsCount, participantNumberEachTeam, firstTeamPlayers, random);
+        new Fight(teamsCount, participantNumberEachTeam, teamPlayers, random);
     }
 
 
