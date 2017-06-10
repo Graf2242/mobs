@@ -35,14 +35,14 @@ public class Avatar extends Mob {
     public void defineTarget(ArrayList<Mob> targets) {
         do {
             System.out.println(getName() + ": Выберите цель:");
-            for (int i = 0; i < fight.gameState.getAliveEnemies(this).size(); i++) {
-                int j = i + 1;
-                System.out.println((j + ". " + fight.gameState.getAliveEnemies(this).get(i).getName() + ". HP: " + fight.gameState.getAliveEnemies(this).get(i).getHealth()));
-            }
-            Scanner scanner = new Scanner(System.in);
-            setTarget(fight.gameState.getAliveEnemies(this).get(scanner.nextInt() - 1));
-            if (getTarget().isDead()) {
-                System.out.println("Выбранная цель мертва");
+            int i = 0;
+            for (Mob mob : fight.gameState.getAliveEnemies(this)) {
+                System.out.println((++i + ". " + mob.getName() + ". HP: " + mob.getHealth()));
+                Scanner scanner = new Scanner(System.in);
+                setTarget(fight.gameState.getAliveEnemies(this).get(scanner.nextInt() - 1));
+                if (getTarget().isDead()) {
+                    System.out.println("Выбранная цель мертва");
+                }
             }
         } while (getTarget().isDead());
     }
