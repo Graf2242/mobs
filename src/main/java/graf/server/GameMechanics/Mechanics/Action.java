@@ -1,4 +1,4 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 public interface Action {
     void step();

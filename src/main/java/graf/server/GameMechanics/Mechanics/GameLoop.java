@@ -1,4 +1,4 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 import java.util.Random;
 import java.util.Scanner;

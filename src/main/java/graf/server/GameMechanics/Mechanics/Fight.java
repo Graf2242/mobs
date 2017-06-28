@@ -1,15 +1,15 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Fight {
 
-    public GameState gameState;
+    public final GameState gameState;
 
-    private ArrayList<Action> actions = new ArrayList<>();
+    private final ArrayList<Action> actions = new ArrayList<>();
 
-
+    //TODO переделать тут все!!!
     public Fight(int teamsCount, int participantNumberEachTeam, int playersCount, Random random) {
         gameState = new GameState(random);
         createTeams(teamsCount, participantNumberEachTeam, playersCount);

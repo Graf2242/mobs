@@ -1,4 +1,4 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 public class AttackAction implements Action {
     private final Mob mob;

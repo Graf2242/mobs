@@ -1,10 +1,10 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 import java.util.List;
 
 public class Team {
-    private List<Mob> participants;
-    private String name;
+    private final List<Mob> participants;
+    private final String name;
 
     public Team(String name, List<Mob> participants) {
         this.name = name;

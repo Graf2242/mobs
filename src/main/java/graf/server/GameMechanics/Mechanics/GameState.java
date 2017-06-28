@@ -1,12 +1,12 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class GameState {
-    private ArrayList<Team> teams = new ArrayList<>();
-    private Random random;
+    final private ArrayList<Team> teams = new ArrayList<>();
+    final private Random random;
 
     public GameState(Random random) {
         this.random = random;

@@ -1,4 +1,4 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 import java.util.ArrayList;
 
@@ -8,13 +8,13 @@ abstract class Mob implements Action {
     private final int criticalDamageMultiplier;
     private final int successfulBlockDamageScaler;
     private final float criticalDamageChance;
-    private String name;
+    private final String name;
+    private final int damage;
+    private final Team team;
     private int health;
-    private int damage;
     private MobBodyAreas attackArea;
     private MobBodyAreas defendArea;
     private boolean isLastAttackCrit;
-    private Team team;
     private Mob target;
 
     public Mob(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, Fight fight, Team team) {

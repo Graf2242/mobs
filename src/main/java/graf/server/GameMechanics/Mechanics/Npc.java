@@ -1,4 +1,4 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 class Npc extends Mob {
-    private Map<Mob, Integer> agreList = new HashMap<>();
-    private int agreReduce;
+    final private Map<Mob, Integer> agreList = new HashMap<>();
+    final private int agreReduce;
 
     Npc(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, Fight fight, Team team) {
         super(name, health, damage, criticalDamageChance, criticalDamageMultiplier, successfulBlockDamageScaler, fight, team);

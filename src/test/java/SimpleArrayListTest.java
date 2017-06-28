@@ -1,4 +1,4 @@
-import graf.less.SimpleArrayList;
+import graf.server.GameMechanics.Mechanics.SimpleArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 

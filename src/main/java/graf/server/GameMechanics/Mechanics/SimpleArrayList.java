@@ -1,10 +1,10 @@
-package graf.less;
+package graf.server.GameMechanics.Mechanics;
 
 import java.util.*;
 
 public class SimpleArrayList<T> implements List<T> {
 
-    private Object[] values;
+    private final Object[] values;
     private Integer size;
 
     public SimpleArrayList(int maxSize) {
