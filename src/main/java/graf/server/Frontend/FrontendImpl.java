@@ -14,6 +14,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +27,12 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
     public FrontendImpl(MasterService MasterService) {
         this.masterService = MasterService;
+    }
+
+    private static String getUserDateFull(Long time) {
+        Date date = new Date(time);
+        DateFormat formatter = new SimpleDateFormat("mm:ss");
+        return formatter.format(date);
     }
 
     public MasterService getMasterService() {
@@ -78,12 +87,16 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
             masterService.addMessage(new ASFindUserIdMessage(address, name));
             response.getWriter().println("<h1>Wait for authorization</h1>");
         } else {
-            response.getWriter().println("<h1>User name: " + name + " Id: " + userId + "</h1>");
+            response.getWriter().println("<h1>User name: " + session.getUserName() + " Id: " + session.getUserId() + " , sessionTime = " + getUserDateFull(session.getSessionTime()) + "</h1>");
         }
     }
 
-    public void updateUserId(String userName, Integer userId) {
-        sessions.get(userName).setUserId(userId);
+    public boolean updateUserId(String userName, Integer userId) {
+        if (sessions.get(userName).getUserId() == null) {
+            sessions.get(userName).setUserId(userId);
+            return true;
+        }
+        return false;
     }
 
     @Override

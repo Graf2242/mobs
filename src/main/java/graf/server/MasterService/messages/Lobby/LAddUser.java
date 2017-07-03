@@ -34,7 +34,9 @@ public class LAddUser extends _LobbyMessageTemplate {
         }
         LobbyUserSession lobbyUserInfo = new LobbyUserSession(userId, userName);
         lobbyUserInfo.setSessionId(sessionId);
-        lobby.registerUser(lobbyUserInfo);
-        lobby.getMasterService().addMessage(new FUpdateSessions(lobby.getAddress(), userId, UserSessionStatus.Lobby));
+        if (!lobby.getUsers().contains(lobbyUserInfo)) {
+            lobby.registerUser(lobbyUserInfo);
+            lobby.getMasterService().addMessage(new FUpdateSessions(lobby.getAddress(), userId, UserSessionStatus.Lobby));
+        }
     }
 }

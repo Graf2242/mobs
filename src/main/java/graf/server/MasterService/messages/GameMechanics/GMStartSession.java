@@ -24,6 +24,8 @@ public class GMStartSession extends _GameMechanicsMessageTemplate {
             System.out.println(node);
             ex.printStackTrace();
         }
-        gameMechanics.registerGMSession(userIds);
+        if (!gameMechanics.hasSession(userIds)) {
+            gameMechanics.registerGMSession(userIds);
+        }
     }
 }

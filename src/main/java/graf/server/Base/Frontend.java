@@ -5,7 +5,7 @@ import graf.server.Frontend.FrontendUserSession;
 public interface Frontend extends Node, Runnable {
     MasterService getMasterService();
 
-    void updateUserId(String userName, Integer userId);
+    boolean updateUserId(String userName, Integer userId);
 
     FrontendUserSession getSessionByUserId(Integer userId);
 

@@ -27,8 +27,8 @@ public class FAddUserMessage extends _FrontendMessageTemplate {
         if (frontend == null) {
             return;
         }
-        frontend.updateUserId(userName, userId);
-
-        frontend.getMasterService().addMessage(new LAddUser(frontend.getAddress(), userId, userName, frontend.getSessionId(userName)));
+        if (frontend.updateUserId(userName, userId)) {
+            frontend.getMasterService().addMessage(new LAddUser(frontend.getAddress(), userId, userName, frontend.getSessionId(userName)));
+        }
     }
 }

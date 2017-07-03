@@ -7,13 +7,15 @@ import graf.server.GameMechanics.Mechanics.Fight;
 import graf.server.MasterService.messages.Frontend.FUpdateSessions;
 import graf.server.Utils.TickSleeper;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class GameMechanicsImpl implements GameMechanics {
     private final MasterService masterService;
     Address address = new Address();
-    List<GameMechanicsSession> sessions = new ArrayList<>();
+    Set<GameMechanicsSession> sessions = new HashSet<>();
     Set<GameMechanicsSession> updatedSessions = new HashSet<>();
     Random random = new Random();
     Logger log = Logger.getLogger("GameMechanics");
@@ -48,17 +50,23 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     private void sendUpdatesToFrontend() {
-        if (!updatedSessions.isEmpty()) {
-
-
-            masterService.addMessage(new FUpdateSessions(address, updatedSessions));
-        }
+        masterService.addMessage(new FUpdateSessions(address, sessions));
     }
 
     public void registerGMSession(Set<Integer> userIDs) {
         GameMechanicsSession session = new GameMechanicsSession(userIDs);
         sessions.add(session);
         log.info("New session registered!");
-        session.setFight(new Fight(2, 5, 1, random));
+        session.setFight(new Fight(2, 5, 0, random));
+    }
+
+    @Override
+    public boolean hasSession(Set<Integer> userIds) {
+        for (GameMechanicsSession session : sessions) {
+            if (session.getUserIds().equals(userIds)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

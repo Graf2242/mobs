@@ -5,9 +5,18 @@ public class FrontendUserSession {
     UserSessionStatus status = UserSessionStatus.Connected;
     private Integer sessionId;
     private Integer userId;
+    private long sessionTime;
 
     public FrontendUserSession(String userName) {
         this.userName = userName;
+    }
+
+    public long getSessionTime() {
+        return sessionTime;
+    }
+
+    public void setSessionTime(long sessionTime) {
+        this.sessionTime = sessionTime;
     }
 
     public UserSessionStatus getStatus() {

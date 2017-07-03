@@ -45,6 +45,8 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
                 for (Integer userId : session.getUserIds()) {
                     FrontendUserSession frontendUserSession = frontend.getSessionByUserId(userId);
                     frontendUserSession.setStatus(status);
+                    long sessionTime = session.getSessionTime();
+                    frontendUserSession.setSessionTime(sessionTime);
                     //AnyMoreDataHere
                 }
             }
