@@ -496,4 +496,36 @@ public class SimpleArrayListTest {
         Assert.assertEquals(list.containsAll(list2), false);
     }
 
+    @Test
+    public void retainAllTest() {
+        List<Integer> list = new SimpleArrayList<>(10);
+        List<Integer> list1 = new SimpleArrayList<>(10);
+        List<Integer> list2 = new SimpleArrayList<>(10);
+
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(1);
+        list.add(1);
+
+        list1.add(1);
+        list1.add(2);
+        list1.add(1);
+        list1.add(1);
+
+        list2.add(1);
+        list2.add(2);
+
+        list.retainAll(list2);
+
+        Assert.assertEquals(list, list1);
+    }
+
+//    @Test
+//    public void outT() throws Throwable {
+//        new AddAll().main(new String[]{});
+//        new IteratorMicroBenchmark().main(new String[]{});
+//        new RangeCheckMicroBenchmark().main(new String[]{});
+//    }
+
 }
