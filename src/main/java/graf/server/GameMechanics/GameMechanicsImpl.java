@@ -5,6 +5,7 @@ import graf.server.Base.GameMechanics;
 import graf.server.Base.MasterService;
 import graf.server.GameMechanics.Mechanics.Fight;
 import graf.server.MasterService.messages.Frontend.FUpdateSessions;
+import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.TickSleeper;
 
 import java.util.HashSet;
@@ -21,7 +22,7 @@ public class GameMechanicsImpl implements GameMechanics {
     Logger log = Logger.getLogger("GameMechanics");
 
 
-    public GameMechanicsImpl(MasterService masterService) {
+    public GameMechanicsImpl(MasterService masterService, ResourceFactory resourceFactory) {
         this.masterService = masterService;
     }
 

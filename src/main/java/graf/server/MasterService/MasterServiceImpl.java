@@ -4,6 +4,7 @@ import graf.server.Base.Address;
 import graf.server.Base.MasterService;
 import graf.server.Base.Message;
 import graf.server.Base.Node;
+import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.TickSleeper;
 import org.omg.CORBA.WrongTransaction;
 
@@ -16,6 +17,13 @@ public class MasterServiceImpl implements MasterService {
     final private Map<Address, Queue<Message>> messages = new HashMap<>();
     final private Map<Class<? extends Node>, List<Address>> nodes = new HashMap<>();
     final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
+    private ResourceFactory resourceFactory;
+
+    public MasterServiceImpl(ResourceFactory resourceFactory) {
+
+        this.resourceFactory = resourceFactory;
+    }
+
 
     public void register(Node node) {
         List<Address> currentAddresses = nodes.get(node.getClass());

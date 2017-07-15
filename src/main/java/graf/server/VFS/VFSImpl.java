@@ -1,6 +1,8 @@
 package graf.server.VFS;
 
+import graf.server.Base.Resource;
 import graf.server.Base.VFS;
+import graf.server.Utils.Serialization.Serializator;
 
 import java.io.*;
 import java.util.Arrays;
@@ -22,7 +24,7 @@ public class VFSImpl implements VFS {
 
     @Override
     public boolean isDirectory(String path) {
-        return new File(root + path).isDirectory();
+        return new File(path).isDirectory();
     }
 
     @Override
@@ -40,6 +42,17 @@ public class VFSImpl implements VFS {
         fileReader.close();
         return result[0].getBytes();
     }
+
+    @Override
+    public void writeBinResource(Object o, Class<? extends Resource> clazz, String path) {
+        Serializator.serializeToFileBin(o, root + path);
+    }
+
+    @Override
+    public <T> T readBinResource(String path) {
+        return Serializator.deserializeBinFile(path);
+    }
+
 
     @Override
     public String getUFT8Text(String file) throws IOException {
@@ -66,7 +79,7 @@ public class VFSImpl implements VFS {
         private Queue<File> files = new LinkedList<>();
 
         public iter(String path) {
-            files.add(new File(root + path));
+            files.add(new File(path));
         }
 
         @Override

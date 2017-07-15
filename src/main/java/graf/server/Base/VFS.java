@@ -12,6 +12,10 @@ public interface VFS {
 
     byte[] getBytes(String file) throws IOException;
 
+    void writeBinResource(Object o, Class<? extends Resource> clazz, String path);
+
+    <T> T readBinResource(String path);
+
     String getUFT8Text(String file) throws IOException;
 
     Iterator<String> getIterator(String startDir);

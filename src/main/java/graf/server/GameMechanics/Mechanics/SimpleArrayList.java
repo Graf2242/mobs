@@ -4,8 +4,8 @@ import java.util.*;
 
 public class SimpleArrayList<T> implements List<T> {
 
-    private final Object[] values;
-    private Integer size;
+    private Object[] values;
+    private int size;
 
     public SimpleArrayList(int maxSize) {
         this.values = new Object[maxSize];
@@ -19,22 +19,14 @@ public class SimpleArrayList<T> implements List<T> {
 
     @Override
     public boolean isEmpty() {
-        return size.equals(0);
+        return Objects.equals(size, 0);
     }
 
     @Override
     public boolean contains(Object o) {
-        if (o == null) {
-            for (int i = 0; i < size; i++) {
-                if ((values[i]) == null) {
-                    return true;
-                }
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                if (o.equals(values[i])) {
-                    return true;
-                }
+        for (int i = 0; i < size; i++) {
+            if (Objects.equals(o, values[i])) {
+                return true;
             }
         }
         return false;
@@ -81,19 +73,11 @@ public class SimpleArrayList<T> implements List<T> {
 
     @Override
     public boolean remove(Object o) {
-        if (o == null) {
-            for (int i = 0; i < size; i++) {
-                if (values[i] == null) {
-                    System.arraycopy(values, i + 1, values, i, values.length - 1 - i);
-                    values[--size] = null;
-                }
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                if (Objects.equals(o, values[i])) {
-                    System.arraycopy(values, i + 1, values, i, values.length - 1 - i);
-                    values[--size] = null;
-                }
+        for (int i = 0; i < size; i++) {
+            if (Objects.equals(o, values[i])) {
+                System.arraycopy(values, i + 1, values, i, values.length - 1 - i);
+                values[--size] = null;
+                return true;
             }
         }
         return false;
@@ -112,10 +96,15 @@ public class SimpleArrayList<T> implements List<T> {
 
     @Override
     public boolean addAll(int index, Collection<? extends T> c) {
+        if (size + c.size() > values.length) {
+            throw new IndexOutOfBoundsException();
+        }
+        System.arraycopy(values, index, values, index + c.size(), size - index);
         int i = 0;
         for (T t : c) {
-            add(index + (i++), t);
+            values[index + (i++)] = t;
         }
+        size += c.size();
         return true;
     }
 
@@ -149,7 +138,7 @@ public class SimpleArrayList<T> implements List<T> {
 
     @Override
     public void add(int index, Object element) {
-        if (!(size < values.length) || index > size) {
+        if (!(size < values.length) || index > size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
         System.arraycopy(values, index, values, index + 1, size - index);
@@ -187,17 +176,9 @@ public class SimpleArrayList<T> implements List<T> {
 
     @Override
     public int lastIndexOf(Object o) {
-        if (o == null) {
-            for (int i = size - 1; i > 0; i--) {
-                if (values[i] == null) {
-                    return i;
-                }
-            }
-        } else {
-            for (int i = size - 1; i > 0; i--) {
-                if (Objects.equals(o, values[i])) {
-                    return i;
-                }
+        for (int i = size - 1; i > 0; i--) {
+            if (Objects.equals(o, values[i])) {
+                return i;
             }
         }
         return -1;
@@ -223,13 +204,23 @@ public class SimpleArrayList<T> implements List<T> {
 
     @Override
     public boolean retainAll(Collection c) {
-        throw new UnsupportedOperationException();
+        boolean result = false;
+        for (Object value : values) {
+            if (!c.contains(value)) {
+                remove(value);
+                result = true;
+            }
+        }
+        return result;
     }
 
     @Override
     public boolean removeAll(Collection c) {
-        for (Object o : c) {
-            remove(o);
+        for (int i = 0; i < values.length; i++) {
+            if (c.contains(values[i])) {
+                remove(values[i]);
+                i--;
+            }
         }
         return true;
     }
@@ -246,13 +237,19 @@ public class SimpleArrayList<T> implements List<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object[] toArray(Object[] a) {
-        throw new UnsupportedOperationException();
+    public T[] toArray(Object[] a) {
+        if (a.length < size) {
+            return Arrays.copyOf(values, size, (Class<? extends T[]>) a.getClass());
+        }
+        System.arraycopy(values, 0, a, 0, size);
+        if (a.length > size) {
+            a[size] = null;
+        }
+        return (T[]) a;
     }
 
     private class Itr implements Iterator<T> {
         int nextIndex = 0;
-        int lastRet = -1;
 
         @Override
         public boolean hasNext() {
@@ -261,21 +258,17 @@ public class SimpleArrayList<T> implements List<T> {
 
         @Override
         public T next() {
-            lastRet = nextIndex;
             return values(nextIndex++);
         }
 
         @Override
         public void remove() {
-            SimpleArrayList.this.remove(lastRet);
-            nextIndex = lastRet;
-            lastRet = -1;
+            SimpleArrayList.this.remove(--nextIndex);
         }
     }
 
     private class ListItr implements ListIterator {
         int nextIndex = 0;
-        int lastRet = -1;
 
         @Override
         public boolean hasNext() {
@@ -284,15 +277,12 @@ public class SimpleArrayList<T> implements List<T> {
 
         @Override
         public T next() {
-            lastRet = nextIndex;
             return values(nextIndex++);
         }
 
         @Override
         public void remove() {
-            SimpleArrayList.this.remove(lastRet);
-            nextIndex = lastRet;
-            lastRet = -1;
+            SimpleArrayList.this.remove(--nextIndex);
         }
 
         @Override
@@ -310,7 +300,7 @@ public class SimpleArrayList<T> implements List<T> {
             if (i >= values.length)
                 throw new ConcurrentModificationException();
             nextIndex = i;
-            return values[lastRet = i];
+            return values[i];
         }
 
         @Override
@@ -325,11 +315,8 @@ public class SimpleArrayList<T> implements List<T> {
 
         @Override
         public void set(Object o) {
-            if (lastRet < 0) {
-                throw new IllegalStateException();
-            }
             try {
-                SimpleArrayList.this.set(lastRet, o);
+                SimpleArrayList.this.set(nextIndex - 1, o);
             } catch (IndexOutOfBoundsException ex) {
                 throw new ConcurrentModificationException();
             }
@@ -341,7 +328,6 @@ public class SimpleArrayList<T> implements List<T> {
                 int i = nextIndex;
                 SimpleArrayList.this.add(i, o);
                 nextIndex = i + 1;
-                lastRet = -1;
             } catch (IndexOutOfBoundsException ex) {
                 throw new ConcurrentModificationException();
             }

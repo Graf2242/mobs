@@ -4,6 +4,8 @@ import graf.server.Base.Address;
 import graf.server.Base.Frontend;
 import graf.server.Base.MasterService;
 import graf.server.MasterService.messages.AccountServer.ASFindUserIdMessage;
+import graf.server.Utils.ResourceSystem.ResourceFactory;
+import graf.server.Utils.ResourceSystem.Resources.ServerConfig;
 import graf.server.Utils.TickSleeper;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -24,9 +26,11 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     private final Address address = new Address();
     private final MasterService masterService;
     private final Map<String, FrontendUserSession> sessions = new HashMap<>();
+    private ResourceFactory resourceFactory;
 
-    public FrontendImpl(MasterService MasterService) {
+    public FrontendImpl(MasterService MasterService, ResourceFactory resourceFactory) {
         this.masterService = MasterService;
+        this.resourceFactory = resourceFactory;
     }
 
     private static String getUserDateFull(Long time) {
@@ -56,10 +60,12 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     }
 
     private void startFrontend() {
+        ServerConfig config = (ServerConfig) resourceFactory.getResource("C:\\Users\\User\\IdeaProjects\\mobsG\\src\\main\\resources\\xmlSample");
         Server server = new Server();
 
         ServerConnector connector = new ServerConnector(server);
-        connector.setPort(8080);
+        connector.setHost(config.getIp());
+        connector.setPort(Integer.parseInt(config.getPort()));
         server.addConnector(connector);
         server.setHandler(this);
 

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graf.server.Utils.ResourceSystem.Resources.ServerConfig>
+    <ip>192.168.1.11</ip>
+    <port>8087</port>
+</graf.server.Utils.ResourceSystem.Resources.ServerConfig>

@@ -4,6 +4,7 @@ package graf.server.AccountService;
 import graf.server.Base.AccountService;
 import graf.server.Base.Address;
 import graf.server.Base.MasterService;
+import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.TickSleeper;
 
 import java.util.HashMap;
@@ -15,9 +16,11 @@ public class AccountServiceImpl implements AccountService {
     final private Address address = new Address();
     final private Map<String, Integer> users = new HashMap<>();
     final private AtomicInteger atomicInteger = new AtomicInteger();
+    private ResourceFactory resourceFactory;
 
-    public AccountServiceImpl(MasterService MasterService) {
+    public AccountServiceImpl(MasterService MasterService, ResourceFactory resourceFactory) {
         this.masterService = MasterService;
+        this.resourceFactory = resourceFactory;
     }
 
     public MasterService getMasterService() {

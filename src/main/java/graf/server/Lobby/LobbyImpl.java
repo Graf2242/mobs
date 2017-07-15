@@ -4,6 +4,7 @@ import graf.server.Base.Address;
 import graf.server.Base.Lobby;
 import graf.server.Base.MasterService;
 import graf.server.MasterService.messages.GameMechanics.GMStartSession;
+import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.TickSleeper;
 
 import java.util.HashSet;
@@ -16,9 +17,11 @@ public class LobbyImpl implements Lobby {
     private final MasterService masterService;
     private final Integer FIGHT_CAPACITY = 1;
     private final Set<LobbyUserSession> users = new HashSet<>();
+    private ResourceFactory resourceFactory;
 
-    public LobbyImpl(MasterService masterService) {
+    public LobbyImpl(MasterService masterService, ResourceFactory resourceFactory) {
         this.masterService = masterService;
+        this.resourceFactory = resourceFactory;
     }
 
     public Integer getFIGHT_CAPACITY() {
