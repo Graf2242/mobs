@@ -3,7 +3,6 @@ package graf.server.GameMechanics;
 import graf.server.Base.Address;
 import graf.server.Base.GameMechanics;
 import graf.server.Base.MasterService;
-import graf.server.GameMechanics.Mechanics.Fight;
 import graf.server.MasterService.messages.Frontend.FUpdateSessions;
 import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.TickSleeper;
@@ -20,10 +19,12 @@ public class GameMechanicsImpl implements GameMechanics {
     Set<GameMechanicsSession> updatedSessions = new HashSet<>();
     Random random = new Random();
     Logger log = Logger.getLogger("GameMechanics");
+    ResourceFactory resourceFactory;
 
 
-    public GameMechanicsImpl(MasterService masterService, ResourceFactory resourceFactory) {
+    public GameMechanicsImpl(MasterService masterService) {
         this.masterService = masterService;
+        this.resourceFactory = ResourceFactory.instance();
     }
 
     @Override
@@ -54,15 +55,15 @@ public class GameMechanicsImpl implements GameMechanics {
         masterService.addMessage(new FUpdateSessions(address, sessions));
     }
 
-    public void registerGMSession(Set<Integer> userIDs) {
+    public void registerGMSession(Set<Long> userIDs) {
         GameMechanicsSession session = new GameMechanicsSession(userIDs);
         sessions.add(session);
         log.info("New session registered!");
-        session.setFight(new Fight(2, 5, 0, random));
+//        session.setFight(new Fight(2, 5, 0, random));
     }
 
     @Override
-    public boolean hasSession(Set<Integer> userIds) {
+    public boolean hasSession(Set<Long> userIds) {
         for (GameMechanicsSession session : sessions) {
             if (session.getUserIds().equals(userIds)) {
                 return true;

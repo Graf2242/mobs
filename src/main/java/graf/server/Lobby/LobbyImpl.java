@@ -19,9 +19,9 @@ public class LobbyImpl implements Lobby {
     private final Set<LobbyUserSession> users = new HashSet<>();
     private ResourceFactory resourceFactory;
 
-    public LobbyImpl(MasterService masterService, ResourceFactory resourceFactory) {
+    public LobbyImpl(MasterService masterService) {
         this.masterService = masterService;
-        this.resourceFactory = resourceFactory;
+        this.resourceFactory = ResourceFactory.instance();
     }
 
     public Integer getFIGHT_CAPACITY() {
@@ -53,7 +53,7 @@ public class LobbyImpl implements Lobby {
     private void createFights() {
         Queue<LobbyUserSession> users = getQueuedUsers();
         while (!users.isEmpty()) {
-            Set<Integer> fightUsers = new HashSet<>();
+            Set<Long> fightUsers = new HashSet<>();
             for (int i = 0; i < FIGHT_CAPACITY; i++) {
                 fightUsers.add(users.poll().getUserId());
             }

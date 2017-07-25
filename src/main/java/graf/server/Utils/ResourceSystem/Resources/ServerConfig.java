@@ -5,29 +5,30 @@ import graf.server.Base.Resource;
 public class ServerConfig implements Resource {
     String ip;
     String port;
+    String databasePath;
+    String dbLogin;
+    String dbPass;
 
     public ServerConfig() {
     }
 
-    public ServerConfig(String ip, String port) {
+    public String getDatabasePath() {
+        return databasePath;
+    }
 
-        this.ip = ip;
-        this.port = port;
+    public String getDbLogin() {
+        return dbLogin;
+    }
+
+    public String getDbPass() {
+        return dbPass;
     }
 
     public String getIp() {
         return ip;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
     public String getPort() {
         return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
     }
 }

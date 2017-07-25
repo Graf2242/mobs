@@ -1,0 +1,5 @@
+CREATE TABLE public.dbinfo
+(
+    version bigint NOT NULL,
+    PRIMARY KEY (version)
+)

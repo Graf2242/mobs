@@ -8,9 +8,9 @@ import graf.server.GameMechanics.GameMechanicsImpl;
 import java.util.Set;
 
 public class GMStartSession extends _GameMechanicsMessageTemplate {
-    private final Set<Integer> userIds;
+    private final Set<Long> userIds;
 
-    public GMStartSession(Address from, Set<Integer> userIds) {
+    public GMStartSession(Address from, Set<Long> userIds) {
         super(from);
         this.userIds = userIds;
     }

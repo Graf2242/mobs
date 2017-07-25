@@ -8,6 +8,7 @@ import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.TickSleeper;
 import org.omg.CORBA.WrongTransaction;
 
+import java.sql.Connection;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
@@ -18,10 +19,11 @@ public class MasterServiceImpl implements MasterService {
     final private Map<Class<? extends Node>, List<Address>> nodes = new HashMap<>();
     final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
     private ResourceFactory resourceFactory;
+    Connection connection;
 
-    public MasterServiceImpl(ResourceFactory resourceFactory) {
-
-        this.resourceFactory = resourceFactory;
+    public MasterServiceImpl() {
+        this.resourceFactory = ResourceFactory.instance();
+        new DatabaseCreator();
     }
 
 

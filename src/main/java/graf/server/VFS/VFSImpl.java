@@ -24,7 +24,8 @@ public class VFSImpl implements VFS {
 
     @Override
     public boolean isDirectory(String path) {
-        return new File(path).isDirectory();
+        File file = new File(path);
+        return file.isDirectory();
     }
 
     @Override

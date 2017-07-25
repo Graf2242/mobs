@@ -1,9 +1,10 @@
 package graf.server.Frontend;
 
 public enum UserSessionStatus {
-    Connected,
-    Lobby,
-    Search,
-    Fight,
-    Inactive
+    CONNECTED,
+    LOBBY,
+    SEARCH,
+    FIGHT,
+    INACTIVE,
+    WRONG_LOGIN_INFO
 }

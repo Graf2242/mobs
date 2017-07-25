@@ -11,10 +11,10 @@ import java.util.Set;
 
 public class FUpdateSessions extends _FrontendMessageTemplate {
     private final Set<GameMechanicsSession> sessions;
-    private final Integer userId;
+    private final Long userId;
     private final UserSessionStatus status;
 
-    public FUpdateSessions(Address from, Integer userId, UserSessionStatus status) {
+    public FUpdateSessions(Address from, Long userId, UserSessionStatus status) {
         super(from);
         this.userId = userId;
         this.status = status;
@@ -25,7 +25,7 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
         super(from);
         this.sessions = sessions;
         userId = null;
-        status = UserSessionStatus.Fight;
+        status = UserSessionStatus.FIGHT;
     }
 
     @Override
@@ -42,10 +42,10 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
         }
         if (sessions != null) {
             for (GameMechanicsSession session : sessions) {
-                for (Integer userId : session.getUserIds()) {
+                for (Long userId : session.getUserIds()) {
                     FrontendUserSession frontendUserSession = frontend.getSessionByUserId(userId);
                     frontendUserSession.setStatus(status);
-                    long sessionTime = session.getSessionTime();
+                    Long sessionTime = session.getSessionTime();
                     frontendUserSession.setSessionTime(sessionTime);
                     //AnyMoreDataHere
                 }

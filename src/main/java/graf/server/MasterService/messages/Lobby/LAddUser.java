@@ -8,16 +8,14 @@ import graf.server.Lobby.LobbyUserSession;
 import graf.server.MasterService.messages.Frontend.FUpdateSessions;
 
 public class LAddUser extends _LobbyMessageTemplate {
-    private final Integer userId;
+    private final Long userId;
     private final String userName;
-    private final Integer sessionId;
 
 
-    public LAddUser(Address from, Integer userId, String userName, Integer sessionId) {
+    public LAddUser(Address from, Long userId, String userName) {
         super(from);
         this.userId = userId;
         this.userName = userName;
-        this.sessionId = sessionId;
     }
 
     @Override
@@ -33,10 +31,9 @@ public class LAddUser extends _LobbyMessageTemplate {
             return;
         }
         LobbyUserSession lobbyUserInfo = new LobbyUserSession(userId, userName);
-        lobbyUserInfo.setSessionId(sessionId);
         if (!lobby.getUsers().contains(lobbyUserInfo)) {
             lobby.registerUser(lobbyUserInfo);
-            lobby.getMasterService().addMessage(new FUpdateSessions(lobby.getAddress(), userId, UserSessionStatus.Lobby));
+            lobby.getMasterService().addMessage(new FUpdateSessions(lobby.getAddress(), userId, UserSessionStatus.LOBBY));
         }
     }
 }

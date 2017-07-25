@@ -1,25 +1,29 @@
 package graf.server.Lobby;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class LobbyUserSession {
-    private final Integer userId;
+    private static AtomicLong atomicLong = new AtomicLong();
+    private final Long userId;
     private final String userName;
     boolean isInFight = false;
-    private Integer sessionId;
+    private Long sessionId;
 
-    public LobbyUserSession(Integer userId, String userName) {
+    public LobbyUserSession(Long userId, String userName) {
         this.userId = userId;
         this.userName = userName;
+        this.sessionId = atomicLong.getAndIncrement();
     }
 
-    public Integer getSessionId() {
+    public Long getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(Integer sessionId) {
+    public void setSessionId(Long sessionId) {
         this.sessionId = sessionId;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return userId;
     }
 

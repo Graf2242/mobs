@@ -6,22 +6,22 @@ import java.util.Date;
 import java.util.Set;
 
 public class GameMechanicsSession {
-    private final Set<Integer> userIds;
-    private final long startTime;
+    private final Set<Long> userIds;
+    private final Long startTime;
     private Fight fight;
 
-    public GameMechanicsSession(Set<Integer> userIds) {
+    public GameMechanicsSession(Set<Long> userIds) {
         this.userIds = userIds;
         startTime = new Date().getTime();
 
     }
 
-    public long getStartTime() {
+    public Long getStartTime() {
         return startTime;
     }
 
-    public long getSessionTime() {
-        long time = new Date().getTime();
+    public Long getSessionTime() {
+        Long time = new Date().getTime();
         return time - startTime;
     }
 
@@ -33,7 +33,7 @@ public class GameMechanicsSession {
         this.fight = fight;
     }
 
-    public Set<Integer> getUserIds() {
+    public Set<Long> getUserIds() {
         return userIds;
     }
 }

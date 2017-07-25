@@ -1,21 +1,29 @@
 package graf.server.Frontend;
 
-public class FrontendUserSession {
-    private final String userName;
-    UserSessionStatus status = UserSessionStatus.Connected;
-    private Integer sessionId;
-    private Integer userId;
-    private long sessionTime;
+import java.util.concurrent.atomic.AtomicLong;
 
-    public FrontendUserSession(String userName) {
+public class FrontendUserSession {
+    private static AtomicLong atomicLong = new AtomicLong();
+    private String userName;
+    private UserSessionStatus status = UserSessionStatus.CONNECTED;
+    private Long sessionId;
+    private Long userId = null;
+    private Long sessionTime;
+
+    public FrontendUserSession() {
+        this.userName = userName;
+        this.sessionId = atomicLong.getAndIncrement();
+    }
+
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 
-    public long getSessionTime() {
+    public Long getSessionTime() {
         return sessionTime;
     }
 
-    public void setSessionTime(long sessionTime) {
+    public void setSessionTime(Long sessionTime) {
         this.sessionTime = sessionTime;
     }
 
@@ -27,19 +35,16 @@ public class FrontendUserSession {
         this.status = status;
     }
 
-    public Integer getSessionId() {
+    public Long getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(Integer sessionId) {
-        this.sessionId = sessionId;
-    }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

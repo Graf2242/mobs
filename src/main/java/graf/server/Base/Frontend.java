@@ -1,15 +1,20 @@
 package graf.server.Base;
 
 import graf.server.Frontend.FrontendUserSession;
+import graf.server.Frontend.UserSessionStatus;
 
 public interface Frontend extends Node, Runnable {
     MasterService getMasterService();
 
-    boolean updateUserId(String userName, Integer userId);
+    boolean updateUserId(Long sessionId, Long userId);
 
-    FrontendUserSession getSessionByUserId(Integer userId);
+    void updateSessionStatus(Long sessionId, UserSessionStatus status);
 
-    Integer getSessionId(String userName);
+    FrontendUserSession getSessionByUserId(Long userId);
+
+    Long getSessionId(String userName);
+
+    FrontendUserSession getSessionBySessionId(Integer userId);
 
     Address getAddress();
 

@@ -3,16 +3,15 @@ package graf.server.MasterService.messages.Frontend;
 import graf.server.Base.Address;
 import graf.server.Base.Frontend;
 import graf.server.Base.Node;
-import graf.server.MasterService.messages.Lobby.LAddUser;
 
 public class FAddUserMessage extends _FrontendMessageTemplate {
-    final Integer userId;
-    final String userName;
+    private final Long userId;
+    private final Long sessionId;
 
-    public FAddUserMessage(Address from, Integer userId, String userName) {
+    public FAddUserMessage(Address from, Long userId, Long sessionId) {
         super(from);
         this.userId = userId;
-        this.userName = userName;
+        this.sessionId = sessionId;
     }
 
     @Override
@@ -27,8 +26,7 @@ public class FAddUserMessage extends _FrontendMessageTemplate {
         if (frontend == null) {
             return;
         }
-        if (frontend.updateUserId(userName, userId)) {
-            frontend.getMasterService().addMessage(new LAddUser(frontend.getAddress(), userId, userName, frontend.getSessionId(userName)));
+        if (frontend.updateUserId(sessionId, userId)) {
         }
     }
 }
