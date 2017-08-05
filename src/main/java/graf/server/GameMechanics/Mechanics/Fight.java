@@ -3,17 +3,21 @@ package graf.server.GameMechanics.Mechanics;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Fight {
+public class Fight implements Runnable {
 
+    private int teamsCount;
+    private int participantNumberEachTeam;
+    private int playersCount;
     public final GameState gameState;
 
     private final ArrayList<Action> actions = new ArrayList<>();
 
     //TODO переделать тут все!!!
     public Fight(int teamsCount, int participantNumberEachTeam, int playersCount, Random random) {
+        this.teamsCount = teamsCount;
+        this.participantNumberEachTeam = participantNumberEachTeam;
+        this.playersCount = playersCount;
         gameState = new GameState(random);
-        createTeams(teamsCount, participantNumberEachTeam, playersCount);
-        startFight();
     }
 
     private void step() {
@@ -124,5 +128,11 @@ public class Fight {
                 System.out.println(mob.getName() + " HP: " + mob.getHealth() + " damage: " + mob.getDamage() + " critChance: " + mob.getCriticalDamageChance());
             }
         }
+    }
+
+    @Override
+    public void run() {
+        createTeams(teamsCount, participantNumberEachTeam, playersCount);
+        startFight();
     }
 }

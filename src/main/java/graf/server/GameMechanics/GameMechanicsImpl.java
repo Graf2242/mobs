@@ -3,6 +3,8 @@ package graf.server.GameMechanics;
 import graf.server.Base.Address;
 import graf.server.Base.GameMechanics;
 import graf.server.Base.MasterService;
+import graf.server.Frontend.UserSessionStatus;
+import graf.server.GameMechanics.Mechanics.Fight;
 import graf.server.MasterService.messages.Frontend.FUpdateSessions;
 import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.TickSleeper;
@@ -14,17 +16,24 @@ import java.util.logging.Logger;
 
 public class GameMechanicsImpl implements GameMechanics {
     private final MasterService masterService;
+    private String configPath;
     Address address = new Address();
+
+    public GameMechanicsImpl(MasterService masterService, String configPath) {
+        this.masterService = masterService;
+        this.configPath = configPath;
+        this.resourceFactory = ResourceFactory.instance();
+    }
+
     Set<GameMechanicsSession> sessions = new HashSet<>();
     Set<GameMechanicsSession> updatedSessions = new HashSet<>();
     Random random = new Random();
     Logger log = Logger.getLogger("GameMechanics");
     ResourceFactory resourceFactory;
 
-
-    public GameMechanicsImpl(MasterService masterService) {
-        this.masterService = masterService;
-        this.resourceFactory = ResourceFactory.instance();
+    @Override
+    public Set<GameMechanicsSession> getSessions() {
+        return sessions;
     }
 
     @Override
@@ -32,12 +41,13 @@ public class GameMechanicsImpl implements GameMechanics {
         return address;
     }
 
+    @Override
     public MasterService getMasterService() {
         return masterService;
     }
 
-    @Override
 
+    @Override
     public void run() {
         getMasterService().register(this);
         TickSleeper tickSleeper = new TickSleeper();
@@ -52,21 +62,28 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     private void sendUpdatesToFrontend() {
-        masterService.addMessage(new FUpdateSessions(address, sessions));
+        masterService.addMessage(new FUpdateSessions(address, sessions, UserSessionStatus.FIGHT));
     }
 
+    @Override
     public void registerGMSession(Set<Long> userIDs) {
         GameMechanicsSession session = new GameMechanicsSession(userIDs);
         sessions.add(session);
+        Fight fight = new Fight(2, 5, 0, random);
+        Thread tFight = new Thread(fight);
+        tFight.setName("Fight");
+        tFight.start();
+        session.setFight(fight);
         log.info("New session registered!");
-//        session.setFight(new Fight(2, 5, 0, random));
     }
 
     @Override
     public boolean hasSession(Set<Long> userIds) {
         for (GameMechanicsSession session : sessions) {
-            if (session.getUserIds().equals(userIds)) {
-                return true;
+            for (Long userId : userIds) {
+                if (session.getUserIds().contains(userId)) {
+                    return true;
+                }
             }
         }
         return false;

@@ -3,7 +3,11 @@ package graf.server.Base;
 import graf.server.Frontend.FrontendUserSession;
 import graf.server.Frontend.UserSessionStatus;
 
+import java.util.Map;
+
 public interface Frontend extends Node, Runnable {
+    Map<Long, FrontendUserSession> getSessions();
+
     MasterService getMasterService();
 
     boolean updateUserId(Long sessionId, Long userId);
@@ -14,7 +18,7 @@ public interface Frontend extends Node, Runnable {
 
     Long getSessionId(String userName);
 
-    FrontendUserSession getSessionBySessionId(Integer userId);
+    FrontendUserSession getSessionBySessionId(Long sessionId);
 
     Address getAddress();
 

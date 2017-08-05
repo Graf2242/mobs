@@ -6,7 +6,16 @@ public class LobbyUserSession {
     private static AtomicLong atomicLong = new AtomicLong();
     private final Long userId;
     private final String userName;
-    boolean isInFight = false;
+
+    private boolean isInFight = false;
+
+    public boolean isInFight() {
+        return isInFight;
+    }
+
+    public void setInFight(boolean inFight) {
+        isInFight = inFight;
+    }
     private Long sessionId;
 
     public LobbyUserSession(Long userId, String userName) {

@@ -20,10 +20,11 @@ public class DatabaseCreator {
         getCurrentDBVersion();
         converts = resourceFactory.readAllTextFiles("src/main/resources/converts");
         execConverts();
-    }
-
-    public static void main(String[] args) {
-        new DatabaseCreator();
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void execConverts() {

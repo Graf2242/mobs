@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DBServiceImpl implements DBService {
     final MasterService masterService;
+    private String configPath;
     final private Address address = new Address();
     final private Map<String, Integer> users = new HashMap<>();
     final private AtomicInteger atomicInteger = new AtomicInteger();
@@ -27,8 +28,9 @@ public class DBServiceImpl implements DBService {
     Connection connection;
 
 
-    public DBServiceImpl(MasterService MasterService) {
+    public DBServiceImpl(MasterService MasterService, String configPath) {
         this.masterService = MasterService;
+        this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
         connectToDB();
     }
@@ -99,13 +101,14 @@ public class DBServiceImpl implements DBService {
         return value;
     }
 
-    private void connectToDB() {
+    @Override
+    public void connectToDB() {
         try {
             DriverManager.registerDriver((Driver) Class.forName("org.postgresql.Driver").newInstance());
         } catch (SQLException | InstantiationException | ClassNotFoundException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        ServerConfig serverConfig = (ServerConfig) resourceFactory.getResource("src/main/resources/resources/config");
+        ServerConfig serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
         try {
             connection = DriverManager.getConnection(serverConfig.getDatabasePath(), serverConfig.getDbLogin(), serverConfig.getDbPass());
         } catch (SQLException e) {

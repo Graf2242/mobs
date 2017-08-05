@@ -15,19 +15,23 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class LobbyImpl implements Lobby {
     private final Address address = new Address();
     private final MasterService masterService;
+    private String configPath;
     private final Integer FIGHT_CAPACITY = 1;
     private final Set<LobbyUserSession> users = new HashSet<>();
     private ResourceFactory resourceFactory;
 
-    public LobbyImpl(MasterService masterService) {
+    public LobbyImpl(MasterService masterService, String configPath) {
         this.masterService = masterService;
+        this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
     }
 
+    @Override
     public Integer getFIGHT_CAPACITY() {
         return FIGHT_CAPACITY;
     }
 
+    @Override
     public Set<LobbyUserSession> getUsers() {
         return users;
     }
@@ -55,7 +59,9 @@ public class LobbyImpl implements Lobby {
         while (!users.isEmpty()) {
             Set<Long> fightUsers = new HashSet<>();
             for (int i = 0; i < FIGHT_CAPACITY; i++) {
-                fightUsers.add(users.poll().getUserId());
+                LobbyUserSession user = users.poll();
+                user.setInFight(true);
+                fightUsers.add(user.getUserId());
             }
             masterService.addMessage(new GMStartSession(address, fightUsers));
         }
@@ -64,18 +70,20 @@ public class LobbyImpl implements Lobby {
     private Queue<LobbyUserSession> getQueuedUsers() {
         Queue<LobbyUserSession> queuedUsers = new LinkedBlockingQueue<>();
         for (LobbyUserSession user : users) {
-            if (!user.isInFight) {
+            if (!user.isInFight()) {
                 queuedUsers.add(user);
             }
         }
         return queuedUsers;
     }
 
+    @Override
     public void registerUser(LobbyUserSession userInfo) {
         users.add(userInfo);
 
     }
 
+    @Override
     public MasterService getMasterService() {
         return masterService;
     }

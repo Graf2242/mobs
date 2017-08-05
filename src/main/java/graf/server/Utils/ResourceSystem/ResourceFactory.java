@@ -39,8 +39,7 @@ public class ResourceFactory {
     }
 
     public Resource getResource(String path) {
-        File file = new File(path);
-        return resources.get(file.getAbsolutePath());
+        return Serializator.deserializeXmlFile(path);
     }
 
     public Resource getReadResource(String path) {

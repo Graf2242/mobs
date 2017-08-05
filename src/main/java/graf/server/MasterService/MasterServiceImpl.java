@@ -4,11 +4,9 @@ import graf.server.Base.Address;
 import graf.server.Base.MasterService;
 import graf.server.Base.Message;
 import graf.server.Base.Node;
-import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.TickSleeper;
 import org.omg.CORBA.WrongTransaction;
 
-import java.sql.Connection;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
@@ -18,12 +16,10 @@ public class MasterServiceImpl implements MasterService {
     final private Map<Address, Queue<Message>> messages = new HashMap<>();
     final private Map<Class<? extends Node>, List<Address>> nodes = new HashMap<>();
     final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
-    private ResourceFactory resourceFactory;
-    Connection connection;
+    private String configPath;
 
-    public MasterServiceImpl() {
-        this.resourceFactory = ResourceFactory.instance();
-        new DatabaseCreator();
+    public MasterServiceImpl(String configPath) {
+        this.configPath = configPath;
     }
 
 
@@ -64,7 +60,7 @@ public class MasterServiceImpl implements MasterService {
             try {
                 throw new WrongTransaction("unknown node");
             } catch (WrongTransaction wrongTransaction) {
-                log.info("Message to unknown node:" + message.getTo() + " from: " + message.getFrom());
+                log.info("Message to unknown node:" + message.getTo() + " from: " + message.toString());
                 wrongTransaction.printStackTrace();
             }
         }

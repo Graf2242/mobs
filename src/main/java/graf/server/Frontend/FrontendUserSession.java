@@ -3,7 +3,7 @@ package graf.server.Frontend;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class FrontendUserSession {
-    private static AtomicLong atomicLong = new AtomicLong();
+    private static AtomicLong atomicLongSessions = new AtomicLong();
     private String userName;
     private UserSessionStatus status = UserSessionStatus.CONNECTED;
     private Long sessionId;
@@ -11,8 +11,7 @@ public class FrontendUserSession {
     private Long sessionTime;
 
     public FrontendUserSession() {
-        this.userName = userName;
-        this.sessionId = atomicLong.getAndIncrement();
+        this.sessionId = atomicLongSessions.getAndIncrement();
     }
 
     public void setUserName(String userName) {

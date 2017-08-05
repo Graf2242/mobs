@@ -28,11 +28,18 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     private final Address address = new Address();
     private final MasterService masterService;
     private final Map<Long, FrontendUserSession> sessions = new HashMap<>();
+    private String configPath;
     private ResourceFactory resourceFactory;
 
-    public FrontendImpl(MasterService MasterService) {
+    public FrontendImpl(MasterService MasterService, String configPath) {
         this.masterService = MasterService;
+        this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
+    }
+
+    @Override
+    public Map<Long, FrontendUserSession> getSessions() {
+        return sessions;
     }
 
     private static String getUserDateFull(Long time) {
@@ -64,12 +71,21 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
     @Override
     public Long getSessionId(String userName) {
-        return sessions.get(userName).getSessionId();
+        final FrontendUserSession[] userSession = new FrontendUserSession[1];
+        sessions.forEach((aLong, frontendUserSession) -> {
+            String sessionUserName = frontendUserSession.getUserName();
+            if (Objects.equals(sessionUserName, null)) {
+                return;
+            }
+            if (sessionUserName.equals(userName)) {
+                userSession[0] = frontendUserSession;
+            }
+        });
+        return userSession[0].getSessionId();
     }
 
     private void startFrontend() {
-        String path = "src/main/resources/resources/config";
-        ServerConfig config = (ServerConfig) resourceFactory.getResource(path);
+        ServerConfig config = (ServerConfig) resourceFactory.getResource(configPath);
         Server server = new Server();
 
         ServerConnector connector = new ServerConnector(server);
@@ -108,6 +124,7 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
         FrontendUserSession userSession;
 
+        //noinspection ConstantConditions
         if (id < 0) {
             userSession = new FrontendUserSession();
             sessions.put(userSession.getSessionId(), userSession);
@@ -122,11 +139,17 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
         Long userId = userSession.getUserId();
 
+        //CreateUser
+        //   masterService.addMessage(new DBCreateUser(address, userName, pass, userSession.getSessionId()));
+
+        //Login
         if (userId == null) {
             masterService.addMessage(new DBFindUserIdMessage(address, userName, pass, userSession.getSessionId()));
             response.getWriter().println("<h1>Wait for authorization</h1><meta http-equiv=\"refresh\" content=\"1\">");
-        } else {
+        } else if (userSession.getStatus().equals(UserSessionStatus.FIGHT)) {
             response.getWriter().println("<h1>User name: " + userSession.getUserName() + " Id: " + userSession.getUserId() + " , sessionTime = " + getUserDateFull(userSession.getSessionTime()) + "</h1><meta http-equiv=\"refresh\" content=\"1\">");
+        } else {
+            response.getWriter().println("<h1>Fight loading</h1><meta http-equiv=\"refresh\" content=\"1\">");
         }
     }
 
@@ -158,7 +181,7 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     }
 
     @Override
-    public FrontendUserSession getSessionBySessionId(Integer sessionId) {
+    public FrontendUserSession getSessionBySessionId(Long sessionId) {
         final FrontendUserSession[] session = new FrontendUserSession[1];
         sessions.forEach((s, frontendUserSession) -> {
             if (Objects.equals(frontendUserSession.getSessionId(), sessionId) && !(frontendUserSession.getStatus().equals(UserSessionStatus.INACTIVE))) {

@@ -14,6 +14,7 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
     private final Long userId;
     private final UserSessionStatus status;
 
+    //TODO Перевести на sessionID
     public FUpdateSessions(Address from, Long userId, UserSessionStatus status) {
         super(from);
         this.userId = userId;
@@ -21,11 +22,11 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
         sessions = null;
     }
 
-    public FUpdateSessions(Address from, Set<GameMechanicsSession> sessions) {
+    public FUpdateSessions(Address from, Set<GameMechanicsSession> sessions, UserSessionStatus status) {
         super(from);
         this.sessions = sessions;
         userId = null;
-        status = UserSessionStatus.FIGHT;
+        this.status = status;
     }
 
     @Override
