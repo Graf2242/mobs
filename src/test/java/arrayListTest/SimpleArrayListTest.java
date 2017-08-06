@@ -1,6 +1,6 @@
 package arrayListTest;
 
-import graf.server.GameMechanics.Mechanics.SimpleArrayList;
+import Mechanics.SimpleArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 

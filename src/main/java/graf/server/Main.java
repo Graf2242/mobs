@@ -1,12 +1,15 @@
 package graf.server;
 
-import graf.server.Base.*;
-import graf.server.DBService.HDBServiceImpl;
+import ResourceSystem.ResourceFactory;
+import frontend.Frontend;
+import gameMechanics.GameMechanics;
+import graf.server.Base.DBService;
+import graf.server.Base.Lobby;
+import graf.server.Base.MasterService;
 import graf.server.Frontend.FrontendImpl;
 import graf.server.GameMechanics.GameMechanicsImpl;
 import graf.server.Lobby.LobbyImpl;
 import graf.server.MasterService.MasterServiceImpl;
-import graf.server.Utils.ResourceSystem.ResourceFactory;
 
 import java.util.Objects;
 
@@ -32,7 +35,7 @@ public class Main {
 
         Frontend frontend = new FrontendImpl(masterService, configPath);
         Thread frontendThread = new Thread(frontend);
-        frontendThread.setName("Frontend");
+        frontendThread.setName("frontend");
         frontendThread.start();
 
         Lobby lobby = new LobbyImpl(masterService, configPath);

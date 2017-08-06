@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<graf.server.Utils.ResourceSystem.Resources.ServerConfig>
+<ResourceSystem.Resources.ServerConfig>
     <ip>localhost</ip>
     <port>8087</port>
     <databasePath>jdbc:postgresql://localhost:5432/mobs</databasePath>
     <dbLogin>postgres</dbLogin>
     <dbPass>mobs</dbPass>
-</graf.server.Utils.ResourceSystem.Resources.ServerConfig>
+</ResourceSystem.Resources.ServerConfig>
