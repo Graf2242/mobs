@@ -1,8 +1,9 @@
-import graf.server.Base.GameMechanics;
-import graf.server.Base.MasterService;
-import graf.server.GameMechanics.GameMechanicsImpl;
-import graf.server.GameMechanics.GameMechanicsSession;
-import graf.server.MasterService.MasterServiceImpl;
+import gameMechanics.GameMechanics;
+import gameMechanics.GameMechanicsSession;
+import main.GameMechanicsImpl;
+import main.GameMechanicsSessionImpl;
+import main.MasterServiceImpl;
+import masterService.MasterService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -65,7 +66,7 @@ public class GameMechanicsTests {
     @Test
     public void sessionGetTime() {
         Set<Long> ids = new HashSet<>();
-        GameMechanicsSession gms = new GameMechanicsSession(ids);
+        GameMechanicsSession gms = new GameMechanicsSessionImpl(ids);
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {

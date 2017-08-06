@@ -27,7 +27,7 @@ public class GameLoop {
         }
         while (teamPlayers > participantNumberEachTeam);
 
-        new Fight(teamsCount, participantNumberEachTeam, teamPlayers, random);
+        new FightImpl(teamsCount, participantNumberEachTeam, teamPlayers, random);
     }
 
 

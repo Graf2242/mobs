@@ -2,6 +2,8 @@ package ResourceSystem;
 
 import Serialization.Serializator;
 import VirtualFileSystem.VFSImpl;
+import utils.Resource;
+import utils.VFS;
 
 import java.io.BufferedReader;
 import java.io.File;

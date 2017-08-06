@@ -1,5 +1,7 @@
 package ResourceSystem.Resources;
 
+import utils.Resource;
+
 public class ServerConfig implements Resource {
     String ip;
     String port;

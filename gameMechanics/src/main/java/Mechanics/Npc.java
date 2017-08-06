@@ -9,7 +9,7 @@ class Npc extends Mob {
     final private Map<Mob, Integer> agreList = new HashMap<>();
     final private int agreReduce;
 
-    Npc(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, Fight fight, Team team) {
+    Npc(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, FightImpl fight, Team team) {
         super(name, health, damage, criticalDamageChance, criticalDamageMultiplier, successfulBlockDamageScaler, fight, team);
         agreReduce = -10;
     }

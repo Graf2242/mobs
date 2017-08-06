@@ -1,7 +1,8 @@
 package VirtualFileSystem;
 
 import Serialization.Serializator;
-import graf.server.Base.Resource;
+import utils.Resource;
+import utils.VFS;
 
 import java.io.*;
 import java.util.Arrays;
@@ -9,7 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class VFSImpl implements graf.server.Base.VFS {
+public class VFSImpl implements VFS {
     private final String root;
 
     public VFSImpl(String root) {

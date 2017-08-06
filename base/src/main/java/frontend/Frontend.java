@@ -1,8 +1,8 @@
 package frontend;
 
-import graf.server.Base.Address;
-import graf.server.Base.MasterService;
-import graf.server.Base.Node;
+import masterService.Address;
+import masterService.MasterService;
+import masterService.Node;
 
 import java.util.Map;
 

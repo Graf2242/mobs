@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 abstract class Mob implements Action {
 
-    protected final Fight fight;
+    protected final FightImpl fight;
     private final int criticalDamageMultiplier;
     private final int successfulBlockDamageScaler;
     private final float criticalDamageChance;
@@ -17,7 +17,7 @@ abstract class Mob implements Action {
     private boolean isLastAttackCrit;
     private Mob target;
 
-    public Mob(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, Fight fight, Team team) {
+    public Mob(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, FightImpl fight, Team team) {
         this.name = name;
         this.health = health;
         this.damage = damage;

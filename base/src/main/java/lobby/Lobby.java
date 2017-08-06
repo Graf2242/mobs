@@ -1,7 +1,8 @@
 package lobby;
 
-import graf.server.Base.MasterService;
-import graf.server.Base.Node;
+import masterService.Address;
+import masterService.MasterService;
+import masterService.Node;
 
 import java.util.Set;
 
@@ -11,6 +12,8 @@ public interface Lobby extends Node, Runnable {
     Set<LobbyUserSession> getUsers();
 
     MasterService getMasterService();
+
+    Address getAddress();
 
     void registerUser(LobbyUserSession userInfo);
 

@@ -1,11 +1,14 @@
 package gameMechanics;
 
+import masterService.MasterService;
+import masterService.Node;
+
 import java.util.Set;
 
-public interface GameMechanics extends graf.server.Base.Node, Runnable {
+public interface GameMechanics extends Node, Runnable {
     Set<GameMechanicsSession> getSessions();
 
-    graf.server.Base.MasterService getMasterService();
+    MasterService getMasterService();
 
     void registerGMSession(Set<Long> userIDs);
 

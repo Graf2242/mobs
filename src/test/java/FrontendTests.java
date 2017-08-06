@@ -1,9 +1,10 @@
-import graf.server.Base.Frontend;
-import graf.server.Base.MasterService;
-import graf.server.Frontend.FrontendImpl;
-import graf.server.Frontend.FrontendUserSession;
-import graf.server.Frontend.UserSessionStatus;
-import graf.server.MasterService.MasterServiceImpl;
+import frontend.Frontend;
+import frontend.FrontendUserSession;
+import frontend.UserSessionStatus;
+import main.FrontendImpl;
+import main.FrontendUserSessionImpl;
+import main.MasterServiceImpl;
+import masterService.MasterService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,7 +35,7 @@ public class FrontendTests {
     @Test
     public void addSessionAndUpdateUserId() {
         FrontendUserSession userSession;
-        userSession = new FrontendUserSession();
+        userSession = new FrontendUserSessionImpl();
         frontend.getSessions().put(userSession.getSessionId(), userSession);
         frontend.updateUserId(userSession.getSessionId(), 100L);
         Assert.assertEquals(frontend.getSessionBySessionId(0L).getUserId(), (Long) 100L);
@@ -43,7 +44,7 @@ public class FrontendTests {
 
     @Test
     public void updateSessionStatus() {
-        FrontendUserSession userSession = new FrontendUserSession();
+        FrontendUserSession userSession = new FrontendUserSessionImpl();
         frontend.getSessions().put(userSession.getSessionId(), userSession);
         frontend.updateSessionStatus(userSession.getSessionId(), UserSessionStatus.CONNECTED);
         Assert.assertEquals(UserSessionStatus.CONNECTED, frontend.getSessionBySessionId(userSession.getSessionId()).getStatus());
@@ -53,7 +54,7 @@ public class FrontendTests {
 
     @Test
     public void getSessionId() {
-        FrontendUserSession userSession = new FrontendUserSession();
+        FrontendUserSession userSession = new FrontendUserSessionImpl();
         userSession.setUserName("qwerty");
         frontend.getSessions().put(userSession.getSessionId(), userSession);
         Assert.assertEquals(frontend.getSessionId("qwerty"), userSession.getSessionId());
@@ -61,14 +62,14 @@ public class FrontendTests {
 
     @Test
     public void setSessionBySessionId() {
-        FrontendUserSession userSession = new FrontendUserSession();
+        FrontendUserSession userSession = new FrontendUserSessionImpl();
         frontend.getSessions().put(userSession.getSessionId(), userSession);
         Assert.assertEquals(frontend.getSessionBySessionId(userSession.getSessionId()), userSession);
     }
 
     @Test
     public void getSessionByUserId() {
-        FrontendUserSession userSession = new FrontendUserSession();
+        FrontendUserSession userSession = new FrontendUserSessionImpl();
         userSession.setUserId(123L);
         frontend.getSessions().put(userSession.getSessionId(), userSession);
         Assert.assertEquals(frontend.getSessionByUserId(123L), userSession);

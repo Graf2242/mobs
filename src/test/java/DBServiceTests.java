@@ -1,7 +1,7 @@
-import graf.server.Base.DBService;
-import graf.server.Base.MasterService;
-import graf.server.DBService.HDBServiceImpl;
-import graf.server.MasterService.MasterServiceImpl;
+import databaseService.DBService;
+import main.HDBServiceImpl;
+import main.MasterServiceImpl;
+import masterService.MasterService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

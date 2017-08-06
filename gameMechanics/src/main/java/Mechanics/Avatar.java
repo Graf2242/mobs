@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Avatar extends Mob {
 
-    public Avatar(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, Fight fight, Team team) {
+    public Avatar(String name, int health, int damage, float criticalDamageChance, int criticalDamageMultiplier, int successfulBlockDamageScaler, FightImpl fight, Team team) {
         super(name, health, damage, criticalDamageChance, criticalDamageMultiplier, successfulBlockDamageScaler, fight, team);
     }
 

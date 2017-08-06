@@ -1,8 +1,9 @@
-import graf.server.Base.Lobby;
-import graf.server.Base.MasterService;
-import graf.server.Lobby.LobbyImpl;
-import graf.server.Lobby.LobbyUserSession;
-import graf.server.MasterService.MasterServiceImpl;
+import lobby.Lobby;
+import lobby.LobbyUserSession;
+import main.LobbyImpl;
+import main.LobbyUserSessionImpl;
+import main.MasterServiceImpl;
+import masterService.MasterService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,8 +43,8 @@ public class LobbyTests {
     @Test
     public void getUsers() throws IllegalAccessException, NoSuchFieldException {
         Set<LobbyUserSession> userSessions = new HashSet<>();
-        userSessions.add(new LobbyUserSession(1L, "123"));
-        userSessions.add(new LobbyUserSession(2L, "234"));
+        userSessions.add(new LobbyUserSessionImpl(1L, "123"));
+        userSessions.add(new LobbyUserSessionImpl(2L, "234"));
         Field field;
         //noinspection JavaReflectionMemberAccess
         field = lobby.getClass().getDeclaredField("users");
@@ -59,7 +60,7 @@ public class LobbyTests {
     @Test
     public void registerUserTest() {
         Set<LobbyUserSession> userSessions = new HashSet<>();
-        LobbyUserSession lobbyUserSession = new LobbyUserSession(1L, "123");
+        LobbyUserSession lobbyUserSession = new LobbyUserSessionImpl(1L, "123");
         userSessions.add(lobbyUserSession);
         lobby.registerUser(lobbyUserSession);
         Assert.assertEquals(lobby.getUsers(), userSessions);
