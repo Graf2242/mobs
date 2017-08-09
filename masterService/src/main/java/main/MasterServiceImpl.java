@@ -4,6 +4,7 @@ import masterService.Address;
 import masterService.MasterService;
 import masterService.Message;
 import masterService.Node;
+import messages.masterService.MRegister;
 import org.omg.CORBA.WrongTransaction;
 import tickSleeper.TickSleeper;
 
@@ -15,22 +16,25 @@ import java.util.logging.Logger;
 public class MasterServiceImpl implements MasterService {
     final Logger log = Logger.getLogger("MasterService");
     final private Map<Address, Queue<Message>> messages = new HashMap<>();
+    Address address = new Address();
+    private String ipAddress;
+
     final private Map<Class<? extends Node>, List<Address>> nodes = new HashMap<>();
+
+    @Override
+    public Map<Class<? extends Node>, List<Address>> getNodes() {
+        return nodes;
+    }
+
+    @Override
+    public String getIpAddress() {
+        return ipAddress;
+    }
     final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
     private String configPath;
 
     public MasterServiceImpl(String configPath) {
         this.configPath = configPath;
-    }
-
-
-    public void register(Node node) {
-        List<Address> currentAddresses = nodes.get(node.getClass());
-        if (currentAddresses == null) {
-            currentAddresses = new ArrayList<>();
-        }
-        currentAddresses.add(node.getAddress());
-        nodes.put(node.getClass(), currentAddresses);
     }
 
     public void addMessage(Message message) {
@@ -49,20 +53,22 @@ public class MasterServiceImpl implements MasterService {
             }
         });
 
-        if (!allAddressees.contains(message.getFrom())) {
-            try {
-                throw new WrongTransaction("unknown node");
-            } catch (WrongTransaction wrongTransaction) {
-                log.info("Message from unknown node: " + message.getFrom() + " to: " + message.getTo());
-                wrongTransaction.printStackTrace();
+        if (!(message instanceof MRegister)) {
+            if (!allAddressees.contains(message.getFrom()) && !message.getFrom().equals(address)) {
+                try {
+                    throw new WrongTransaction("unknown node");
+                } catch (WrongTransaction wrongTransaction) {
+                    log.info("Message from unknown node: " + message.getFrom() + " to: " + message.getTo());
+                    wrongTransaction.printStackTrace();
+                }
             }
-        }
-        if (targetL[0] == null) {
-            try {
-                throw new WrongTransaction("unknown node");
-            } catch (WrongTransaction wrongTransaction) {
-                log.info("Message to unknown node:" + message.getTo() + " from: " + message.toString());
-                wrongTransaction.printStackTrace();
+            if (targetL[0] == null) {
+                try {
+                    throw new WrongTransaction("unknown node");
+                } catch (WrongTransaction wrongTransaction) {
+                    log.info("Message to unknown node:" + message.getTo() + " from: " + message.toString());
+                    wrongTransaction.printStackTrace();
+                }
             }
         }
 
@@ -99,6 +105,7 @@ public class MasterServiceImpl implements MasterService {
                 tickSleeper.tickStart();
                 Message message = unsortedMessages.poll();
                 sortMessage(message);
+                execNodeMessages(this);
                 tickSleeper.tickEnd();
             }
         }
@@ -107,5 +114,10 @@ public class MasterServiceImpl implements MasterService {
     @Override
     public Address getAddress() {
         return null;
+    }
+
+    @Override
+    public MasterService getMasterService() {
+        return this;
     }
 }

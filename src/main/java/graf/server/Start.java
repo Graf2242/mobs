@@ -20,7 +20,7 @@ public class Start {
             arg = args[0];
         } catch (Exception ignored) {
         }
-        String configPath = Objects.equals(arg, null) ? "base\\src\\main\\resources\\configs\\config.xml" : arg;
+        String configPath = Objects.equals(arg, null) ? "base/src/main/resources/configs/config.xml" : arg;
 
         MasterService masterService = new MasterServiceImpl(configPath);
         Thread masterThread = new Thread(masterService);

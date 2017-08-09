@@ -8,6 +8,7 @@ import masterService.Address;
 import masterService.MasterService;
 import messages.Frontend.FUpdateSessions;
 import messages.GameMechanics.GMStartSession;
+import messages.masterService.MRegister;
 import tickSleeper.TickSleeper;
 
 import java.util.HashSet;
@@ -46,7 +47,7 @@ public class LobbyImpl implements Lobby {
 
     @Override
     public void run() {
-        masterService.register(this);
+        masterService.addMessage(new MRegister(address, this));
         TickSleeper tickSleeper = new TickSleeper();
         //noinspection InfiniteLoopStatement
         while (true) {

@@ -7,6 +7,7 @@ import gameMechanics.GameMechanicsSession;
 import masterService.Address;
 import masterService.MasterService;
 import messages.Frontend.FUpdateSessions;
+import messages.masterService.MRegister;
 import tickSleeper.TickSleeper;
 
 import java.util.HashSet;
@@ -18,6 +19,7 @@ public class GameMechanicsImpl implements GameMechanics {
     private final MasterService masterService;
     private String configPath;
     Address address = new Address();
+
 
     public GameMechanicsImpl(MasterService masterService, String configPath) {
         this.masterService = masterService;
@@ -49,7 +51,7 @@ public class GameMechanicsImpl implements GameMechanics {
 
     @Override
     public void run() {
-        getMasterService().register(this);
+        masterService.addMessage(new MRegister(address, this));
         TickSleeper tickSleeper = new TickSleeper();
         tickSleeper.setTickTimeMs(100L);
         //noinspection InfiniteLoopStatement

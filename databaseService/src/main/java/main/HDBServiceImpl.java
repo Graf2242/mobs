@@ -3,11 +3,12 @@ package main;
 import Account.HAccountDataSet;
 import Account.HAccountsDAO;
 import ResourceSystem.ResourceFactory;
-import ResourceSystem.Resources.ServerConfig;
+import ResourceSystem.Resources.configs.ServerConfig;
 import databaseService.DBService;
 import masterService.Address;
 import masterService.MasterService;
 import messages.Frontend.FWrongLoginData;
+import messages.masterService.MRegister;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -81,7 +82,8 @@ public class HDBServiceImpl implements DBService {
 
     @Override
     public void run() {
-        getMasterService().register(this);
+        masterService.addMessage(new MRegister(address, this));
+
 
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(HAccountDataSet.class);

@@ -39,11 +39,21 @@ public class ResourceFactory {
     }
 
     public Resource getResource(String path) {
-        return Serializator.deserializeXmlFile(path);
+        try {
+            return Serializator.deserializeXmlFile(path);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Resource getReadResource(String path) {
-        return Serializator.deserializeXmlFile(path);
+        try {
+            return Serializator.deserializeXmlFile(path);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Map<Integer, String[]> readAllTextFiles(String homePath) {
@@ -83,7 +93,11 @@ public class ResourceFactory {
         while (iterator.hasNext()) {
             String next = iterator.next();
             if (!vfs.isDirectory(next)) {
-                resources.put(next, Serializator.deserializeXmlFile(next));
+                try {
+                    resources.put(next, Serializator.deserializeXmlFile(next));
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

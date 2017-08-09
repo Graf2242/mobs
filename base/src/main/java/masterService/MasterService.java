@@ -1,7 +1,12 @@
 package masterService;
 
+import java.util.List;
+import java.util.Map;
+
 public interface MasterService extends Node, Runnable {
-    void register(Node node);
+    Map<Class<? extends Node>, List<Address>> getNodes();
+
+    String getIpAddress();
 
     void addMessage(Message message);
 

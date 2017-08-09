@@ -19,6 +19,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 public class Serializator {
     public static void serializeToFileBin(Object o, String path) {
@@ -28,13 +29,26 @@ public class Serializator {
             fos = new FileOutputStream(path);
             oos = new ObjectOutputStream(fos);
             oos.writeObject(o);
-            oos.close();
+            fos.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static Resource deserializeXmlFile(String path) {
+    public static byte[] serializeToString(Object o) throws UnsupportedEncodingException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos;
+        try {
+            oos = new ObjectOutputStream(baos);
+            oos.writeObject(o);
+            oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return baos.toByteArray();
+    }
+
+    public static Resource deserializeXmlFile(String path) throws NoSuchFieldException, IllegalAccessException {
         File file = new File(path);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
@@ -50,6 +64,9 @@ public class Serializator {
         if (doc != null) {
             root = doc.getDocumentElement();
             obj = ReflectionHelper.createInstance(root.getNodeName());
+            if (obj == null) {
+                return null;
+            }
             NodeList nodes = root.getChildNodes();
             for (int i = 0; i < nodes.getLength(); i++) {
                 Node item = nodes.item(i);
@@ -57,10 +74,31 @@ public class Serializator {
                 if (value.equals("#text")) {
                     continue;
                 }
+                if (!Objects.equals(item.getChildNodes(), null)) {
+                    recursiveReadXML(obj, item);
+                }
                 ReflectionHelper.setField(obj, value, nodes.item(i).getTextContent());
             }
         }
         return (Resource) obj;
+    }
+
+    private static void recursiveReadXML(Object obj, Node item) throws NoSuchFieldException, IllegalAccessException {
+        NodeList inNodes = item.getChildNodes();
+        Field field = obj.getClass().getDeclaredField(item.getNodeName());
+        Object fieldValue = ReflectionHelper.getFieldValue(obj, field);
+        for (int i = 0; i < inNodes.getLength(); i++) {
+            Node item1 = inNodes.item(i);
+            if (Objects.equals(item1.getChildNodes(), null)) {
+                recursiveReadXML(obj, item1);
+            }
+            String nodeName = item1.getNodeName();
+            if (nodeName.equals("#text")) {
+                continue;
+            }
+            Field field1 = fieldValue.getClass().getDeclaredField(nodeName);
+            ReflectionHelper.setField(fieldValue, field1.getName(), item1.getTextContent());
+        }
     }
 
     public static void serializeXmlFile(Object o, String path) {
@@ -73,12 +111,7 @@ public class Serializator {
             document = builder.newDocument();
             Element rootElement = document.createElement(o.getClass().getName());
             document.appendChild(rootElement);
-            Node n;
-            for (Field field : ReflectionHelper.getFields(o)) {
-                n = document.createElement(field.getName());
-                n.setTextContent(String.valueOf(ReflectionHelper.getFieldValue(o, field)));
-                rootElement.appendChild(n);
-            }
+            xmlWriteObj(o, document, rootElement);
 
             // Use a Transformer for output
             TransformerFactory tFactory =
@@ -106,6 +139,21 @@ public class Serializator {
         }
     }
 
+    private static void xmlWriteObj(Object o, Document document, Element rootElement) throws IllegalAccessException {
+        Node n;
+        for (Field field : ReflectionHelper.getFields(o)) {
+            if (field.getType().isPrimitive() || field.getType().equals(String.class)) {
+                n = document.createElement(field.getName());
+                n.setTextContent(String.valueOf(ReflectionHelper.getFieldValue(o, field)));
+                rootElement.appendChild(n);
+            } else {
+                n = document.createElement(field.getName());
+                rootElement.appendChild(n);
+                xmlWriteObj(ReflectionHelper.getFieldValue(o, field), document, (Element) n);
+            }
+        }
+    }
+
     public static <T> T deserializeBinFile(String path) {
         FileInputStream fis;
         ObjectInputStream ois = null;
@@ -113,6 +161,27 @@ public class Serializator {
             fis = new FileInputStream(path);
             ois = new ObjectInputStream(fis);
         } catch (Exception ignored) {
+        }
+        T resource = null;
+        if (ois != null) {
+            try {
+                //noinspection unchecked
+                resource = (T) ois.readObject();
+                ois.close();
+            } catch (Exception ignored) {
+            }
+        }
+        return resource;
+    }
+
+
+    public static <T> T deserializeString(byte[] message) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(message);
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(bais);
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
         T resource = null;
         if (ois != null) {

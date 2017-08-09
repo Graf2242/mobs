@@ -12,15 +12,15 @@ public class ReflectionHelper {
         return null;
     }
 
-    public static void setField(Object o, String fieldName, String value) {
+    public static void setField(Object o, String fieldName, Object value) {
         Field field = null;
         try {
             field = o.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
-            if (field.getType().equals(String.class)) {
+            if (field.getType().equals(Integer.class)) {
+                field.set(o, Integer.parseInt((String) value));
+            } else if (field.getType().equals(String.class)) {
                 field.set(o, value);
-            } else if (field.getType().equals(Integer.class)) {
-                field.set(o, Integer.parseInt(value));
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();

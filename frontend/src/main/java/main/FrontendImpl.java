@@ -1,7 +1,7 @@
 package main;
 
 import ResourceSystem.ResourceFactory;
-import ResourceSystem.Resources.ServerConfig;
+import ResourceSystem.Resources.configs.ServerConfig;
 import frontend.Frontend;
 import frontend.FrontendUserSession;
 import frontend.UserSessionStatus;
@@ -9,6 +9,7 @@ import masterService.Address;
 import masterService.MasterService;
 import messages.DBService.DBFindUserIdMessage;
 import messages.Lobby.LAddUser;
+import messages.masterService.MRegister;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -60,7 +61,7 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
     @Override
     public void run() {
-        getMasterService().register(this);
+        masterService.addMessage(new MRegister(address, this));
         startFrontend();
         TickSleeper tickSleeper = new TickSleeper();
         //noinspection InfiniteLoopStatement
@@ -91,8 +92,8 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
         Server server = new Server();
 
         ServerConnector connector = new ServerConnector(server);
-        connector.setHost(config.getIp());
-        connector.setPort(Integer.parseInt(config.getPort()));
+        connector.setHost(config.getFrontend().getIp());
+        connector.setPort(Integer.parseInt(config.getFrontend().getPort()));
         server.addConnector(connector);
         server.setHandler(this);
 

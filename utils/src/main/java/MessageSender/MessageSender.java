@@ -1,5 +1,7 @@
 package MessageSender;
 
+import masterService.Node;
+
 import java.util.Objects;
 
 public class MessageSender {
@@ -15,7 +17,8 @@ public class MessageSender {
         return messageSender;
     }
 
-    public void sendMessage() {
+    public void sendMessage(Object o, Node targetRole, Node sender) {
+
 
     }
 
