@@ -51,15 +51,6 @@ public class HDBServiceImpl implements DBService {
         resourceFactory = ResourceFactory.instance();
         messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
 
-        Configuration configuration = new Configuration();
-        configuration.addAnnotatedClass(HAccountDataSet.class);
-
-        this.sessionFactory = createSessionConfig(configuration);
-
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        System.out.append(transaction.getStatus().toString()).append(String.valueOf('\n'));
-        session.close();
 
         //noinspection InfiniteLoopStatement
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getDbService().getIp(), serverConfig.getDbService().getPort()));
@@ -114,6 +105,15 @@ public class HDBServiceImpl implements DBService {
 
     @Override
     public void run() {
+        Configuration configuration = new Configuration();
+        configuration.addAnnotatedClass(HAccountDataSet.class);
+        this.sessionFactory = createSessionConfig(configuration);
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        System.out.append(transaction.getStatus().toString()).append(String.valueOf('\n'));
+        session.close();
+
+
         TickSleeper tickSleeper = new TickSleeper();
         tickSleeper.setTickTimeMs(100L);
         //noinspection InfiniteLoopStatement

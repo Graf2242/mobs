@@ -17,7 +17,7 @@ public class FrontendTests {
     @BeforeClass
     public static void createBase() {
         masterService = new MasterServiceImpl(configPath);
-        Frontend frontend = new FrontendImpl(masterService, configPath);
+        Frontend frontend = new FrontendImpl(configPath);
         //noinspection ConstantConditions
         Thread dbServiceThread = new Thread(frontend);
         dbServiceThread.setName("FE");
@@ -26,19 +26,12 @@ public class FrontendTests {
     }
 
     @Test
-    public void getMasterService() {
-        MasterService masterService = new MasterServiceImpl(configPath);
-        Frontend frontend = new FrontendImpl(masterService, configPath);
-        Assert.assertEquals(frontend.getMasterService(), masterService);
-    }
-
-    @Test
     public void addSessionAndUpdateUserId() {
         FrontendUserSession userSession;
         userSession = new FrontendUserSessionImpl();
         frontend.getSessions().put(userSession.getSessionId(), userSession);
         frontend.updateUserId(userSession.getSessionId(), 100L);
-        Assert.assertEquals(frontend.getSessionBySessionId(0L).getUserId(), (Long) 100L);
+        Assert.assertEquals(frontend.getSessionBySessionId(1L).getUserId(), (Long) 100L);
     }
 
 

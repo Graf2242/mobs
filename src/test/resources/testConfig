@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<graf.server.Utils.ResourceSystem.Resources.ServerConfig>
+<ResourceSystem.Resources.configs.ServerConfig>
+    <master>
     <ip>localhost</ip>
-    <port>8087</port>
+        <port>9095</port>
+    </master>
+    <frontend>
+        <frontendPort>9093</frontendPort>
+        <ip>localhost</ip>
+        <port>9092</port>
+    </frontend>
+    <dbService>
+        <ip>localhost</ip>
+        <port>9091</port>
+    </dbService>
+    <lobby>
+        <ip>localhost</ip>
+        <port>9094</port>
+    </lobby>
+    <mechanics>
+        <ip>localhost</ip>
+        <port>9096</port>
+    </mechanics>
     <databasePath>jdbc:postgresql://localhost:5432/testdb</databasePath>
     <dbLogin>postgres</dbLogin>
     <dbPass>mobs</dbPass>
-</graf.server.Utils.ResourceSystem.Resources.ServerConfig>
+</ResourceSystem.Resources.configs.ServerConfig>

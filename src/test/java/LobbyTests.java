@@ -20,18 +20,11 @@ public class LobbyTests {
     @BeforeClass
     public static void create() {
         masterService = new MasterServiceImpl(configPath);
-        lobby = new LobbyImpl(masterService, configPath);
+        lobby = new LobbyImpl(configPath);
         //noinspection ConstantConditions
         Thread dbServiceThread = new Thread(lobby);
         dbServiceThread.setName("Lobby");
         dbServiceThread.start();
-    }
-
-    @Test
-    public void getMasterService() {
-        MasterService masterService = new MasterServiceImpl(configPath);
-        Lobby lobby = new LobbyImpl(masterService, configPath);
-        Assert.assertEquals(lobby.getMasterService(), masterService);
     }
 
     @Test

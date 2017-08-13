@@ -20,18 +20,11 @@ public class GameMechanicsTests {
     @BeforeClass
     public static void createBase() {
         masterService = new MasterServiceImpl(configPath);
-        gameMechanics = new GameMechanicsImpl(masterService, configPath);
+        gameMechanics = new GameMechanicsImpl(configPath);
         //noinspection ConstantConditions
         Thread dbServiceThread = new Thread(gameMechanics);
         dbServiceThread.setName("GM");
         dbServiceThread.start();
-    }
-
-    @Test
-    public void getMasterService() {
-        MasterService masterService = new MasterServiceImpl(configPath);
-        GameMechanics gameMechanics = new GameMechanicsImpl(masterService, configPath);
-        Assert.assertEquals(gameMechanics.getMasterService(), masterService);
     }
 
     @Test

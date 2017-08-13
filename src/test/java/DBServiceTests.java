@@ -1,7 +1,6 @@
 import databaseService.DBService;
 import main.HDBServiceImpl;
 import main.MasterServiceImpl;
-import masterService.MasterService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,23 +11,16 @@ public class DBServiceTests {
 
     @BeforeClass
     public static void createBase() {
-        MasterService masterService = new MasterServiceImpl(configPath);
-        DBService dbService = new HDBServiceImpl(masterService, configPath);
+        new MasterServiceImpl(configPath);
+        DBService dbService = new HDBServiceImpl(configPath);
         //noinspection ConstantConditions
         if (dbService instanceof HDBServiceImpl) {
-            ((HDBServiceImpl) dbService).setHbm2dll("create-drop");
+            ((HDBServiceImpl) dbService).setHbm2dll("create");
         }
         Thread dbServiceThread = new Thread(dbService);
         dbServiceThread.setName("DBService");
         dbServiceThread.start();
         DBServiceTests.dbService = dbService;
-    }
-
-    @Test
-    public void getMasterService() {
-        MasterService masterService = new MasterServiceImpl(configPath);
-        DBService dbService = new HDBServiceImpl(masterService, configPath);
-        Assert.assertEquals(masterService, dbService.getMasterService());
     }
 
     @Test
@@ -45,17 +37,13 @@ public class DBServiceTests {
         dbService.createAccount("acc4", "3");
 
         Long acc1 = dbService.getAccountId("acc1", "0", 1L);
-        Long l = 1L;
-        Assert.assertEquals(acc1, l);
+        Assert.assertNotEquals(acc1, null);
         acc1 = dbService.getAccountId("acc2", "1", 1L);
-        l = 2L;
-        Assert.assertEquals(acc1, l);
+        Assert.assertNotEquals(acc1, null);
         acc1 = dbService.getAccountId("acc3", "2", 1L);
-        l = 3L;
-        Assert.assertEquals(acc1, l);
+        Assert.assertNotEquals(acc1, null);
         acc1 = dbService.getAccountId("acc4", "3", 1L);
-        l = 4L;
-        Assert.assertEquals(acc1, l);
+        Assert.assertNotEquals(acc1, null);
     }
 
     @Test

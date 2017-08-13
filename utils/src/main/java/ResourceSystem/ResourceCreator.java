@@ -8,7 +8,7 @@ import Serialization.Serializator;
 
 public class ResourceCreator {
 
-    private static final String path = "base/src/main/resources/configs/config.xml";
+    private static final String path = "src/test/resources/testConfig";
 
     public static void main(String[] args) {
         createServerConfig();
@@ -22,7 +22,7 @@ public class ResourceCreator {
 
     private static void createServerConfig() {
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setDatabasePath("jdbc:postgresql://localhost:5432/mobs");
+        serverConfig.setDatabasePath("jdbc:postgresql://localhost:5432/testdb");
         serverConfig.setDbLogin("postgres");
         serverConfig.setDbPass("mobs");
 
