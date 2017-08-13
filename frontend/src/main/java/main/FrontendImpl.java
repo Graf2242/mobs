@@ -1,15 +1,17 @@
 package main;
 
+import MessageSystem.NodeMessageReceiver;
+import MessageSystem.NodeMessageSender;
+import MessageSystem.messages.DBService.DBFindUserIdMessage;
+import MessageSystem.messages.Lobby.LAddUser;
+import MessageSystem.messages.masterService.MRegister;
 import ResourceSystem.ResourceFactory;
 import ResourceSystem.Resources.configs.ServerConfig;
 import frontend.Frontend;
 import frontend.FrontendUserSession;
 import frontend.UserSessionStatus;
-import masterService.Address;
-import masterService.MasterService;
-import messages.DBService.DBFindUserIdMessage;
-import messages.Lobby.LAddUser;
-import messages.masterService.MRegister;
+import masterService.Message;
+import masterService.nodes.Address;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -20,24 +22,41 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class FrontendImpl extends AbstractHandler implements Frontend {
     private final Address address = new Address();
-    private final MasterService masterService;
+    private final ServerConfig serverConfig;
     private final Map<Long, FrontendUserSession> sessions = new HashMap<>();
+    Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
     private String configPath;
     private ResourceFactory resourceFactory;
+    private Socket masterService;
 
-    public FrontendImpl(MasterService MasterService, String configPath) {
-        this.masterService = MasterService;
+    public FrontendImpl(String configPath) {
         this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
+
+        serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(serverConfig.getFrontend().getIp());
+            masterService = new Socket(serverConfig.getMaster().getIp(),
+                    Integer.parseInt(serverConfig.getMaster().getPort()), address,
+                    Integer.parseInt(serverConfig.getFrontend().getPort()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        startFrontend();
+        new NodeMessageReceiver(unhandledMessages, masterService, this);
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getFrontend().getIp(), serverConfig.getFrontend().getPort()));
+
     }
 
     @Override
@@ -55,20 +74,25 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     }
 
     @Override
-    public MasterService getMasterService() {
+    public Socket getMasterService() {
         return masterService;
     }
 
     @Override
     public void run() {
-        masterService.addMessage(new MRegister(address, this));
-        startFrontend();
         TickSleeper tickSleeper = new TickSleeper();
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
-            masterService.execNodeMessages(this);
+            execNodeMessages();
             tickSleeper.tickEnd();
+        }
+    }
+
+
+    private void execNodeMessages() {
+        while (!unhandledMessages.isEmpty()) {
+            unhandledMessages.poll().exec(this);
         }
     }
 
@@ -93,7 +117,7 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
         ServerConnector connector = new ServerConnector(server);
         connector.setHost(config.getFrontend().getIp());
-        connector.setPort(Integer.parseInt(config.getFrontend().getPort()));
+        connector.setPort(Integer.parseInt(config.getFrontend().getFrontendPort()));
         server.addConnector(connector);
         server.setHandler(this);
 
@@ -143,11 +167,12 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
         Long userId = userSession.getUserId();
 
         //CreateUser
-        //   masterService.addMessage(new DBCreateUser(address, userName, pass, userSession.getSessionId()));
+        //   NodeMessageSender.sendMessage(new DBCreateUser(address, userName, pass, userSession.getSessionId()));
 
         //Login
-        if (userId == null) {
-            masterService.addMessage(new DBFindUserIdMessage(address, userName, pass, userSession.getSessionId()));
+        if (userId == null && userSession.getStatus().equals(UserSessionStatus.CONNECTED)) {
+            userSession.setStatus(UserSessionStatus.IN_LOGIN);
+            NodeMessageSender.sendMessage(masterService, new DBFindUserIdMessage(address, userName, pass, userSession.getSessionId()));
             response.getWriter().println("<h1>Wait for authorization</h1><meta http-equiv=\"refresh\" content=\"1\">");
         } else if (userSession.getStatus().equals(UserSessionStatus.FIGHT)) {
             response.getWriter().println("<h1>User name: " + userSession.getUserName() + " Id: " + userSession.getUserId() + " , sessionTime = " + getUserDateFull(userSession.getSessionTime()) + "</h1><meta http-equiv=\"refresh\" content=\"1\">");
@@ -157,13 +182,11 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     }
 
     @Override
-    public boolean updateUserId(Long sessionId, Long userId) {
+    public void updateUserId(Long sessionId, Long userId) {
         if (sessions.get(sessionId).getUserId() == null) {
             sessions.get(sessionId).setUserId(userId);
-            masterService.addMessage(new LAddUser(address, userId, sessions.get(sessionId).getUserName()));
-            return true;
+            NodeMessageSender.sendMessage(masterService, new LAddUser(address, userId, sessions.get(sessionId).getUserName()));
         }
-        return false;
     }
 
     @Override

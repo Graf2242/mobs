@@ -1,7 +1,6 @@
 package graf.server;
 
 
-import ResourceSystem.ResourceFactory;
 import databaseService.DBService;
 import frontend.Frontend;
 import gameMechanics.GameMechanics;
@@ -14,7 +13,6 @@ import java.util.Objects;
 public class Start {
 
     public static void main(String[] args) {
-        ResourceFactory.instance();
         String arg = null;
         try {
             arg = args[0];
@@ -26,22 +24,22 @@ public class Start {
         Thread masterThread = new Thread(masterService);
         masterThread.start();
 
-        DBService dbService = new HDBServiceImpl(masterService, configPath);
+        DBService dbService = new HDBServiceImpl(configPath);
         Thread dbServiceThread = new Thread(dbService);
         dbServiceThread.setName("DBService");
         dbServiceThread.start();
 
-        Frontend frontend = new FrontendImpl(masterService, configPath);
+        Frontend frontend = new FrontendImpl(configPath);
         Thread frontendThread = new Thread(frontend);
         frontendThread.setName("frontend");
         frontendThread.start();
 
-        Lobby lobby = new LobbyImpl(masterService, configPath);
+        Lobby lobby = new LobbyImpl(configPath);
         Thread lobbyThread = new Thread(lobby);
         lobbyThread.setName("LOBBY");
         lobbyThread.start();
 
-        GameMechanics gameMechanics = new GameMechanicsImpl(masterService, configPath);
+        GameMechanics gameMechanics = new GameMechanicsImpl(configPath);
         Thread gameMechanicsThread = new Thread(gameMechanics);
         gameMechanicsThread.setName("GameMechanics");
         gameMechanicsThread.start();

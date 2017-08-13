@@ -9,7 +9,7 @@ import java.util.Set;
 public class GameMechanicsSessionImpl implements GameMechanicsSession {
     private final Set<Long> userIds;
     private final Long startTime;
-    private Fight fight;
+    private transient Fight fight;
 
     public GameMechanicsSessionImpl(Set<Long> userIds) {
         this.userIds = userIds;

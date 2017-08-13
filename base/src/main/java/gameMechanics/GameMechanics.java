@@ -1,14 +1,14 @@
 package gameMechanics;
 
-import masterService.MasterService;
-import masterService.Node;
+import masterService.nodes.Node;
 
+import java.net.Socket;
 import java.util.Set;
 
 public interface GameMechanics extends Node, Runnable {
     Set<GameMechanicsSession> getSessions();
 
-    MasterService getMasterService();
+    Socket getMasterService();
 
     void registerGMSession(Set<Long> userIDs);
 

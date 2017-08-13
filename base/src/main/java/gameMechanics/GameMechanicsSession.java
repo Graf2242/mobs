@@ -1,8 +1,9 @@
 package gameMechanics;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public interface GameMechanicsSession {
+public interface GameMechanicsSession extends Serializable {
     Long getStartTime();
 
     Long getSessionTime();

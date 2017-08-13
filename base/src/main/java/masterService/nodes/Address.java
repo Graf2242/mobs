@@ -1,8 +1,9 @@
-package masterService;
+package masterService.nodes;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Address {
+public class Address implements Serializable {
     final static private AtomicInteger atomicInteger = new AtomicInteger();
     final private Integer id;
 

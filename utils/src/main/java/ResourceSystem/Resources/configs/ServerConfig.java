@@ -1,11 +1,12 @@
 package ResourceSystem.Resources.configs;
 
+import Serialization.Serializator;
 import utils.Resource;
 
 public class ServerConfig implements Resource {
     NodeConfig master;
 
-    NodeConfig frontend;
+    FrontendConfig frontend;
 
     NodeConfig dbService;
 
@@ -19,10 +20,19 @@ public class ServerConfig implements Resource {
 
     public ServerConfig() {
         master = new NodeConfig();
-        frontend = new NodeConfig();
+        frontend = new FrontendConfig();
         dbService = new NodeConfig();
         lobby = new NodeConfig();
         mechanics = new NodeConfig();
+    }
+
+    public static ServerConfig newInstance(String path) {
+        try {
+            return (ServerConfig) Serializator.deserializeXmlFile(path);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public NodeConfig getMaster() {
@@ -33,11 +43,11 @@ public class ServerConfig implements Resource {
         this.master = master;
     }
 
-    public NodeConfig getFrontend() {
+    public FrontendConfig getFrontend() {
         return frontend;
     }
 
-    public void setFrontend(NodeConfig frontend) {
+    public void setFrontend(FrontendConfig frontend) {
         this.frontend = frontend;
     }
 

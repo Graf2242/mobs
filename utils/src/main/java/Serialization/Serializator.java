@@ -19,6 +19,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.Base64;
 import java.util.Objects;
 
 public class Serializator {
@@ -35,7 +36,7 @@ public class Serializator {
         }
     }
 
-    public static byte[] serializeToString(Object o) throws UnsupportedEncodingException {
+    public static String serializeToString(Object o) throws UnsupportedEncodingException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos;
         try {
@@ -45,7 +46,8 @@ public class Serializator {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return baos.toByteArray();
+
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
     public static Resource deserializeXmlFile(String path) throws NoSuchFieldException, IllegalAccessException {
@@ -175,12 +177,14 @@ public class Serializator {
     }
 
 
-    public static <T> T deserializeString(byte[] message) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(message);
+    public static <T> T deserializeString(String message) {
+        byte[] messageBytes = Base64.getDecoder().decode(message);
+        ByteArrayInputStream bais = new ByteArrayInputStream(messageBytes);
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(bais);
         } catch (Exception ignored) {
+            System.out.println(message);
             ignored.printStackTrace();
         }
         T resource = null;

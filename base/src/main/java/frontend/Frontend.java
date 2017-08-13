@@ -1,17 +1,17 @@
 package frontend;
 
-import masterService.Address;
-import masterService.MasterService;
-import masterService.Node;
+import masterService.nodes.Address;
+import masterService.nodes.Node;
 
+import java.net.Socket;
 import java.util.Map;
 
 public interface Frontend extends Node, Runnable {
     Map<Long, FrontendUserSession> getSessions();
 
-    MasterService getMasterService();
+    Socket getMasterService();
 
-    boolean updateUserId(Long sessionId, Long userId);
+    void updateUserId(Long sessionId, Long userId);
 
     void updateSessionStatus(Long sessionId, UserSessionStatus status);
 

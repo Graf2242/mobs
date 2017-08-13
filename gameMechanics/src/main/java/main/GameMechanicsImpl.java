@@ -1,34 +1,60 @@
 package main;
 
 import Mechanics.FightImpl;
+import MessageSystem.NodeMessageReceiver;
+import MessageSystem.NodeMessageSender;
+import MessageSystem.messages.Frontend.FUpdateSessions;
+import MessageSystem.messages.masterService.MRegister;
 import ResourceSystem.ResourceFactory;
+import ResourceSystem.Resources.configs.ServerConfig;
 import gameMechanics.GameMechanics;
 import gameMechanics.GameMechanicsSession;
-import masterService.Address;
-import masterService.MasterService;
-import messages.Frontend.FUpdateSessions;
-import messages.masterService.MRegister;
+import masterService.Message;
+import masterService.nodes.Address;
 import tickSleeper.TickSleeper;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 public class GameMechanicsImpl implements GameMechanics {
-    private final MasterService masterService;
+    private final Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
+    private final NodeMessageReceiver messageReceiver;
+    private final ServerConfig serverConfig;
+    private Socket masterService;
     private String configPath;
     Address address = new Address();
 
 
-    public GameMechanicsImpl(MasterService masterService, String configPath) {
-        this.masterService = masterService;
+    public GameMechanicsImpl(String configPath) {
         this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
+
+        serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
+
+
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(serverConfig.getMechanics().getIp());
+            masterService =
+                    new Socket(serverConfig.getMaster().getIp(),
+                            Integer.parseInt(serverConfig.getMaster().getPort()),
+                            address,
+                            Integer.parseInt(serverConfig.getMechanics().getPort()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getMechanics().getIp(), serverConfig.getMechanics().getPort()));
     }
 
     Set<GameMechanicsSession> sessions = new HashSet<>();
-    Set<GameMechanicsSession> updatedSessions = new HashSet<>();
     Random random = new Random();
     Logger log = Logger.getLogger("GameMechanics");
     ResourceFactory resourceFactory;
@@ -44,27 +70,31 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     @Override
-    public MasterService getMasterService() {
+    public Socket getMasterService() {
         return masterService;
     }
 
-
     @Override
     public void run() {
-        masterService.addMessage(new MRegister(address, this));
         TickSleeper tickSleeper = new TickSleeper();
         tickSleeper.setTickTimeMs(100L);
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
-            masterService.execNodeMessages(this);
+            execNodeMessages();
             sendUpdatesToFrontend();
             tickSleeper.tickEnd();
         }
     }
 
+    private void execNodeMessages() {
+        while (!unhandledMessages.isEmpty()) {
+            unhandledMessages.poll().exec(this);
+        }
+    }
+
     private void sendUpdatesToFrontend() {
-        masterService.addMessage(new FUpdateSessions(address, sessions));
+        NodeMessageSender.sendMessage(masterService, new FUpdateSessions(address, sessions));
     }
 
     @Override

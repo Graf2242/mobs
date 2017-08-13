@@ -1,6 +1,11 @@
 package masterService;
 
-public abstract class Message {
+import masterService.nodes.Address;
+import masterService.nodes.Node;
+
+import java.io.Serializable;
+
+public abstract class Message implements Serializable {
     final private Address from;
     final private Class<? extends Node> to;
 
@@ -9,9 +14,14 @@ public abstract class Message {
         this.to = to;
     }
 
+    public Message() {
+        from = null;
+        to = null;
+    }
+
     @Override
     public String toString() {
-        return from.toString();
+        throw new UnsupportedOperationException();
     }
 
     public Address getFrom() {
@@ -23,4 +33,6 @@ public abstract class Message {
     }
 
     public abstract void exec(Node node);
+
+
 }

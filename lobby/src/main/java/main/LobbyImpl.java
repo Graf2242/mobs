@@ -1,16 +1,22 @@
 package main;
 
+import MessageSystem.NodeMessageReceiver;
+import MessageSystem.NodeMessageSender;
+import MessageSystem.messages.Frontend.FUpdateSessions;
+import MessageSystem.messages.GameMechanics.GMStartSession;
+import MessageSystem.messages.masterService.MRegister;
 import ResourceSystem.ResourceFactory;
+import ResourceSystem.Resources.configs.ServerConfig;
 import frontend.UserSessionStatus;
 import lobby.Lobby;
 import lobby.LobbyUserSession;
-import masterService.Address;
-import masterService.MasterService;
-import messages.Frontend.FUpdateSessions;
-import messages.GameMechanics.GMStartSession;
-import messages.masterService.MRegister;
+import masterService.Message;
+import masterService.nodes.Address;
 import tickSleeper.TickSleeper;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
@@ -18,16 +24,29 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class LobbyImpl implements Lobby {
     private final Address address = new Address();
-    private final MasterService masterService;
-    private String configPath;
+    private final NodeMessageReceiver messageReceiver;
+    private final Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
+    private final ServerConfig serverConfig;
     private final Integer FIGHT_CAPACITY = 1;
     private final Set<LobbyUserSession> users = new HashSet<>();
     private ResourceFactory resourceFactory;
+    private Socket masterService;
 
-    public LobbyImpl(MasterService masterService, String configPath) {
-        this.masterService = masterService;
-        this.configPath = configPath;
+    public LobbyImpl(String configPath) {
         this.resourceFactory = ResourceFactory.instance();
+
+        serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(serverConfig.getLobby().getIp());
+            masterService = new Socket(serverConfig.getMaster().getIp(),
+                    Integer.parseInt(serverConfig.getMaster().getPort()), address,
+                    Integer.parseInt(serverConfig.getLobby().getPort()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getLobby().getIp(), serverConfig.getLobby().getPort()));
     }
 
     @Override
@@ -47,14 +66,19 @@ public class LobbyImpl implements Lobby {
 
     @Override
     public void run() {
-        masterService.addMessage(new MRegister(address, this));
         TickSleeper tickSleeper = new TickSleeper();
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
-            masterService.execNodeMessages(this);
+            execNodeMessages();
             createFights();
             tickSleeper.tickEnd();
+        }
+    }
+
+    private void execNodeMessages() {
+        while (!unhandledMessages.isEmpty()) {
+            unhandledMessages.poll().exec(this);
         }
     }
 
@@ -67,7 +91,7 @@ public class LobbyImpl implements Lobby {
                 user.setInFight(true);
                 fightUsers.add(user.getUserId());
             }
-            masterService.addMessage(new GMStartSession(address, fightUsers));
+            NodeMessageSender.sendMessage(masterService, new GMStartSession(address, fightUsers));
         }
     }
 
@@ -88,7 +112,7 @@ public class LobbyImpl implements Lobby {
     }
 
     @Override
-    public MasterService getMasterService() {
+    public Socket getMasterService() {
         return masterService;
     }
 
@@ -97,7 +121,7 @@ public class LobbyImpl implements Lobby {
         LobbyUserSession lobbyUserInfo = new LobbyUserSessionImpl(userId, userName);
         if (!getUsers().contains(lobbyUserInfo)) {
             registerUser(lobbyUserInfo);
-            getMasterService().addMessage(new FUpdateSessions(getAddress(), userId, UserSessionStatus.LOBBY));
+            NodeMessageSender.sendMessage(masterService, new FUpdateSessions(getAddress(), userId, UserSessionStatus.LOBBY));
         }
     }
 }

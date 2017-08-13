@@ -1,9 +1,9 @@
 package lobby;
 
-import masterService.Address;
-import masterService.MasterService;
-import masterService.Node;
+import masterService.nodes.Address;
+import masterService.nodes.Node;
 
+import java.net.Socket;
 import java.util.Set;
 
 public interface Lobby extends Node, Runnable {
@@ -11,7 +11,7 @@ public interface Lobby extends Node, Runnable {
 
     Set<LobbyUserSession> getUsers();
 
-    MasterService getMasterService();
+    Socket getMasterService();
 
     Address getAddress();
 

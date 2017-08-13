@@ -2,13 +2,15 @@ package main;
 
 import Account.HAccountDataSet;
 import Account.HAccountsDAO;
+import MessageSystem.NodeMessageReceiver;
+import MessageSystem.NodeMessageSender;
+import MessageSystem.messages.Frontend.FWrongLoginData;
+import MessageSystem.messages.masterService.MRegister;
 import ResourceSystem.ResourceFactory;
 import ResourceSystem.Resources.configs.ServerConfig;
 import databaseService.DBService;
-import masterService.Address;
-import masterService.MasterService;
-import messages.Frontend.FWrongLoginData;
-import messages.masterService.MRegister;
+import masterService.Message;
+import masterService.nodes.Address;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -17,21 +19,51 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import tickSleeper.TickSleeper;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class HDBServiceImpl implements DBService {
-    final MasterService masterService;
     final private Address address = new Address();
     SessionFactory sessionFactory;
     private ResourceFactory resourceFactory = ResourceFactory.instance();
-    private String configPath;
+    private final NodeMessageReceiver messageReceiver;
+    ServerConfig serverConfig;
     private String hbm2dll = "update";
+    private Socket masterService;
+    private Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
 
-    public HDBServiceImpl(MasterService masterService, String configPath) {
-        this.masterService = masterService;
-        this.configPath = configPath;
+    public HDBServiceImpl(String configPath) {
+        serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(serverConfig.getDbService().getIp());
+            masterService = new Socket(serverConfig.getMaster().getIp(),
+                    Integer.parseInt(serverConfig.getMaster().getPort()), address,
+                    Integer.parseInt(serverConfig.getDbService().getPort()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         resourceFactory = ResourceFactory.instance();
+        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
+
+        Configuration configuration = new Configuration();
+        configuration.addAnnotatedClass(HAccountDataSet.class);
+
+        this.sessionFactory = createSessionConfig(configuration);
+
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        System.out.append(transaction.getStatus().toString()).append(String.valueOf('\n'));
+        session.close();
+
+        //noinspection InfiniteLoopStatement
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getDbService().getIp(), serverConfig.getDbService().getPort()));
+
     }
 
     public void setHbm2dll(String hbm2dll) {
@@ -39,7 +71,7 @@ public class HDBServiceImpl implements DBService {
     }
 
     @Override
-    public MasterService getMasterService() {
+    public Socket getMasterService() {
         return masterService;
     }
 
@@ -49,11 +81,11 @@ public class HDBServiceImpl implements DBService {
         HAccountsDAO dao = new HAccountsDAO(sessionFactory);
         dataSet = dao.get(userName);
         if (Objects.equals(dataSet, null)) {
-            masterService.addMessage(new FWrongLoginData(address, sessionId));
+            NodeMessageSender.sendMessage(masterService, new FWrongLoginData(address, sessionId));
             return null;
         }
         if (!userName.equals(dataSet.getLogin()) || !pass.equals(dataSet.getPass())) {
-            masterService.addMessage(new FWrongLoginData(address, sessionId));
+            NodeMessageSender.sendMessage(masterService, new FWrongLoginData(address, sessionId));
             return null;
         }
         return dataSet.getId();
@@ -82,31 +114,23 @@ public class HDBServiceImpl implements DBService {
 
     @Override
     public void run() {
-        masterService.addMessage(new MRegister(address, this));
-
-
-        Configuration configuration = new Configuration();
-        configuration.addAnnotatedClass(HAccountDataSet.class);
-
-        this.sessionFactory = createSessionConfig(configuration);
-
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        System.out.append(transaction.getStatus().toString()).append(String.valueOf('\n'));
-        session.close();
-
         TickSleeper tickSleeper = new TickSleeper();
         tickSleeper.setTickTimeMs(100L);
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
-            masterService.execNodeMessages(this);
+            execNodeMessages();
             tickSleeper.tickEnd();
         }
     }
 
+    private void execNodeMessages() {
+        while (!unhandledMessages.isEmpty()) {
+            unhandledMessages.poll().exec(this);
+        }
+    }
+
     public SessionFactory createSessionConfig(Configuration configuration) {
-        ServerConfig serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");

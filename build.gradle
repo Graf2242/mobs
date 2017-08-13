@@ -14,5 +14,11 @@ dependencies {
     compile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.0-b07'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.1.3.jre7'
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.10.Final'
-
+    compile project(':base')
+    compile project(':utils')
+    compile project(':databaseService')
+    compile project(':frontend')
+    compile project(':gameMechanics')
+    compile project(':lobby')
+    compile project(':masterService')
 }

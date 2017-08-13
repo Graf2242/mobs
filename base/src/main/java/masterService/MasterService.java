@@ -1,14 +1,16 @@
 package masterService;
 
+import masterService.nodes.Node;
+
+import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
 public interface MasterService extends Node, Runnable {
-    Map<Class<? extends Node>, List<Address>> getNodes();
+    Map<Class<? extends Node>, List<Socket>> getNodes();
 
-    String getIpAddress();
+    Connector getConnector();
 
     void addMessage(Message message);
 
-    void execNodeMessages(Node node);
 }

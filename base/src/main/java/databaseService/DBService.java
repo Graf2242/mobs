@@ -1,10 +1,11 @@
 package databaseService;
 
-import masterService.MasterService;
-import masterService.Node;
+import masterService.nodes.Node;
+
+import java.net.Socket;
 
 public interface DBService extends Node, Runnable {
-    MasterService getMasterService();
+    Socket getMasterService();
 
     Long getAccountId(String userName, String pass, Long sessionId);
 

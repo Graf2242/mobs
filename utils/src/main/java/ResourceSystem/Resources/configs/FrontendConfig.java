@@ -2,9 +2,10 @@ package ResourceSystem.Resources.configs;
 
 import java.io.Serializable;
 
-public class NodeConfig implements Serializable {
-    protected String ip;
-    protected String port;
+public class FrontendConfig implements Serializable {
+    private String frontendPort;
+    private String ip;
+    private String port;
 
     public String getIp() {
         return ip;
@@ -20,5 +21,13 @@ public class NodeConfig implements Serializable {
 
     public void setPort(String port) {
         this.port = port;
+    }
+
+    public String getFrontendPort() {
+        return frontendPort;
+    }
+
+    public void setFrontendPort(String frontendPort) {
+        this.frontendPort = frontendPort;
     }
 }
