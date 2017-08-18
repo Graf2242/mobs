@@ -30,7 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class HDBServiceImpl implements DBService {
     final private Address address = new Address();
     SessionFactory sessionFactory;
-    private ResourceFactory resourceFactory = ResourceFactory.instance();
+    private ResourceFactory resourceFactory;
     private final NodeMessageReceiver messageReceiver;
     ServerConfig serverConfig;
     private String hbm2dll = "update";
@@ -38,6 +38,7 @@ public class HDBServiceImpl implements DBService {
     private Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
 
     public HDBServiceImpl(String configPath) {
+        resourceFactory = ResourceFactory.instance();
         serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
         InetAddress address;
         try {
@@ -53,7 +54,7 @@ public class HDBServiceImpl implements DBService {
 
 
         //noinspection InfiniteLoopStatement
-        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getDbService().getIp(), serverConfig.getDbService().getPort()));
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, DBService.class, serverConfig.getDbService().getIp(), serverConfig.getDbService().getPort()));
 
     }
 
@@ -80,6 +81,21 @@ public class HDBServiceImpl implements DBService {
             return null;
         }
         return dataSet.getId();
+    }
+
+    public static void main(String[] args) {
+        String arg = null;
+        try {
+            arg = args[0];
+        } catch (Exception ignored) {
+        }
+        String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+
+        DBService dbService = new HDBServiceImpl(configPath);
+        Thread dbServiceThread = new Thread(dbService);
+        dbServiceThread.setName("DBService");
+        dbServiceThread.start();
+
     }
 
     @Override
