@@ -37,6 +37,7 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     private String configPath;
     private ResourceFactory resourceFactory;
     private Socket masterService;
+    private boolean masterIsReady;
 
     public FrontendImpl(String configPath) {
         this.configPath = configPath;
@@ -55,7 +56,21 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
         startFrontend();
         new NodeMessageReceiver(unhandledMessages, masterService, this);
-        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getFrontend().getIp(), serverConfig.getFrontend().getPort()));
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Frontend.class, serverConfig.getFrontend().getIp(), serverConfig.getFrontend().getPort()));
+
+    }
+
+    public static void main(String[] args) {
+        String arg = null;
+        try {
+            arg = args[0];
+        } catch (Exception ignored) {
+        }
+        String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+        Frontend frontend = new FrontendImpl(configPath);
+        Thread frontendThread = new Thread(frontend);
+        frontendThread.setName("frontend");
+        frontendThread.start();
 
     }
 
@@ -80,7 +95,13 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
     @Override
     public void run() {
+
         TickSleeper tickSleeper = new TickSleeper();
+        while (!masterIsReady) {
+            tickSleeper.tickStart();
+            execNodeMessages();
+            tickSleeper.tickEnd();
+        }
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
@@ -220,5 +241,10 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     @Override
     public Address getAddress() {
         return address;
+    }
+
+    @Override
+    public void setMasterIsReady(boolean masterIsReady) {
+        this.masterIsReady = true;
     }
 }

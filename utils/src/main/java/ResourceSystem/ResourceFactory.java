@@ -18,7 +18,7 @@ public class ResourceFactory {
     VFS vfs;
 
     private ResourceFactory() {
-        homePath = "src/main/resources/resources";
+        this.homePath = "data";
         vfs = new VFSImpl(homePath);
         loadAll();
     }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ResourceSystem.Resources.configs.ServerConfig>
+    <master>
+        <ip>localhost</ip>
+        <port>9095</port>
+    </master>
+    <frontend>
+        <ip>localhost</ip>
+        <port>9092</port>
+        <frontendPort>9093</frontendPort>
+    </frontend>
+    <dbService>
+        <ip>localhost</ip>
+        <port>9091</port>
+    </dbService>
+    <lobby>
+        <ip>localhost</ip>
+        <port>9094</port>
+    </lobby>
+    <mechanics>
+        <ip>localhost</ip>
+        <port>9096</port>
+    </mechanics>
+    <databasePath>jdbc:postgresql://localhost:5432/mobs</databasePath>
+    <dbLogin>postgres</dbLogin>
+    <dbPass>mobs</dbPass>
+</ResourceSystem.Resources.configs.ServerConfig>

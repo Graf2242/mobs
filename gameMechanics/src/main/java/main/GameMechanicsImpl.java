@@ -16,10 +16,7 @@ import tickSleeper.TickSleeper;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
@@ -30,7 +27,7 @@ public class GameMechanicsImpl implements GameMechanics {
     private Socket masterService;
     private String configPath;
     Address address = new Address();
-
+    private boolean masterIsReady;
 
     public GameMechanicsImpl(String configPath) {
         this.configPath = configPath;
@@ -51,7 +48,20 @@ public class GameMechanicsImpl implements GameMechanics {
             e.printStackTrace();
         }
         messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
-        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getMechanics().getIp(), serverConfig.getMechanics().getPort()));
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, GameMechanics.class, serverConfig.getMechanics().getIp(), serverConfig.getMechanics().getPort()));
+    }
+
+    public static void main(String[] args) {
+        String arg = null;
+        try {
+            arg = args[0];
+        } catch (Exception ignored) {
+        }
+        String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+        GameMechanics gameMechanics = new GameMechanicsImpl(configPath);
+        Thread gameMechanicsThread = new Thread(gameMechanics);
+        gameMechanicsThread.setName("GameMechanics");
+        gameMechanicsThread.start();
     }
 
     Set<GameMechanicsSession> sessions = new HashSet<>();
@@ -70,6 +80,11 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     @Override
+    public void setMasterIsReady(boolean masterIsReady) {
+        this.masterIsReady = true;
+    }
+
+    @Override
     public Socket getMasterService() {
         return masterService;
     }
@@ -77,7 +92,12 @@ public class GameMechanicsImpl implements GameMechanics {
     @Override
     public void run() {
         TickSleeper tickSleeper = new TickSleeper();
-        tickSleeper.setTickTimeMs(100L);
+        tickSleeper.setTickTimeMs(1000L);
+        while (!masterIsReady) {
+            tickSleeper.tickStart();
+            execNodeMessages();
+            tickSleeper.tickEnd();
+        }
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
@@ -94,7 +114,13 @@ public class GameMechanicsImpl implements GameMechanics {
     }
 
     private void sendUpdatesToFrontend() {
-        NodeMessageSender.sendMessage(masterService, new FUpdateSessions(address, sessions));
+        Map<Long, Long> userInfos = new HashMap<>();
+        for (GameMechanicsSession session : sessions) {
+            for (Long userId : session.getUserIds()) {
+                userInfos.put(userId, session.getSessionTime());
+            }
+        }
+        NodeMessageSender.sendMessage(masterService, new FUpdateSessions(address, userInfos));
     }
 
     @Override

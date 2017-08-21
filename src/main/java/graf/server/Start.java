@@ -1,12 +1,6 @@
 package graf.server;
 
-
-import databaseService.DBService;
-import frontend.Frontend;
-import gameMechanics.GameMechanics;
-import lobby.Lobby;
 import main.*;
-import masterService.MasterService;
 
 import java.util.Objects;
 
@@ -20,6 +14,14 @@ public class Start {
         }
         String configPath = Objects.equals(arg, null) ? "base/src/main/resources/configs/config.xml" : arg;
 
+        String[] outArgs = new String[1];
+        outArgs[0] = configPath;
+        MasterServiceImpl.main(outArgs);
+        HDBServiceImpl.main(outArgs);
+        FrontendImpl.main(outArgs);
+        LobbyImpl.main(outArgs);
+        GameMechanicsImpl.main(outArgs);
+/*
         MasterService masterService = new MasterServiceImpl(configPath);
         Thread masterThread = new Thread(masterService);
         masterThread.start();
@@ -43,6 +45,7 @@ public class Start {
         Thread gameMechanicsThread = new Thread(gameMechanics);
         gameMechanicsThread.setName("GameMechanics");
         gameMechanicsThread.start();
+        */
     }
 
 }

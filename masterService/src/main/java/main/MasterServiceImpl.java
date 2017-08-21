@@ -1,9 +1,13 @@
 package main;
 
-import MessageSystem.messages.masterService.MRegister;
+import MessageSystem.messages.MessageMasterIsReady;
 import MessageSystem.messages.masterService._MasterMessageTemplate;
 import ResourceSystem.Resources.configs.ServerConfig;
 import Serialization.Serializator;
+import databaseService.DBService;
+import frontend.Frontend;
+import gameMechanics.GameMechanics;
+import lobby.Lobby;
 import masterService.Connector;
 import masterService.MasterService;
 import masterService.Message;
@@ -30,10 +34,11 @@ public class MasterServiceImpl implements MasterService {
     Address address = new Address();
     final private Map<Class<? extends Node>, List<Socket>> nodes = new HashMap<>();
     private final Connector connector;
-    final private List<Message> unsortedMessages = new CopyOnWriteArrayList<>();
+    final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
     ServerConfig serverConfig;
 
     private String configPath;
+
 
     public MasterServiceImpl(String configPath) {
         this.configPath = configPath;
@@ -52,13 +57,21 @@ public class MasterServiceImpl implements MasterService {
 
         List<Socket> sockets = new CopyOnWriteArrayList<>();
         connector = new ConnectorImpl(serverSocket, sockets);
-        new MessageExecutor(nodes, unsortedMessages, sockets);
+        new MessageExecutor(nodes, unsortedMessages, sockets, this);
 
     }
 
     public static void main(String[] args) {
-        MasterService masterService = new MasterServiceImpl(args[0]);
-        masterService.run();
+        String arg = null;
+        try {
+            arg = args[0];
+        } catch (Exception ignored) {
+        }
+        String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+
+        MasterService masterService = new MasterServiceImpl(configPath);
+        Thread masterThread = new Thread(masterService);
+        masterThread.start();
     }
 
     @Override
@@ -76,7 +89,9 @@ public class MasterServiceImpl implements MasterService {
     }
 
     private void sortMessages() {
-        for (Message message : unsortedMessages) {
+        while (!unsortedMessages.isEmpty()) {
+            Message message = unsortedMessages.poll();
+            log.info("Received message");
             unsortedMessages.remove(message);
             if (Objects.equals(message, null)) {
                 continue;
@@ -95,7 +110,7 @@ public class MasterServiceImpl implements MasterService {
                         throw new WrongTransaction("unknown node");
                     } catch (WrongTransaction wrongTransaction) {
                         log.info("Message to unknown node:" + message.getTo() + " from: " + message.toString());
-                        wrongTransaction.printStackTrace();
+//                        wrongTransaction.printStackTrace();
                     }
                 }
                 Socket target = targetL[0];
@@ -111,39 +126,6 @@ public class MasterServiceImpl implements MasterService {
         }
     }
 
-    @Deprecated
-    private void sortMessageOld(Message message) {
-        final Socket[] targetL = new Socket[1];
-        List<Socket> allAddressees = new ArrayList<>();
-        targetL[0] = null;
-        nodes.forEach((aClass, addresses) -> {
-            allAddressees.addAll(addresses);
-            boolean assignableFrom = message.getTo().isAssignableFrom(aClass);
-            if (assignableFrom) {
-                targetL[0] = getBestAddressByRole(nodes.get(aClass));
-            }
-        });
-
-        if (!(message instanceof MRegister)) {
-            if (targetL[0] == null) {
-                try {
-                    throw new WrongTransaction("unknown node");
-                } catch (WrongTransaction wrongTransaction) {
-                    log.info("Message to unknown node:" + message.getTo() + " from: " + message.toString());
-                    wrongTransaction.printStackTrace();
-                }
-            }
-        }
-
-        Socket target = targetL[0];
-        Queue<Message> currentNodeMessages = messages.get(target);
-        if (currentNodeMessages == null) {
-            currentNodeMessages = new LinkedBlockingQueue<>();
-        }
-        currentNodeMessages.add(message);
-        messages.put(target, currentNodeMessages);
-    }
-
     private Socket getBestAddressByRole(List<Socket> addresses) {
         return addresses.get(0);
     }
@@ -156,6 +138,12 @@ public class MasterServiceImpl implements MasterService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        while (!allConnected()) {
+            tickSleeper.tickStart();
+            sortMessages();
+            tickSleeper.tickEnd();
+        }
+        sendAllMasterIsReady();
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
@@ -164,6 +152,25 @@ public class MasterServiceImpl implements MasterService {
             tickSleeper.tickEnd();
         }
 
+    }
+
+    private void sendAllMasterIsReady() {
+        unsortedMessages.add(new MessageMasterIsReady(address, Frontend.class));
+        unsortedMessages.add(new MessageMasterIsReady(address, DBService.class));
+        unsortedMessages.add(new MessageMasterIsReady(address, GameMechanics.class));
+        unsortedMessages.add(new MessageMasterIsReady(address, Lobby.class));
+        sortMessages();
+        sendMessages();
+        System.out.println("All Nodes connected!");
+    }
+
+    private boolean allConnected() {
+        List<Class<? extends Node>> nodes = new ArrayList<>();
+        nodes.add(DBService.class);
+        nodes.add(Frontend.class);
+        nodes.add(GameMechanics.class);
+        nodes.add(Lobby.class);
+        return this.nodes.keySet().containsAll(nodes);
     }
 
     private void sendMessages() {
@@ -197,6 +204,11 @@ public class MasterServiceImpl implements MasterService {
     @Override
     public Address getAddress() {
         return null;
+    }
+
+    @Override
+    public void setMasterIsReady(boolean masterIsReady) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

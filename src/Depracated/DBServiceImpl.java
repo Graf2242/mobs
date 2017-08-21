@@ -12,7 +12,6 @@ import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.ResourceSystem.Resources.ServerConfig;
 import graf.server.Utils.TickSleeper;
 
-import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -31,7 +30,7 @@ public class DBServiceImpl implements DBService {
     public DBServiceImpl(MasterService MasterService, String configPath) {
         this.masterService = MasterService;
         this.configPath = configPath;
-        this.resourceFactory = ResourceFactory.instance();
+        this.resourceFactory = ResourceFactory.instance(configPath);
         connectToDB();
     }
 

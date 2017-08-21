@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -31,6 +32,7 @@ public class LobbyImpl implements Lobby {
     private final Set<LobbyUserSession> users = new HashSet<>();
     private ResourceFactory resourceFactory;
     private Socket masterService;
+    private boolean masterIsReady;
 
     public LobbyImpl(String configPath) {
         this.resourceFactory = ResourceFactory.instance();
@@ -46,7 +48,22 @@ public class LobbyImpl implements Lobby {
             e.printStackTrace();
         }
         messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
-        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, this, serverConfig.getLobby().getIp(), serverConfig.getLobby().getPort()));
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Lobby.class, serverConfig.getLobby().getIp(), serverConfig.getLobby().getPort()));
+    }
+
+    public static void main(String[] args) {
+        String arg = null;
+        try {
+            arg = args[0];
+        } catch (Exception ignored) {
+        }
+        String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+
+        Lobby lobby = new LobbyImpl(configPath);
+        Thread lobbyThread = new Thread(lobby);
+        lobbyThread.setName("LOBBY");
+        lobbyThread.start();
+
     }
 
     @Override
@@ -65,8 +82,18 @@ public class LobbyImpl implements Lobby {
     }
 
     @Override
+    public void setMasterIsReady(boolean masterIsReady) {
+        this.masterIsReady = true;
+    }
+
+    @Override
     public void run() {
         TickSleeper tickSleeper = new TickSleeper();
+        while (!masterIsReady) {
+            tickSleeper.tickStart();
+            execNodeMessages();
+            tickSleeper.tickEnd();
+        }
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();

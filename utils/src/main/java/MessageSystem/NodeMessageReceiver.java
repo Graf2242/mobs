@@ -38,6 +38,7 @@ public class NodeMessageReceiver implements Runnable {
             String messageText;
             try {
                 while (dis.available() > 0) {
+                    System.out.println("ReadMessage");
                     messageText = dis.readUTF();
                     Message message = Serializator.deserializeString(messageText);
                     this.messages.add(message);

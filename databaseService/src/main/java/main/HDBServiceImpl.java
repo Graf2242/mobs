@@ -37,6 +37,13 @@ public class HDBServiceImpl implements DBService {
     private Socket masterService;
     private Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
 
+    private boolean masterIsReady;
+
+    @Override
+    public void setMasterIsReady(boolean masterIsReady) {
+        this.masterIsReady = masterIsReady;
+    }
+
     public HDBServiceImpl(String configPath) {
         resourceFactory = ResourceFactory.instance();
         serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
@@ -95,7 +102,6 @@ public class HDBServiceImpl implements DBService {
         Thread dbServiceThread = new Thread(dbService);
         dbServiceThread.setName("DBService");
         dbServiceThread.start();
-
     }
 
     @Override
@@ -121,6 +127,8 @@ public class HDBServiceImpl implements DBService {
 
     @Override
     public void run() {
+
+
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(HAccountDataSet.class);
         this.sessionFactory = createSessionConfig(configuration);
@@ -130,8 +138,16 @@ public class HDBServiceImpl implements DBService {
         session.close();
 
 
+
         TickSleeper tickSleeper = new TickSleeper();
         tickSleeper.setTickTimeMs(100L);
+
+        while (!masterIsReady) {
+            tickSleeper.tickStart();
+            execNodeMessages();
+            tickSleeper.tickEnd();
+        }
+
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();

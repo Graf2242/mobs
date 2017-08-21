@@ -18,9 +18,9 @@ public class MRegister extends _MasterMessageTemplate {
     private String ipFrom;
     private String portFrom;
 
-    public MRegister(Address from, Node node, String ipFrom, String portFrom) {
+    public MRegister(Address from, Class<? extends Node> fromNode, String ipFrom, String portFrom) {
         super(from);
-        this.node = node.getClass();
+        this.node = fromNode;
         this.ipFrom = ipFrom;
         this.portFrom = portFrom;
     }
@@ -50,5 +50,6 @@ public class MRegister extends _MasterMessageTemplate {
             currentAddresses.add(socketR);
             masterService.getNodes().put(nodeClass, currentAddresses);
         }
+        System.out.println("Registered " + nodeClass);
     }
 }

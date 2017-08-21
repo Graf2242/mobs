@@ -19,11 +19,6 @@ public abstract class Message implements Serializable {
         to = null;
     }
 
-    @Override
-    public String toString() {
-        throw new UnsupportedOperationException();
-    }
-
     public Address getFrom() {
         return from;
     }

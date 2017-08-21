@@ -10,18 +10,21 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 public class MessageExecutor implements Runnable {
     final private Map<Class<? extends Node>, List<Socket>> connections;
     private final TickSleeper tickSleeper = new TickSleeper();
-    private List<Message> unsortedMessages;
+    private Queue<Message> unsortedMessages;
     private List<Socket> sockets;
+    private MasterServiceImpl masterService;
 
 
-    public MessageExecutor(Map<Class<? extends Node>, List<Socket>> connections, List<Message> unsortedMessages, List<Socket> sockets) {
+    public MessageExecutor(Map<Class<? extends Node>, List<Socket>> connections, Queue<Message> unsortedMessages, List<Socket> sockets, MasterServiceImpl masterService) {
         this.connections = connections;
         this.unsortedMessages = unsortedMessages;
         this.sockets = sockets;
+        this.masterService = masterService;
         Thread mExecutor = new Thread(this);
         mExecutor.setName("MessageExecutor");
         mExecutor.start();
@@ -30,6 +33,7 @@ public class MessageExecutor implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("MessageExecutor started!");
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
@@ -40,6 +44,9 @@ public class MessageExecutor implements Runnable {
                     while (din.available() > 0) {
                         msg = din.readUTF();
                         Message e = Serializator.deserializeString(msg);
+                        if (e == null) {
+                            System.out.println(msg);
+                        }
                         unsortedMessages.add(e);
                     }
                 } catch (IOException e) {

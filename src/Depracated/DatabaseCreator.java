@@ -4,14 +4,13 @@ import graf.server.Utils.DB.ResultHandler;
 import graf.server.Utils.ResourceSystem.ResourceFactory;
 import graf.server.Utils.ResourceSystem.Resources.ServerConfig;
 
-import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class DatabaseCreator {
     Connection connection;
-    ResourceFactory resourceFactory = ResourceFactory.instance();
+    ResourceFactory resourceFactory = ResourceFactory.instance(configPath);
     Map<Integer, String[]> converts = new HashMap<>();
     Integer version;
 
