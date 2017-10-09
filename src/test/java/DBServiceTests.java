@@ -1,4 +1,4 @@
-import databaseService.DBService;
+import base.databaseService.DBService;
 import main.HDBServiceImpl;
 import main.MasterServiceImpl;
 import org.junit.Assert;

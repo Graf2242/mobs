@@ -1,20 +1,24 @@
 package main;
 
-import MessageSystem.messages.MessageMasterIsReady;
-import MessageSystem.messages.masterService._MasterMessageTemplate;
-import ResourceSystem.Resources.configs.ServerConfig;
-import Serialization.Serializator;
-import databaseService.DBService;
-import frontend.Frontend;
-import gameMechanics.GameMechanics;
-import lobby.Lobby;
-import masterService.Connector;
-import masterService.MasterService;
-import masterService.Message;
-import masterService.nodes.Address;
-import masterService.nodes.Node;
+import base.databaseService.DBService;
+import base.frontend.Frontend;
+import base.gameMechanics.GameMechanics;
+import base.lobby.Lobby;
+import base.masterService.Connector;
+import base.masterService.MasterService;
+import base.masterService.Message;
+import base.masterService.nodes.Address;
+import base.masterService.nodes.Node;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.omg.CORBA.WrongTransaction;
-import tickSleeper.TickSleeper;
+import utils.MessageSystem.messages.MessageMasterIsReady;
+import utils.MessageSystem.messages.masterService._MasterMessageTemplate;
+import utils.ResourceSystem.Resources.configs.ServerConfig;
+import utils.Serialization.Serializator;
+import utils.ServerSocketUtils.ConnectorImpl;
+import utils.ServerSocketUtils.MessageExecutor;
+import utils.tickSleeper.TickSleeper;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,20 +29,11 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Logger;
 
 
 public class MasterServiceImpl implements MasterService {
-    final Logger log = Logger.getLogger("MasterService");
-    final private Map<Socket, Queue<Message>> messages = new HashMap<>();
-    Address address = new Address();
-    final private Map<Class<? extends Node>, List<Socket>> nodes = new HashMap<>();
-    private final Connector connector;
-    final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
-    ServerConfig serverConfig;
 
-    private String configPath;
-
+    final Logger log = LogManager.getLogger(this.getClass());
 
     public MasterServiceImpl(String configPath) {
         this.configPath = configPath;
@@ -57,8 +52,21 @@ public class MasterServiceImpl implements MasterService {
 
         List<Socket> sockets = new CopyOnWriteArrayList<>();
         connector = new ConnectorImpl(serverSocket, sockets);
-        new MessageExecutor(nodes, unsortedMessages, sockets, this);
+        new MessageExecutor(unsortedMessages, sockets);
 
+    }
+
+    final private Map<Socket, Queue<Message>> messages = new HashMap<>();
+    Address address = new Address();
+    final private Map<Class<? extends Node>, List<Socket>> nodes = new HashMap<>();
+    private final Connector connector;
+    final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
+    ServerConfig serverConfig;
+
+    private String configPath;
+
+    public Logger getLog() {
+        return log;
     }
 
     public static void main(String[] args) {

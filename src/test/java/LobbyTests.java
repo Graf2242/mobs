@@ -1,9 +1,9 @@
-import lobby.Lobby;
-import lobby.LobbyUserSession;
+import base.lobby.Lobby;
+import base.lobby.LobbyUserSession;
+import base.masterService.MasterService;
 import main.LobbyImpl;
 import main.LobbyUserSessionImpl;
 import main.MasterServiceImpl;
-import masterService.MasterService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

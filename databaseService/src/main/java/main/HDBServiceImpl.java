@@ -2,22 +2,24 @@ package main;
 
 import Account.HAccountDataSet;
 import Account.HAccountsDAO;
-import MessageSystem.NodeMessageReceiver;
-import MessageSystem.NodeMessageSender;
-import MessageSystem.messages.Frontend.FWrongLoginData;
-import MessageSystem.messages.masterService.MRegister;
-import ResourceSystem.ResourceFactory;
-import ResourceSystem.Resources.configs.ServerConfig;
-import databaseService.DBService;
-import masterService.Message;
-import masterService.nodes.Address;
+import base.databaseService.DBService;
+import base.masterService.Message;
+import base.masterService.nodes.Address;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import tickSleeper.TickSleeper;
+import utils.MessageSystem.NodeMessageReceiver;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.Frontend.FWrongLoginData;
+import utils.MessageSystem.messages.masterService.MRegister;
+import utils.ResourceSystem.ResourceFactory;
+import utils.ResourceSystem.Resources.configs.ServerConfig;
+import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -37,12 +39,7 @@ public class HDBServiceImpl implements DBService {
     private Socket masterService;
     private Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
 
-    private boolean masterIsReady;
-
-    @Override
-    public void setMasterIsReady(boolean masterIsReady) {
-        this.masterIsReady = masterIsReady;
-    }
+    private final Logger log = LogManager.getLogger(this.getClass());
 
     public HDBServiceImpl(String configPath) {
         resourceFactory = ResourceFactory.instance();
@@ -57,12 +54,23 @@ public class HDBServiceImpl implements DBService {
             e.printStackTrace();
         }
         resourceFactory = ResourceFactory.instance();
-        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
+        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService);
 
 
         //noinspection InfiniteLoopStatement
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, DBService.class, serverConfig.getDbService().getIp(), serverConfig.getDbService().getPort()));
 
+    }
+
+    private boolean masterIsReady;
+
+    @Override
+    public void setMasterIsReady(boolean masterIsReady) {
+        this.masterIsReady = masterIsReady;
+    }
+
+    public Logger getLog() {
+        return log;
     }
 
     public void setHbm2dll(String hbm2dll) {

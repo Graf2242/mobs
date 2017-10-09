@@ -2,8 +2,11 @@ group 'idG'
 version '1.0'
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
+
+mainClassName = "main.MasterServiceImpl"
 
 repositories {
     mavenCentral()
@@ -11,24 +14,23 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.9.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.9.1'
     compile project(':base')
     compile project(':utils')
 }
 
-jar {
-    baseName = 'masterService'
-    version =  '0.1.0'
-}
 
-task fatJar(type: Jar) {
+jar {
+    destinationDir = file("$destinationDir/masterService")
+    baseName = 'masterService'
+    version = '0.1.0'
+
     manifest {
-        attributes 'Main-Class': 'main.MasterServiceImpl'
+        attributes "Main-Class": "$mainClassName"
     }
 
     from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
-    with jar
 }

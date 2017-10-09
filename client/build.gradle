@@ -1,0 +1,35 @@
+group 'idG'
+version '1.0'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+mainClassName = 'main.ClientImpl'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile project(':base')
+    compile project(':utils')
+}
+
+jar {
+    destinationDir = file("$destinationDir/client")
+    baseName = 'client'
+    version =  '0.1.0'
+
+    jar {
+        manifest {
+            attributes "Main-Class": "$mainClassName"
+        }
+
+        from {
+            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
+}

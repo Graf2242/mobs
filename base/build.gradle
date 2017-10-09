@@ -12,3 +12,9 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+//jar {
+//    destinationDir = file("$destinationDir/base")
+//    baseName = 'base'
+//    version =  '0.1.0'
+//}

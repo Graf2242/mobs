@@ -2,8 +2,12 @@ group 'idG'
 version '1.0'
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
+
+mainClassName = 'main.HDBServiceImpl'
+
 
 repositories {
     mavenCentral()
@@ -18,19 +22,17 @@ dependencies {
 }
 
 jar {
+    destinationDir = file("$destinationDir/databaseService")
     baseName = 'databaseService'
     version =  '0.1.0'
-}
 
-task fatJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': 'main.HDBServiceImpl'
-    }
+    jar {
+        manifest {
+            attributes "Main-Class": "$mainClassName"
+        }
 
-    from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
+        from {
+            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
         }
     }
-    with jar
 }

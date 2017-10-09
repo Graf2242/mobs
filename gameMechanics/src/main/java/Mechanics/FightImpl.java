@@ -1,6 +1,6 @@
 package Mechanics;
 
-import gameMechanics.Fight;
+import base.gameMechanics.Fight;
 
 import java.util.ArrayList;
 import java.util.Random;

@@ -1,18 +1,20 @@
 package main;
 
-import MessageSystem.NodeMessageReceiver;
-import MessageSystem.NodeMessageSender;
-import MessageSystem.messages.Frontend.FUpdateSessions;
-import MessageSystem.messages.GameMechanics.GMStartSession;
-import MessageSystem.messages.masterService.MRegister;
-import ResourceSystem.ResourceFactory;
-import ResourceSystem.Resources.configs.ServerConfig;
-import frontend.UserSessionStatus;
-import lobby.Lobby;
-import lobby.LobbyUserSession;
-import masterService.Message;
-import masterService.nodes.Address;
-import tickSleeper.TickSleeper;
+import base.frontend.UserSessionStatus;
+import base.lobby.Lobby;
+import base.lobby.LobbyUserSession;
+import base.masterService.Message;
+import base.masterService.nodes.Address;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import utils.MessageSystem.NodeMessageReceiver;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.Frontend.FUpdateSessions;
+import utils.MessageSystem.messages.GameMechanics.GMStartSession;
+import utils.MessageSystem.messages.masterService.MRegister;
+import utils.ResourceSystem.ResourceFactory;
+import utils.ResourceSystem.Resources.configs.ServerConfig;
+import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -33,6 +35,7 @@ public class LobbyImpl implements Lobby {
     private ResourceFactory resourceFactory;
     private Socket masterService;
     private boolean masterIsReady;
+    private final Logger log = LogManager.getLogger(this.getClass());
 
     public LobbyImpl(String configPath) {
         this.resourceFactory = ResourceFactory.instance();
@@ -47,8 +50,12 @@ public class LobbyImpl implements Lobby {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
+        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService);
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Lobby.class, serverConfig.getLobby().getIp(), serverConfig.getLobby().getPort()));
+    }
+
+    public Logger getLog() {
+        return log;
     }
 
     public static void main(String[] args) {

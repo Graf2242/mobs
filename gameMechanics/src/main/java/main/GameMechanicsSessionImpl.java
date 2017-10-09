@@ -1,7 +1,7 @@
 package main;
 
-import gameMechanics.Fight;
-import gameMechanics.GameMechanicsSession;
+import base.gameMechanics.Fight;
+import base.gameMechanics.GameMechanicsSession;
 
 import java.util.Date;
 import java.util.Set;

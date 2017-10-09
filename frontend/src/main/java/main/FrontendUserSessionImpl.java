@@ -1,8 +1,9 @@
 package main;
 
-import frontend.FrontendUserSession;
-import frontend.UserSessionStatus;
+import base.frontend.FrontendUserSession;
+import base.frontend.UserSessionStatus;
 
+import java.net.Socket;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class FrontendUserSessionImpl implements FrontendUserSession {
@@ -12,6 +13,18 @@ public class FrontendUserSessionImpl implements FrontendUserSession {
     private Long sessionId;
     private Long userId = null;
     private Long sessionTime;
+
+    private Socket userSocket;
+
+    @Override
+    public Socket getUserSocket() {
+        return userSocket;
+    }
+
+    @Override
+    public void setUserSocket(Socket userSocket) {
+        this.userSocket = userSocket;
+    }
 
     public FrontendUserSessionImpl() {
         this.sessionId = atomicLongSessions.getAndIncrement();

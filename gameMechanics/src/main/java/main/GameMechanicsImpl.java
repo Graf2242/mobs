@@ -1,35 +1,38 @@
 package main;
 
 import Mechanics.FightImpl;
-import MessageSystem.NodeMessageReceiver;
-import MessageSystem.NodeMessageSender;
-import MessageSystem.messages.Frontend.FUpdateSessions;
-import MessageSystem.messages.masterService.MRegister;
-import ResourceSystem.ResourceFactory;
-import ResourceSystem.Resources.configs.ServerConfig;
-import gameMechanics.GameMechanics;
-import gameMechanics.GameMechanicsSession;
-import masterService.Message;
-import masterService.nodes.Address;
-import tickSleeper.TickSleeper;
+import base.gameMechanics.GameMechanics;
+import base.gameMechanics.GameMechanicsSession;
+import base.masterService.Message;
+import base.masterService.nodes.Address;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import utils.MessageSystem.NodeMessageReceiver;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.Frontend.FUpdateSessions;
+import utils.MessageSystem.messages.masterService.MRegister;
+import utils.ResourceSystem.ResourceFactory;
+import utils.ResourceSystem.Resources.configs.ServerConfig;
+import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Logger;
 
 public class GameMechanicsImpl implements GameMechanics {
     private final Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
     private final NodeMessageReceiver messageReceiver;
     private final ServerConfig serverConfig;
-    private Socket masterService;
-    private String configPath;
+    private final Logger log = LogManager.getLogger(this.getClass());
     Address address = new Address();
-    private boolean masterIsReady;
+    Set<GameMechanicsSession> sessions = new HashSet<>();
+    Random random = new Random();
+    ResourceFactory resourceFactory;
 
     public GameMechanicsImpl(String configPath) {
+        log.fatal("Started");
         this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
 
@@ -47,8 +50,16 @@ public class GameMechanicsImpl implements GameMechanics {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService, this);
+        messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService);
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, GameMechanics.class, serverConfig.getMechanics().getIp(), serverConfig.getMechanics().getPort()));
+    }
+
+    private Socket masterService;
+    private String configPath;
+    private boolean masterIsReady;
+
+    public Logger getLog() {
+        return log;
     }
 
     public static void main(String[] args) {
@@ -63,11 +74,6 @@ public class GameMechanicsImpl implements GameMechanics {
         gameMechanicsThread.setName("GameMechanics");
         gameMechanicsThread.start();
     }
-
-    Set<GameMechanicsSession> sessions = new HashSet<>();
-    Random random = new Random();
-    Logger log = Logger.getLogger("GameMechanics");
-    ResourceFactory resourceFactory;
 
     @Override
     public Set<GameMechanicsSession> getSessions() {

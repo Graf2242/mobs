@@ -1,7 +1,7 @@
 package main;
 
 
-import lobby.LobbyUserSession;
+import base.lobby.LobbyUserSession;
 
 import java.util.concurrent.atomic.AtomicLong;
 

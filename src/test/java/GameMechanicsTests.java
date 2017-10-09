@@ -1,9 +1,9 @@
-import gameMechanics.GameMechanics;
-import gameMechanics.GameMechanicsSession;
+import base.gameMechanics.GameMechanics;
+import base.gameMechanics.GameMechanicsSession;
+import base.masterService.MasterService;
 import main.GameMechanicsImpl;
 import main.GameMechanicsSessionImpl;
 import main.MasterServiceImpl;
-import masterService.MasterService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

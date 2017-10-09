@@ -1,44 +1,54 @@
 package main;
 
-import MessageSystem.NodeMessageReceiver;
-import MessageSystem.NodeMessageSender;
-import MessageSystem.messages.DBService.DBFindUserIdMessage;
-import MessageSystem.messages.Lobby.LAddUser;
-import MessageSystem.messages.masterService.MRegister;
-import ResourceSystem.ResourceFactory;
-import ResourceSystem.Resources.configs.ServerConfig;
-import frontend.Frontend;
-import frontend.FrontendUserSession;
-import frontend.UserSessionStatus;
-import masterService.Message;
-import masterService.nodes.Address;
+import base.frontend.Frontend;
+import base.frontend.FrontendUserSession;
+import base.frontend.UserSessionStatus;
+import base.masterService.Connector;
+import base.masterService.Message;
+import base.masterService.nodes.Address;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import tickSleeper.TickSleeper;
+import utils.MessageSystem.NodeMessageReceiver;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.DBService.DBFindUserIdMessage;
+import utils.MessageSystem.messages.clientMessages.toClient.CLoginSuccess;
+import utils.MessageSystem.messages.masterService.MRegister;
+import utils.ResourceSystem.ResourceFactory;
+import utils.ResourceSystem.Resources.configs.ServerConfig;
+import utils.ServerSocketUtils.ConnectorImpl;
+import utils.ServerSocketUtils.MessageExecutor;
+import utils.tickSleeper.TickSleeper;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
+
 
 public class FrontendImpl extends AbstractHandler implements Frontend {
     private final Address address = new Address();
     private final ServerConfig serverConfig;
     private final Map<Long, FrontendUserSession> sessions = new HashMap<>();
+    final private Queue<Message> unsortedMessagesFromClients = new LinkedBlockingQueue<>();
+    private final Logger log = LogManager.getLogger(this.getClass());
     Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
+    ServerSocket serverSocket;
+    private Connector connector;
     private String configPath;
     private ResourceFactory resourceFactory;
     private Socket masterService;
     private boolean masterIsReady;
-
     public FrontendImpl(String configPath) {
         this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
@@ -54,10 +64,14 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
             e.printStackTrace();
         }
 
-        startFrontend();
-        new NodeMessageReceiver(unhandledMessages, masterService, this);
+        try {
+            startFrontend();
+        } catch (IOException e) {
+            log.fatal("Frontend does not started");
+            e.printStackTrace();
+        }
+        new NodeMessageReceiver(unhandledMessages, masterService);
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Frontend.class, serverConfig.getFrontend().getIp(), serverConfig.getFrontend().getPort()));
-
     }
 
     public static void main(String[] args) {
@@ -74,11 +88,6 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
     }
 
-    @Override
-    public Map<Long, FrontendUserSession> getSessions() {
-        return sessions;
-    }
-
     private static String getUserDateFull(Long time) {
         if (Objects.equals(time, null)) {
             time = 0L;
@@ -86,6 +95,15 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
         Date date = new Date(time);
         DateFormat formatter = new SimpleDateFormat("mm:ss");
         return formatter.format(date);
+    }
+
+    public Logger getLog() {
+        return log;
+    }
+
+    @Override
+    public Map<Long, FrontendUserSession> getSessions() {
+        return sessions;
     }
 
     @Override
@@ -112,6 +130,9 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
 
     private void execNodeMessages() {
+        while (!unsortedMessagesFromClients.isEmpty()) {
+            unsortedMessagesFromClients.poll().exec(this);
+        }
         while (!unhandledMessages.isEmpty()) {
             unhandledMessages.poll().exec(this);
         }
@@ -132,7 +153,15 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
         return userSession[0].getSessionId();
     }
 
-    private void startFrontend() {
+    private void startFrontend() throws IOException {
+        InetAddress inetAddress = Inet4Address.getByName(serverConfig.getFrontend().getIp());
+        serverSocket = new ServerSocket(Integer.parseInt(serverConfig.getFrontend().getFrontendPort()), 10, inetAddress);
+
+        List<Socket> sockets = new CopyOnWriteArrayList<>();
+        connector = new ConnectorImpl(serverSocket, sockets);
+        new MessageExecutor(unsortedMessagesFromClients, sockets);
+
+        /* Jetty
         ServerConfig config = (ServerConfig) resourceFactory.getResource(configPath);
         Server server = new Server();
 
@@ -146,14 +175,7 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
             server.start();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        // Test
-        FrontendUserSessionImpl userSession;
-        userSession = new FrontendUserSessionImpl();
-        sessions.put(userSession.getSessionId(), userSession);
-
-        //
+        }*/
     }
 
     @Override
@@ -203,17 +225,33 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     }
 
     @Override
+    public void addUser(String login, String pass, Socket clientSocket) {
+        FrontendUserSession userSession = new FrontendUserSessionImpl();
+        sessions.put(userSession.getSessionId(), userSession);
+        userSession.setUserName(login);
+        userSession.setUserSocket(clientSocket);
+        userSession.setStatus(UserSessionStatus.IN_LOGIN);
+        NodeMessageSender.sendMessage(masterService, new DBFindUserIdMessage(address, login, pass, userSession.getSessionId()));
+        log.fatal("User connected");
+    }
+
+    @Override
     public void updateUserId(Long sessionId, Long userId) {
-        if (sessions.get(sessionId).getUserId() == null) {
-            sessions.get(sessionId).setUserId(userId);
-            NodeMessageSender.sendMessage(masterService, new LAddUser(address, userId, sessions.get(sessionId).getUserName()));
+        FrontendUserSession userSession = sessions.get(sessionId);
+        if (userSession.getUserId() == null) {
+            //TODO add error
         }
+        userSession.setUserId(userId);
+        userSession.setStatus(UserSessionStatus.CONNECTED);
+        NodeMessageSender.sendMessage(userSession.getUserSocket(), new CLoginSuccess(userId));
+//        NodeMessageSender.sendMessage(masterService, new LAddUser(address, userId, sessions.get(sessionId).getUserName()));
     }
 
     @Override
     public void updateSessionStatus(Long sessionId, UserSessionStatus status) {
         FrontendUserSession frontendUserSession = sessions.get(sessionId);
         frontendUserSession.setStatus(status);
+//        NodeMessageSender.sendMessage(frontendUserSession.getUserSocket(), new Message);
     }
 
     @Override
