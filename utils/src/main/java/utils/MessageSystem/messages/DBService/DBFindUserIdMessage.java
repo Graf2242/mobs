@@ -34,7 +34,6 @@ public class DBFindUserIdMessage extends _DBServiceMessageTemplate {
         }
         Long userId = dbService.getAccountId(userName, pass, sessionId);
         if (!Objects.equals(userId, null)) {
-            System.out.println("DBFindUserIdMessage");
             NodeMessageSender.sendMessage(dbService.getMasterService(), new FAddUserMessage(dbService.getAddress(), userId, sessionId));
         }
     }

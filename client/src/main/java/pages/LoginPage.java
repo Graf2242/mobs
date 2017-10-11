@@ -1,5 +1,6 @@
 package pages;
 
+import base.frontend.UserSessionStatus;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -40,8 +41,21 @@ public class LoginPage {
             e.printStackTrace();
         }
         NodeMessageSender.sendMessage(main.getFrontendSocket(), new FLogin(login.getText(), passwordField.getText()));
+        main.setStatus(UserSessionStatus.IN_LOGIN);
         main.waitForStatusUpdate();
-
+        if (main.getStatus().equals(UserSessionStatus.WRONG_LOGIN_INFO)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initStyle(StageStyle.DECORATED);
+            alert.setTitle("Error");
+            alert.setHeaderText("Wrong login info");
+            alert.show();
+        } else if (main.getStatus().equals(UserSessionStatus.CONNECTED)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initStyle(StageStyle.DECORATED);
+            alert.setTitle("Error");
+            alert.setHeaderText("Connected!");
+            alert.show();
+        }
     }
 
     public void setMain(ClientImpl main) {

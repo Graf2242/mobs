@@ -14,6 +14,7 @@ import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
 import utils.MessageSystem.messages.DBService.DBFindUserIdMessage;
 import utils.MessageSystem.messages.clientMessages.toClient.CLoginSuccess;
+import utils.MessageSystem.messages.clientMessages.toClient.CUpdateSessionStatus;
 import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
@@ -238,20 +239,20 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     @Override
     public void updateUserId(Long sessionId, Long userId) {
         FrontendUserSession userSession = sessions.get(sessionId);
-        if (userSession.getUserId() == null) {
-            //TODO add error
-        }
+//        if (userSession.getUserId() == null) {
+//            //TODO add error
+//        }
         userSession.setUserId(userId);
-        userSession.setStatus(UserSessionStatus.CONNECTED);
-        NodeMessageSender.sendMessage(userSession.getUserSocket(), new CLoginSuccess(userId));
-//        NodeMessageSender.sendMessage(masterService, new LAddUser(address, userId, sessions.get(sessionId).getUserName()));
+        UserSessionStatus status = UserSessionStatus.CONNECTED;
+        userSession.setStatus(status);
+        NodeMessageSender.sendMessage(userSession.getUserSocket(), new CLoginSuccess(userId, status));
     }
 
     @Override
     public void updateSessionStatus(Long sessionId, UserSessionStatus status) {
         FrontendUserSession frontendUserSession = sessions.get(sessionId);
         frontendUserSession.setStatus(status);
-//        NodeMessageSender.sendMessage(frontendUserSession.getUserSocket(), new Message);
+        NodeMessageSender.sendMessage(frontendUserSession.getUserSocket(), new CUpdateSessionStatus(status));
     }
 
     @Override

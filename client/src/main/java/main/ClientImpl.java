@@ -3,6 +3,7 @@ package main;
 import base.Client.Client;
 import base.frontend.UserSessionStatus;
 import base.masterService.Message;
+import base.masterService.nodes.Address;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -25,6 +26,12 @@ public class ClientImpl extends Application implements Client {
     private AnchorPane rootLayout;
     private int outPort;
     private String outHost;
+
+    @Override
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     private Long userId = null;
     private UserSessionStatus status;
     private Socket frontendSocket;
@@ -93,11 +100,43 @@ public class ClientImpl extends Application implements Client {
         String[] s = address.split(":");
         outPort = 0;
         this.frontendSocket = new Socket(s[0], Integer.parseInt(s[1]), InetAddress.getByName("localhost"), outPort);
-        NodeMessageReceiver receiver = new NodeMessageReceiver(messages, frontendSocket);
+        new NodeMessageReceiver(messages, frontendSocket);
+    }
+
+    private void execMessage() {
+        if (!messages.isEmpty()) {
+            messages.poll().exec(this);
+        }
+    }
+
+    public UserSessionStatus getStatus() {
+        return status;
     }
 
     @Override
     public void waitForStatusUpdate() {
+        while (status.equals(UserSessionStatus.IN_LOGIN)) {
+            execMessage();
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    @Override
+    public Address getAddress() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setMasterIsReady(boolean masterIsReady) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Socket getMasterService() {
+        return null;
     }
 }
