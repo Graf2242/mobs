@@ -7,14 +7,28 @@ import java.net.Socket;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class FrontendUserSessionImpl implements FrontendUserSession {
-    private static AtomicLong atomicLongSessions = new AtomicLong();
+    private static transient AtomicLong atomicLongSessions = new AtomicLong();
     private String userName;
     private UserSessionStatus status = UserSessionStatus.CONNECTED;
     private Long sessionId;
     private Long userId = null;
     private Long sessionTime;
+    private boolean needUpdate;
+    private transient Socket userSocket;
 
-    private Socket userSocket;
+    public FrontendUserSessionImpl() {
+        this.sessionId = atomicLongSessions.getAndIncrement();
+    }
+
+    @Override
+    public boolean isNeedUpdate() {
+        return needUpdate;
+    }
+
+    @Override
+    public void setNeedUpdate(boolean needUpdate) {
+        this.needUpdate = needUpdate;
+    }
 
     @Override
     public Socket getUserSocket() {
@@ -24,10 +38,6 @@ public class FrontendUserSessionImpl implements FrontendUserSession {
     @Override
     public void setUserSocket(Socket userSocket) {
         this.userSocket = userSocket;
-    }
-
-    public FrontendUserSessionImpl() {
-        this.sessionId = atomicLongSessions.getAndIncrement();
     }
 
     @Override
@@ -47,7 +57,7 @@ public class FrontendUserSessionImpl implements FrontendUserSession {
 
     @Override
     public void setStatus(UserSessionStatus status) {
-        System.out.println("Set status = " + status);
+//        System.out.println("Set status = " + status);
         this.status = status;
     }
 

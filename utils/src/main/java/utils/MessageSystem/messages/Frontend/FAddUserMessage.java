@@ -3,6 +3,8 @@ package utils.MessageSystem.messages.Frontend;
 import base.frontend.Frontend;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.Lobby.LAddUser;
 
 public class FAddUserMessage extends _FrontendMessageTemplate {
     private final Long userId;
@@ -27,6 +29,6 @@ public class FAddUserMessage extends _FrontendMessageTemplate {
             return;
         }
         frontend.updateUserId(sessionId, userId);
-
+        NodeMessageSender.sendMessage(frontend.getMasterService(), new LAddUser(getFrom(), userId, frontend.getSessionByUserId(userId).getUserName()));
     }
 }

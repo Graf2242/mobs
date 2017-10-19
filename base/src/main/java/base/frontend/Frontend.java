@@ -11,6 +11,8 @@ public interface Frontend extends Node, Runnable {
 
     Socket getMasterService();
 
+    Long getSessionId(Long userId);
+
     void addUser(String login, String pass, Socket clientSocket);
 
     void updateUserId(Long sessionId, Long userId);
@@ -25,5 +27,5 @@ public interface Frontend extends Node, Runnable {
 
     Address getAddress();
 
-
+    void disconnectUser(Long userId);
 }

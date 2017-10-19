@@ -13,7 +13,7 @@ import utils.MessageSystem.messages.clientMessages.fromClient.FLogin;
 
 import java.io.IOException;
 
-public class LoginPage {
+public class LoginPage implements PageTemplate {
     @FXML
     private Button loginBtn;
     @FXML
@@ -50,14 +50,11 @@ public class LoginPage {
             alert.setHeaderText("Wrong login info");
             alert.show();
         } else if (main.getStatus().equals(UserSessionStatus.CONNECTED)) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.initStyle(StageStyle.DECORATED);
-            alert.setTitle("Error");
-            alert.setHeaderText("Connected!");
-            alert.show();
+            main.connectSuccessful();
         }
     }
 
+    @Override
     public void setMain(ClientImpl main) {
         this.main = main;
     }

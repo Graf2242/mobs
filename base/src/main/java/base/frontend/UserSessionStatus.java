@@ -1,6 +1,8 @@
 package base.frontend;
 
-public enum UserSessionStatus {
+import java.io.Serializable;
+
+public enum UserSessionStatus implements Serializable {
     CONNECTED,
     IN_LOGIN,
     LOBBY,

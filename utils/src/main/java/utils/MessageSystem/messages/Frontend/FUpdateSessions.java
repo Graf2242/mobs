@@ -12,7 +12,7 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
     private final Map<Long, Long> sessions;
     private final Long userId;
     private final UserSessionStatus status;
-    int type;
+    private int type;
 
     public FUpdateSessions(Address from, Long userId, UserSessionStatus status) {
         super(from);
@@ -48,11 +48,11 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
             }
             Frontend finalFrontend = frontend;
             sessions.forEach((userId, sessionTime) -> {
-                System.out.println("Session userId: " + userId + "updated. New Status: " + status);
+//                System.out.println("Session userId: " + userId + "updated. New Status: " + status);
                 FrontendUserSession frontendUserSession = finalFrontend.getSessionByUserId(userId);
                 frontendUserSession.setStatus(status);
                 frontendUserSession.setSessionTime(sessionTime);
-
+                frontendUserSession.setNeedUpdate(true);
             });
         } else if (type == 2) {
             FrontendUserSession session = frontend.getSessionByUserId(this.userId);

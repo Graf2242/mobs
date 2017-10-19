@@ -1,8 +1,13 @@
 package base.frontend;
 
+import java.io.Serializable;
 import java.net.Socket;
 
-public interface FrontendUserSession {
+public interface FrontendUserSession extends Serializable {
+    boolean isNeedUpdate();
+
+    void setNeedUpdate(boolean needUpdate);
+
     Socket getUserSocket();
 
     void setUserSocket(Socket userSocket);

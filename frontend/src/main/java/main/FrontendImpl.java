@@ -8,12 +8,11 @@ import base.masterService.Message;
 import base.masterService.nodes.Address;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
 import utils.MessageSystem.messages.DBService.DBFindUserIdMessage;
 import utils.MessageSystem.messages.clientMessages.toClient.CLoginSuccess;
+import utils.MessageSystem.messages.clientMessages.toClient.CUpdateSession;
 import utils.MessageSystem.messages.clientMessages.toClient.CUpdateSessionStatus;
 import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
@@ -22,34 +21,30 @@ import utils.ServerSocketUtils.ConnectorImpl;
 import utils.ServerSocketUtils.MessageExecutor;
 import utils.tickSleeper.TickSleeper;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
-public class FrontendImpl extends AbstractHandler implements Frontend {
+public class FrontendImpl implements Frontend {
     private final Address address = new Address();
     private final ServerConfig serverConfig;
     private final Map<Long, FrontendUserSession> sessions = new HashMap<>();
     final private Queue<Message> unsortedMessagesFromClients = new LinkedBlockingQueue<>();
     private final Logger log = LogManager.getLogger(this.getClass());
-    Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
-    ServerSocket serverSocket;
+    private Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
+    private ServerSocket serverSocket;
     private Connector connector;
     private String configPath;
     private ResourceFactory resourceFactory;
     private Socket masterService;
     private boolean masterIsReady;
+
     public FrontendImpl(String configPath) {
         this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
@@ -89,14 +84,6 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
 
     }
 
-    private static String getUserDateFull(Long time) {
-        if (Objects.equals(time, null)) {
-            time = 0L;
-        }
-        Date date = new Date(time);
-        DateFormat formatter = new SimpleDateFormat("mm:ss");
-        return formatter.format(date);
-    }
 
     public Logger getLog() {
         return log;
@@ -125,8 +112,18 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
         while (true) {
             tickSleeper.tickStart();
             execNodeMessages();
+            sendUpdatesToUsers();
             tickSleeper.tickEnd();
         }
+    }
+
+    private void sendUpdatesToUsers() {
+        sessions.forEach((aLong, frontendUserSession) -> {
+            if (frontendUserSession.isNeedUpdate()) {
+                NodeMessageSender.sendMessage(frontendUserSession.getUserSocket(), new CUpdateSession(frontendUserSession));
+                frontendUserSession.setNeedUpdate(false);
+            }
+        });
     }
 
 
@@ -148,6 +145,21 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
                 return;
             }
             if (sessionUserName.equals(userName)) {
+                userSession[0] = frontendUserSession;
+            }
+        });
+        return userSession[0].getSessionId();
+    }
+
+    @Override
+    public Long getSessionId(Long userId) {
+        final FrontendUserSession[] userSession = new FrontendUserSessionImpl[1];
+        sessions.forEach((aLong, frontendUserSession) -> {
+            Long sessionUserID = frontendUserSession.getUserId();
+            if (Objects.equals(sessionUserID, null)) {
+                return;
+            }
+            if (sessionUserID.equals(userId)) {
                 userSession[0] = frontendUserSession;
             }
         });
@@ -179,51 +191,51 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
         }*/
     }
 
-    @Override
-    public void handle(String target,
-                       Request baseRequest,
-                       HttpServletRequest request,
-                       HttpServletResponse response)
-            throws IOException, ServletException {
-        response.setContentType("text/html;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        baseRequest.setHandled(true);
-
-        Long id = 0L;
-        String userName = "Graf";
-        String pass = "123";
-
-        FrontendUserSession userSession;
-
-        //noinspection ConstantConditions
-        if (id < 0) {
-            userSession = new FrontendUserSessionImpl();
-            sessions.put(userSession.getSessionId(), userSession);
-            userSession.setUserName(userName);
-        } else {
-            userSession = sessions.get(id);
-        }
-        if (userSession.getStatus().equals(UserSessionStatus.WRONG_LOGIN_INFO)) {
-            response.getWriter().println("<h1>Wrong login info</h1>");
-            return;
-        }
-
-        Long userId = userSession.getUserId();
-
-        //CreateUser
-        //   NodeMessageSender.sendMessage(new DBCreateUser(address, userName, pass, userSession.getSessionId()));
-
-        //Login
-        if (userId == null && userSession.getStatus().equals(UserSessionStatus.CONNECTED)) {
-            userSession.setStatus(UserSessionStatus.IN_LOGIN);
-            NodeMessageSender.sendMessage(masterService, new DBFindUserIdMessage(address, userName, pass, userSession.getSessionId()));
-            response.getWriter().println("<h1>Wait for authorization</h1><meta http-equiv=\"refresh\" content=\"1\">");
-        } else if (userSession.getStatus().equals(UserSessionStatus.FIGHT)) {
-            response.getWriter().println("<h1>User name: " + userSession.getUserName() + " Id: " + userSession.getUserId() + " , sessionTime = " + getUserDateFull(userSession.getSessionTime()) + "</h1><meta http-equiv=\"refresh\" content=\"1\">");
-        } else {
-            response.getWriter().println("<h1>Fight loading</h1><meta http-equiv=\"refresh\" content=\"1\">");
-        }
-    }
+//    @Override
+//    public void handle(String target,
+//                       Request baseRequest,
+//                       HttpServletRequest request,
+//                       HttpServletResponse response)
+//            throws IOException, ServletException {
+//        response.setContentType("text/html;charset=utf-8");
+//        response.setStatus(HttpServletResponse.SC_OK);
+//        baseRequest.setHandled(true);
+//
+//        Long id = 0L;
+//        String userName = "Graf";
+//        String pass = "123";
+//
+//        FrontendUserSession userSession;
+//
+//        //noinspection ConstantConditions
+//        if (id < 0) {
+//            userSession = new FrontendUserSessionImpl();
+//            sessions.put(userSession.getSessionId(), userSession);
+//            userSession.setUserName(userName);
+//        } else {
+//            userSession = sessions.get(id);
+//        }
+//        if (userSession.getStatus().equals(UserSessionStatus.WRONG_LOGIN_INFO)) {
+//            response.getWriter().println("<h1>Wrong login info</h1>");
+//            return;
+//        }
+//
+//        Long userId = userSession.getUserId();
+//
+//        //CreateUser
+//        //   NodeMessageSender.sendMessage(new DBCreateUser(address, userName, pass, userSession.getSessionId()));
+//
+//        //Login
+//        if (userId == null && userSession.getStatus().equals(UserSessionStatus.CONNECTED)) {
+//            userSession.setStatus(UserSessionStatus.IN_LOGIN);
+//            NodeMessageSender.sendMessage(masterService, new DBFindUserIdMessage(address, userName, pass, userSession.getSessionId()));
+//            response.getWriter().println("<h1>Wait for authorization</h1><meta http-equiv=\"refresh\" content=\"1\">");
+//        } else if (userSession.getStatus().equals(UserSessionStatus.FIGHT)) {
+//            response.getWriter().println("<h1>User name: " + userSession.getUserName() + " Id: " + userSession.getUserId() + " , sessionTime = " + getUserDateFull(userSession.getSessionTime()) + "</h1><meta http-equiv=\"refresh\" content=\"1\">");
+//        } else {
+//            response.getWriter().println("<h1>Fight loading</h1><meta http-equiv=\"refresh\" content=\"1\">");
+//        }
+//    }
 
     @Override
     public void addUser(String login, String pass, Socket clientSocket) {
@@ -280,6 +292,11 @@ public class FrontendImpl extends AbstractHandler implements Frontend {
     @Override
     public Address getAddress() {
         return address;
+    }
+
+    @Override
+    public void disconnectUser(Long userId) {
+        sessions.remove(getSessionId(userId));
     }
 
     @Override
