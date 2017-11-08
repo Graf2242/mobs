@@ -9,7 +9,6 @@ import base.masterService.MasterService;
 import base.masterService.Message;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.omg.CORBA.WrongTransaction;
 import utils.MessageSystem.messages.MessageMasterIsReady;
@@ -18,6 +17,7 @@ import utils.ResourceSystem.Resources.configs.ServerConfig;
 import utils.Serialization.Serializator;
 import utils.ServerSocketUtils.ConnectorImpl;
 import utils.ServerSocketUtils.MessageExecutor;
+import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.DataOutputStream;
@@ -33,7 +33,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class MasterServiceImpl implements MasterService {
 
-    final Logger log = LogManager.getLogger(this.getClass());
+
+    private static Logger log;
+    final private Map<Socket, Queue<Message>> messages = new HashMap<>();
+    final private Map<Class<? extends Node>, List<Socket>> nodes = new HashMap<>();
+    private final Connector connector;
+    final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
+    private Address address = new Address();
+    private ServerConfig serverConfig;
+    private String configPath;
 
     public MasterServiceImpl(String configPath) {
         this.configPath = configPath;
@@ -56,19 +64,6 @@ public class MasterServiceImpl implements MasterService {
 
     }
 
-    final private Map<Socket, Queue<Message>> messages = new HashMap<>();
-    Address address = new Address();
-    final private Map<Class<? extends Node>, List<Socket>> nodes = new HashMap<>();
-    private final Connector connector;
-    final private Queue<Message> unsortedMessages = new LinkedBlockingQueue<>();
-    ServerConfig serverConfig;
-
-    private String configPath;
-
-    public Logger getLog() {
-        return log;
-    }
-
     public static void main(String[] args) {
         String arg = null;
         try {
@@ -76,10 +71,16 @@ public class MasterServiceImpl implements MasterService {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+        LoggerImpl.createLogger("MasterService");
+        log = LoggerImpl.getLogger();
 
         MasterService masterService = new MasterServiceImpl(configPath);
         Thread masterThread = new Thread(masterService);
         masterThread.start();
+    }
+
+    public Logger getLog() {
+        return log;
     }
 
     @Override
@@ -99,7 +100,7 @@ public class MasterServiceImpl implements MasterService {
     private void sortMessages() {
         while (!unsortedMessages.isEmpty()) {
             Message message = unsortedMessages.poll();
-            log.info("Received message");
+            log.trace("Received message");
             unsortedMessages.remove(message);
             if (Objects.equals(message, null)) {
                 continue;
@@ -169,7 +170,7 @@ public class MasterServiceImpl implements MasterService {
         unsortedMessages.add(new MessageMasterIsReady(address, Lobby.class));
         sortMessages();
         sendMessages();
-        System.out.println("All Nodes connected!");
+        log.info("All Nodes connected!");
     }
 
     private boolean allConnected() {

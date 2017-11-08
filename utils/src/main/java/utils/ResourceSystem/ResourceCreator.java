@@ -1,9 +1,11 @@
 package utils.ResourceSystem;
 
+import org.apache.logging.log4j.Logger;
 import utils.ResourceSystem.Resources.configs.FrontendConfig;
 import utils.ResourceSystem.Resources.configs.NodeConfig;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
 import utils.Serialization.Serializator;
+import utils.logger.LoggerImpl;
 
 
 public class ResourceCreator {
@@ -13,9 +15,12 @@ public class ResourceCreator {
     public static void main(String[] args) {
         createServerConfig();
         try {
-            System.out.println(Serializator.deserializeXmlFile(path));
+            LoggerImpl.getLogger().info(Serializator.deserializeXmlFile(path));
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            Logger logger = LoggerImpl.getLogger();
+            logger.traceEntry();
+            logger.error(e);
+            logger.traceExit();
         }
 
     }

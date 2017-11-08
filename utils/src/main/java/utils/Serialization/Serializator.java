@@ -1,12 +1,14 @@
 package utils.Serialization;
 
 import base.utils.Resource;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import utils.Reflection.ReflectionHelper;
+import utils.logger.LoggerImpl;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -176,11 +178,6 @@ public class Serializator {
         return resource;
     }
 
-    public static void main(String[] args) {
-        System.out.println((String) deserializeString("rO0ABXNyAC9NZXNzYWdlU3lzdGVtLm1lc3NhZ2VzLkZyb250ZW5kLkZVcGRhdGVTZXNzaW9ucxtJwzakza/qAgAESQAEdHlwZUwACHNlc3Npb25zdAAPTGphdmEvdXRpbC9TZXQ7TAAGc3RhdHVzdAAcTGZyb250ZW5kL1VzZXJTZXNzaW9uU3RhdHVzO0wABnVzZXJJZHQAEExqYXZhL2xhbmcvTG9uZzt4cgA4TWVzc2FnZVN5c3RlbS5tZXNzYWdlcy5Gcm9udGVuZC5fRnJvbnRlbmRNZXNzYWdlVGVtcGxhdGWJmA+II9pTtwIAAHhyABVtYXN0ZXJTZXJ2aWNlLk1lc3NhZ2X6R90uNm7KmgIAAkwABGZyb210AB1MbWFzdGVyU2VydmljZS9ub2Rlcy9BZGRyZXNzO0wAAnRvdAARTGphdmEvbGFuZy9DbGFzczt4cHNyABttYXN0ZXJTZXJ2aWNlLm5vZGVzLkFkZHJlc3MpUrLVMkxo4gIAAUwAAmlkdAATTGphdmEvbGFuZy9JbnRlZ2VyO3hwc3IAEWphdmEubGFuZy5JbnRlZ2VyEuKgpPeBhzgCAAFJAAV2YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsCAAB4cAAAAAF2cgARZnJvbnRlbmQuRnJvbnRlbmQ0qvGSl6UdWQIAAHhwAAAAAXNyABFqYXZhLnV0aWwuSGFzaFNldLpEhZWWuLc0AwAAeHB3DAAAABA/QAAAAAAAAXNyAB1tYWluLkdhbWVNZWNoYW5pY3NTZXNzaW9uSW1wbMsLcFWF8LB5AgACTAAJc3RhcnRUaW1lcQB+AANMAAd1c2VySWRzcQB+AAF4cHNyAA5qYXZhLmxhbmcuTG9uZzuL5JDMjyPfAgABSgAFdmFsdWV4cQB+AA0AAAFd8Yw7OnNxAH4AEXcMAAAAAj9AAAAAAAABc3EAfgAVAAAAAAAAAAl4eH5yABpmcm9udGVuZC5Vc2VyU2Vzc2lvblN0YXR1cwAAAAAAAAAAEgAAeHIADmphdmEubGFuZy5FbnVtAAAAAAAAAAASAAB4cHQABUZJR0hUcA=="));
-    }
-
-
     public static <T> T deserializeString(String message) {
         byte[] messageBytes = Base64.getDecoder().decode(message);
         ByteArrayInputStream bais = new ByteArrayInputStream(messageBytes);
@@ -188,8 +185,9 @@ public class Serializator {
         try {
             ois = new ObjectInputStream(bais);
         } catch (Exception ignored) {
-            System.out.println(message);
-            ignored.printStackTrace();
+            Logger logger = LoggerImpl.getLogger();
+            logger.error(message);
+            logger.error(ignored);
         }
         T resource = null;
         if (ois != null) {

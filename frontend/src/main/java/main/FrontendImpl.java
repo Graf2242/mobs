@@ -6,7 +6,6 @@ import base.frontend.UserSessionStatus;
 import base.masterService.Connector;
 import base.masterService.Message;
 import base.masterService.nodes.Address;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
@@ -19,6 +18,7 @@ import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
 import utils.ServerSocketUtils.ConnectorImpl;
 import utils.ServerSocketUtils.MessageExecutor;
+import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class FrontendImpl implements Frontend {
     private final ServerConfig serverConfig;
     private final Map<Long, FrontendUserSession> sessions = new HashMap<>();
     final private Queue<Message> unsortedMessagesFromClients = new LinkedBlockingQueue<>();
-    private final Logger log = LogManager.getLogger(this.getClass());
+    private static Logger log;
     private Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
     private ServerSocket serverSocket;
     private Connector connector;
@@ -76,12 +76,13 @@ public class FrontendImpl implements Frontend {
             arg = args[0];
         } catch (Exception ignored) {
         }
+        LoggerImpl.createLogger("Frontend");
+        log = LoggerImpl.getLogger();
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
         Frontend frontend = new FrontendImpl(configPath);
         Thread frontendThread = new Thread(frontend);
         frontendThread.setName("frontend");
         frontendThread.start();
-
     }
 
 
@@ -173,7 +174,7 @@ public class FrontendImpl implements Frontend {
         List<Socket> sockets = new CopyOnWriteArrayList<>();
         connector = new ConnectorImpl(serverSocket, sockets);
         new MessageExecutor(unsortedMessagesFromClients, sockets);
-
+        log.fatal("Frontend started!");
         /* Jetty
         ServerConfig config = (ServerConfig) resourceFactory.getResource(configPath);
         Server server = new Server();

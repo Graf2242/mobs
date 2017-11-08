@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration monitorInterval="3">
+    <Properties>
+        <Property name="name">${ctx:LOGNAME}</Property>
+        <Property name="time">${ctx:STARTTIME}</Property>
+    </Properties>
+    <appenders>
+        <File name="FILE" fileName="logs/${time}/${name}.log" append="false">
+            <PatternLayout pattern="%d{ISO8601} [%-5p] (%F:%L) - %m%n"/>
+        </File>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %m%ex%n"/>
+        </Console>
+    </appenders>
+    <loggers>
+        <root level="all">
+            <appender-ref ref="STDOUT"/>
+        </root>
+        <logger name="Frontend" level="all">
+            <appender-ref ref="FILE"/>
+        </logger>
+    </loggers>
+
+</configuration>

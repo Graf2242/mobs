@@ -2,6 +2,7 @@ package utils.ServerSocketUtils;
 
 import base.masterService.Message;
 import utils.Serialization.Serializator;
+import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.DataInputStream;
@@ -27,7 +28,7 @@ public class MessageExecutor implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("MessageExecutor started!");
+        LoggerImpl.getLogger().info("MessageExecutor started!");
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
@@ -39,7 +40,7 @@ public class MessageExecutor implements Runnable {
                         msg = din.readUTF();
                         Message e = Serializator.deserializeString(msg);
                         if (e == null) {
-                            System.out.println(msg);
+                            LoggerImpl.getLogger().error(msg);
                         } else {
                             e.setOutSocket(socket);
                             unsortedMessages.add(e);

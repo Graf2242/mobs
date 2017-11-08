@@ -5,7 +5,6 @@ import Account.HAccountsDAO;
 import base.databaseService.DBService;
 import base.masterService.Message;
 import base.masterService.nodes.Address;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -19,6 +18,7 @@ import utils.MessageSystem.messages.Frontend.FWrongLoginData;
 import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
+import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -30,16 +30,16 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class HDBServiceImpl implements DBService {
+    private static Logger log;
     final private Address address = new Address();
-    SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
     private ResourceFactory resourceFactory;
     private final NodeMessageReceiver messageReceiver;
-    ServerConfig serverConfig;
+    private ServerConfig serverConfig;
     private String hbm2dll = "update";
     private Socket masterService;
     private Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
 
-    private final Logger log = LogManager.getLogger(this.getClass());
 
     public HDBServiceImpl(String configPath) {
         resourceFactory = ResourceFactory.instance();
@@ -105,6 +105,8 @@ public class HDBServiceImpl implements DBService {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+        LoggerImpl.createLogger("DatabaseService");
+        log = LoggerImpl.getLogger();
 
         DBService dbService = new HDBServiceImpl(configPath);
         Thread dbServiceThread = new Thread(dbService);
@@ -170,7 +172,7 @@ public class HDBServiceImpl implements DBService {
         }
     }
 
-    public SessionFactory createSessionConfig(Configuration configuration) {
+    private SessionFactory createSessionConfig(Configuration configuration) {
 
         configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
         configuration.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");

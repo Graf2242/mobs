@@ -5,6 +5,8 @@ import base.frontend.FrontendUserSession;
 import base.frontend.UserSessionStatus;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
+import org.apache.logging.log4j.Logger;
+import utils.logger.LoggerImpl;
 
 import java.util.Map;
 
@@ -12,6 +14,7 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
     private final Map<Long, Long> sessions;
     private final Long userId;
     private final UserSessionStatus status;
+    private Logger logger = LoggerImpl.getLogger();
     private int type;
 
     public FUpdateSessions(Address from, Long userId, UserSessionStatus status) {
@@ -36,8 +39,11 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
         try {
             frontend = (Frontend) node;
         } catch (Exception ex) {
-            System.out.println(node);
-            ex.printStackTrace();
+            logger.error(node);
+
+            logger.traceEntry();
+            logger.error(ex);
+            logger.traceExit();
         }
         if (frontend == null) {
             return;

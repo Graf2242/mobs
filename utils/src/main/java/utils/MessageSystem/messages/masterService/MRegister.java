@@ -3,6 +3,8 @@ package utils.MessageSystem.messages.masterService;
 import base.masterService.MasterService;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
+import org.apache.logging.log4j.Logger;
+import utils.logger.LoggerImpl;
 
 import java.net.InetAddress;
 import java.net.Socket;
@@ -16,6 +18,7 @@ public class MRegister extends _MasterMessageTemplate {
 
     private final Class<? extends Node> node;
     private String ipFrom;
+    private Logger logger = LoggerImpl.getLogger();
     private String portFrom;
 
     public MRegister(Address from, Class<? extends Node> fromNode, String ipFrom, String portFrom) {
@@ -50,6 +53,6 @@ public class MRegister extends _MasterMessageTemplate {
             currentAddresses.add(socketR);
             masterService.getNodes().put(nodeClass, currentAddresses);
         }
-        System.out.println("Registered " + nodeClass);
+        logger.info("Registered " + nodeClass);
     }
 }

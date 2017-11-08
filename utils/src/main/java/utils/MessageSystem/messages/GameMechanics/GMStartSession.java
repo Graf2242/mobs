@@ -3,15 +3,18 @@ package utils.MessageSystem.messages.GameMechanics;
 import base.gameMechanics.GameMechanics;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
+import org.apache.logging.log4j.Logger;
+import utils.logger.LoggerImpl;
 
 import java.util.Set;
 
 public class GMStartSession extends _GameMechanicsMessageTemplate {
     private final Set<Long> userIds;
+    private Logger logger = LoggerImpl.getLogger();
 
     public GMStartSession(Address from, Set<Long> userIds) {
         super(from);
-        System.out.println("Created GMStartSession");
+        logger.info("Created GMStartSession");
         this.userIds = userIds;
     }
 
@@ -21,11 +24,14 @@ public class GMStartSession extends _GameMechanicsMessageTemplate {
         try {
             gameMechanics = (GameMechanics) node;
         } catch (Exception ex) {
-            System.out.println(node);
-            ex.printStackTrace();
+            logger.error(node);
+
+            logger.traceEntry();
+            logger.error(ex);
+            logger.traceExit();
         }
         if (!gameMechanics.hasSession(userIds)) {
-            System.out.println("Session started! UserId" + userIds);
+            logger.info("Session started! UserId" + userIds);
             gameMechanics.registerGMSession(userIds);
         }
     }

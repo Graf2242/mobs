@@ -5,7 +5,6 @@ import base.gameMechanics.GameMechanics;
 import base.gameMechanics.GameMechanicsSession;
 import base.masterService.Message;
 import base.masterService.nodes.Address;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
@@ -13,6 +12,7 @@ import utils.MessageSystem.messages.Frontend.FUpdateSessions;
 import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
+import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -22,14 +22,14 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class GameMechanicsImpl implements GameMechanics {
+    private static Logger log;
     private final Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
     private final NodeMessageReceiver messageReceiver;
     private final ServerConfig serverConfig;
-    private final Logger log = LogManager.getLogger(this.getClass());
-    Address address = new Address();
-    Set<GameMechanicsSession> sessions = new HashSet<>();
-    Random random = new Random();
-    ResourceFactory resourceFactory;
+    private Address address = new Address();
+    private Set<GameMechanicsSession> sessions = new HashSet<>();
+    private Random random = new Random();
+    private ResourceFactory resourceFactory;
 
     public GameMechanicsImpl(String configPath) {
         log.fatal("Started");
@@ -69,6 +69,9 @@ public class GameMechanicsImpl implements GameMechanics {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+        LoggerImpl.createLogger("GameMechanics");
+        log = LoggerImpl.getLogger();
+
         GameMechanics gameMechanics = new GameMechanicsImpl(configPath);
         Thread gameMechanicsThread = new Thread(gameMechanics);
         gameMechanicsThread.setName("GameMechanics");

@@ -3,15 +3,18 @@ package utils.MessageSystem.messages.DBService;
 import base.databaseService.DBService;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
+import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageSender;
 import utils.MessageSystem.messages.Frontend.FAddUserMessage;
+import utils.logger.LoggerImpl;
 
 import java.util.Objects;
 
 public class DBFindUserIdMessage extends _DBServiceMessageTemplate {
-    final String userName;
+    private final String userName;
     private final String pass;
     private final Long sessionId;
+    private Logger logger = LoggerImpl.getLogger();
 
     public DBFindUserIdMessage(Address from, String userName, String pass, Long sessionId) {
         super(from);
@@ -26,8 +29,11 @@ public class DBFindUserIdMessage extends _DBServiceMessageTemplate {
         try {
             dbService = (DBService) node;
         } catch (Exception ex) {
-            System.out.println(node);
-            ex.printStackTrace();
+            logger.error(node);
+
+            logger.traceEntry();
+            logger.error(ex);
+            logger.traceExit();
         }
         if (dbService == null) {
             return;

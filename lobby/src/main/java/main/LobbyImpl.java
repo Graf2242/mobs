@@ -5,7 +5,6 @@ import base.lobby.Lobby;
 import base.lobby.LobbyUserSession;
 import base.masterService.Message;
 import base.masterService.nodes.Address;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
@@ -14,6 +13,7 @@ import utils.MessageSystem.messages.GameMechanics.GMStartSession;
 import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
+import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class LobbyImpl implements Lobby {
+    private static Logger log;
     private final Address address = new Address();
     private final NodeMessageReceiver messageReceiver;
     private final Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
@@ -35,7 +36,6 @@ public class LobbyImpl implements Lobby {
     private ResourceFactory resourceFactory;
     private Socket masterService;
     private boolean masterIsReady;
-    private final Logger log = LogManager.getLogger(this.getClass());
 
     public LobbyImpl(String configPath) {
         this.resourceFactory = ResourceFactory.instance();
@@ -54,10 +54,6 @@ public class LobbyImpl implements Lobby {
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Lobby.class, serverConfig.getLobby().getIp(), serverConfig.getLobby().getPort()));
     }
 
-    public Logger getLog() {
-        return log;
-    }
-
     public static void main(String[] args) {
         String arg = null;
         try {
@@ -65,12 +61,18 @@ public class LobbyImpl implements Lobby {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+        LoggerImpl.createLogger("Lobby");
+        log = LoggerImpl.getLogger();
 
         Lobby lobby = new LobbyImpl(configPath);
         Thread lobbyThread = new Thread(lobby);
         lobbyThread.setName("LOBBY");
         lobbyThread.start();
 
+    }
+
+    public Logger getLog() {
+        return log;
     }
 
     @Override

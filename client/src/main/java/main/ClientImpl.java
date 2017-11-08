@@ -10,11 +10,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.Logger;
 import pages.MainPage;
 import pages.PageTemplate;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
 import utils.MessageSystem.messages.clientMessages.fromClient.FDisconnect;
+import utils.logger.LoggerImpl;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -26,6 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClientImpl extends Application implements Client {
     private static String configPath;
+    private static Logger log;
     private Stage primaryStage;
     private AnchorPane rootLayout;
     private int outPort;
@@ -48,6 +51,9 @@ public class ClientImpl extends Application implements Client {
         } catch (Exception ignored) {
         }
         configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+        LoggerImpl.createLogger("Client");
+        log = LoggerImpl.getLogger();
+
 
         launch(args);
     }

@@ -1,7 +1,0 @@
-CREATE TABLE public.accounts
-(
-    id serial,
-    login text COLLATE pg_catalog."default" UNIQUE,
-    pass text COLLATE pg_catalog."default",
-    PRIMARY KEY (id)
-)
