@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import main.ClientImpl;
+import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
 import java.text.DateFormat;
@@ -17,6 +18,9 @@ public class MainPage implements PageTemplate, Runnable {
     private ClientImpl main;
     @FXML
     private TextField mainField;
+
+    public MainPage() {
+    }
 
     private static String getUserDateFull(Long time) {
         if (Objects.equals(time, null)) {
@@ -43,6 +47,12 @@ public class MainPage implements PageTemplate, Runnable {
 
     @Override
     public void run() {
+        mainField.setText("Loading");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            LoggerImpl.getLogger().fatal(e);
+        }
         TickSleeper sleeper = new TickSleeper();
         sleeper.setTickTimeMs(1000L);
         //noinspection InfiniteLoopStatement

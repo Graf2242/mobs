@@ -1,13 +1,15 @@
 package utils.tickSleeper;
 
+import org.apache.logging.log4j.Logger;
+import utils.logger.LoggerImpl;
+
 import java.util.Date;
-import java.util.logging.Logger;
 
 public class TickSleeper {
     private Long TICK_TIME_MS = 10L;
     private Long tickStartTime;
     private Long tickTime;
-    private Logger log = Logger.getLogger("TickSleeper");
+    private Logger log = LoggerImpl.getLogger();
 
     public Long getTickTimeMs() {
         return TICK_TIME_MS;
@@ -36,7 +38,7 @@ public class TickSleeper {
             try {
                 Thread.sleep(millis);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error(e);
             }
         }
     }

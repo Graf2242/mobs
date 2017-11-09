@@ -4,9 +4,10 @@ import main.MasterServiceImpl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import utils.logger.LoggerImpl;
 
 public class DBServiceTests {
-    static String configPath = "src/test/resources/testConfig";
+    private static String configPath = "src/test/resources/testConfig";
     private static DBService dbService;
 
     @BeforeClass
@@ -28,7 +29,7 @@ public class DBServiceTests {
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
 
         dbService.createAccount("acc1", "0");

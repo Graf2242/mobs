@@ -57,14 +57,14 @@ public class FrontendImpl implements Frontend {
                     Integer.parseInt(serverConfig.getMaster().getPort()), address,
                     Integer.parseInt(serverConfig.getFrontend().getPort()));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
 
         try {
             startFrontend();
         } catch (IOException e) {
             log.fatal("Frontend does not started");
-            e.printStackTrace();
+            log.error(e);
         }
         new NodeMessageReceiver(unhandledMessages, masterService);
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Frontend.class, serverConfig.getFrontend().getIp(), serverConfig.getFrontend().getPort()));
@@ -76,8 +76,7 @@ public class FrontendImpl implements Frontend {
             arg = args[0];
         } catch (Exception ignored) {
         }
-        LoggerImpl.createLogger("Frontend");
-        log = LoggerImpl.getLogger();
+        log = LoggerImpl.createLogger("Frontend");
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
         Frontend frontend = new FrontendImpl(configPath);
         Thread frontendThread = new Thread(frontend);
@@ -188,7 +187,7 @@ public class FrontendImpl implements Frontend {
         try {
             server.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e);
         }*/
     }
 

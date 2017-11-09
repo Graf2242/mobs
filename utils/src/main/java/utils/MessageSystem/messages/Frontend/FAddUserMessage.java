@@ -11,7 +11,6 @@ import utils.logger.LoggerImpl;
 public class FAddUserMessage extends _FrontendMessageTemplate {
     private final Long userId;
     private final Long sessionId;
-    private Logger logger = LoggerImpl.getLogger();
 
     public FAddUserMessage(Address from, Long userId, Long sessionId) {
         super(from);
@@ -21,6 +20,7 @@ public class FAddUserMessage extends _FrontendMessageTemplate {
 
     @Override
     public void exec(Node node) {
+        Logger logger = LoggerImpl.getLogger();
         Frontend frontend = null;
         try {
             frontend = (Frontend) node;

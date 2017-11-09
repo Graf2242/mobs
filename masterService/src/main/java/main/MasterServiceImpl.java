@@ -55,7 +55,7 @@ public class MasterServiceImpl implements MasterService {
                 serverSocket = new ServerSocket(Integer.parseInt(serverConfig.getMaster().getPort()), 10, inetAddress);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
 
         List<Socket> sockets = new CopyOnWriteArrayList<>();
@@ -71,8 +71,7 @@ public class MasterServiceImpl implements MasterService {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        LoggerImpl.createLogger("MasterService");
-        log = LoggerImpl.getLogger();
+        log = LoggerImpl.createLogger("MasterService");
 
         MasterService masterService = new MasterServiceImpl(configPath);
         Thread masterThread = new Thread(masterService);
@@ -145,7 +144,7 @@ public class MasterServiceImpl implements MasterService {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error(e);
         }
         while (!allConnected()) {
             tickSleeper.tickStart();
@@ -196,14 +195,14 @@ public class MasterServiceImpl implements MasterService {
                         dos = new DataOutputStream(socket.getOutputStream());
                         dos.writeUTF(Serializator.serializeToString(message));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error(e);
                     }
                 }
                 if (dos != null) {
                     try {
                         dos.flush();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error(e);
                     }
                 }
             }

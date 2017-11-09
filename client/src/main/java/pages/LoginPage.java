@@ -8,8 +8,10 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.StageStyle;
 import main.ClientImpl;
+import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageSender;
 import utils.MessageSystem.messages.clientMessages.fromClient.FLogin;
+import utils.logger.LoggerImpl;
 
 import java.io.IOException;
 
@@ -23,8 +25,10 @@ public class LoginPage implements PageTemplate {
     @FXML
     private TextField serverAddress;
     private ClientImpl main;
+    private Logger log;
 
     public LoginPage() {
+        log = LoggerImpl.getLogger();
     }
 
     @FXML
@@ -38,7 +42,7 @@ public class LoginPage implements PageTemplate {
             alert.setTitle("Error");
             alert.setHeaderText("Can't connect to the server");
             alert.show();
-            e.printStackTrace();
+            log.error(e);
         }
         NodeMessageSender.sendMessage(main.getFrontendSocket(), new FLogin(login.getText(), passwordField.getText()));
         main.setStatus(UserSessionStatus.IN_LOGIN);

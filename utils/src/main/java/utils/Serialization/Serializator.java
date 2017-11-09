@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.Objects;
 
 public class Serializator {
+
     public static void serializeToFileBin(Object o, String path) {
         FileOutputStream fos;
         ObjectOutputStream oos;
@@ -34,7 +35,7 @@ public class Serializator {
             oos.writeObject(o);
             fos.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
     }
 
@@ -46,7 +47,7 @@ public class Serializator {
             oos.writeObject(o);
             oos.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
 
         return Base64.getEncoder().encodeToString(baos.toByteArray());
@@ -62,7 +63,7 @@ public class Serializator {
             builder = dbf.newDocumentBuilder();
             doc = builder.parse(file);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
         Element root;
         if (doc != null) {
@@ -131,13 +132,13 @@ public class Serializator {
             StreamResult result = new StreamResult(fos);
             transformer.transform(source, result);
         } catch (ParserConfigurationException | TransformerException | FileNotFoundException | IllegalAccessException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         } finally {
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LoggerImpl.getLogger().error(e);
                 }
             }
         }
@@ -196,7 +197,7 @@ public class Serializator {
                 resource = (T) ois.readObject();
                 ois.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                LoggerImpl.getLogger().error(e);
             }
         }
         return resource;

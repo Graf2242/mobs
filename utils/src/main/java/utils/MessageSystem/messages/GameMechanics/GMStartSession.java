@@ -10,16 +10,16 @@ import java.util.Set;
 
 public class GMStartSession extends _GameMechanicsMessageTemplate {
     private final Set<Long> userIds;
-    private Logger logger = LoggerImpl.getLogger();
 
     public GMStartSession(Address from, Set<Long> userIds) {
         super(from);
-        logger.info("Created GMStartSession");
+        LoggerImpl.getLogger().info("Created GMStartSession");
         this.userIds = userIds;
     }
 
     @Override
     public void exec(Node node) {
+        Logger logger = LoggerImpl.getLogger();
         GameMechanics gameMechanics = null;
         try {
             gameMechanics = (GameMechanics) node;

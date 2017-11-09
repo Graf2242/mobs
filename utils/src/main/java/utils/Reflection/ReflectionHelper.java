@@ -1,5 +1,7 @@
 package utils.Reflection;
 
+import utils.logger.LoggerImpl;
+
 import java.lang.reflect.Field;
 
 public class ReflectionHelper {
@@ -7,7 +9,7 @@ public class ReflectionHelper {
         try {
             return Class.forName(className).newInstance();
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
         return null;
     }
@@ -23,7 +25,7 @@ public class ReflectionHelper {
                 field.set(o, value);
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         } finally {
             if (field != null) {
                 field.setAccessible(false);

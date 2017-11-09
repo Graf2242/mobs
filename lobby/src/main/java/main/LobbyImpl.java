@@ -48,7 +48,7 @@ public class LobbyImpl implements Lobby {
                     Integer.parseInt(serverConfig.getMaster().getPort()), address,
                     Integer.parseInt(serverConfig.getLobby().getPort()));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
         messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService);
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Lobby.class, serverConfig.getLobby().getIp(), serverConfig.getLobby().getPort()));
@@ -61,8 +61,7 @@ public class LobbyImpl implements Lobby {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        LoggerImpl.createLogger("Lobby");
-        log = LoggerImpl.getLogger();
+        log = LoggerImpl.createLogger("Lobby");
 
         Lobby lobby = new LobbyImpl(configPath);
         Thread lobbyThread = new Thread(lobby);

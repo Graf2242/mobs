@@ -14,7 +14,6 @@ public class DBFindUserIdMessage extends _DBServiceMessageTemplate {
     private final String userName;
     private final String pass;
     private final Long sessionId;
-    private Logger logger = LoggerImpl.getLogger();
 
     public DBFindUserIdMessage(Address from, String userName, String pass, Long sessionId) {
         super(from);
@@ -25,6 +24,7 @@ public class DBFindUserIdMessage extends _DBServiceMessageTemplate {
 
     @Override
     public void exec(Node node) {
+        Logger logger = LoggerImpl.getLogger();
         DBService dbService = null;
         try {
             dbService = (DBService) node;

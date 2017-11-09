@@ -9,7 +9,6 @@ import utils.logger.LoggerImpl;
 public class LAddUser extends _LobbyMessageTemplate {
     private final Long userId;
     private final String userName;
-    private Logger logger = LoggerImpl.getLogger();
 
 
     public LAddUser(Address from, Long userId, String userName) {
@@ -20,6 +19,7 @@ public class LAddUser extends _LobbyMessageTemplate {
 
     @Override
     public void exec(Node node) {
+        Logger logger = LoggerImpl.getLogger();
         Lobby lobby = null;
         try {
             lobby = (Lobby) node;

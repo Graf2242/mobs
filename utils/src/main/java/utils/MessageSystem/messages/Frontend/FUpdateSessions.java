@@ -14,7 +14,6 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
     private final Map<Long, Long> sessions;
     private final Long userId;
     private final UserSessionStatus status;
-    private Logger logger = LoggerImpl.getLogger();
     private int type;
 
     public FUpdateSessions(Address from, Long userId, UserSessionStatus status) {
@@ -35,6 +34,7 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
 
     @Override
     public void exec(Node node) {
+        Logger logger = LoggerImpl.getLogger();
         Frontend frontend = null;
         try {
             frontend = (Frontend) node;
@@ -54,7 +54,6 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
             }
             Frontend finalFrontend = frontend;
             sessions.forEach((userId, sessionTime) -> {
-//                System.out.println("Session userId: " + userId + "updated. New Status: " + status);
                 FrontendUserSession frontendUserSession = finalFrontend.getSessionByUserId(userId);
                 frontendUserSession.setStatus(status);
                 frontendUserSession.setSessionTime(sessionTime);

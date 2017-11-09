@@ -51,7 +51,7 @@ public class HDBServiceImpl implements DBService {
                     Integer.parseInt(serverConfig.getMaster().getPort()), address,
                     Integer.parseInt(serverConfig.getDbService().getPort()));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
         resourceFactory = ResourceFactory.instance();
         messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService);
@@ -105,8 +105,7 @@ public class HDBServiceImpl implements DBService {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        LoggerImpl.createLogger("DatabaseService");
-        log = LoggerImpl.getLogger();
+        log = LoggerImpl.createLogger("DatabaseService");
 
         DBService dbService = new HDBServiceImpl(configPath);
         Thread dbServiceThread = new Thread(dbService);
@@ -122,7 +121,7 @@ public class HDBServiceImpl implements DBService {
             dao.writeAccount(userName, pass);
             dataSet = dao.get(userName);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e);
         }
         if (dataSet != null) {
             return dataSet.getId();

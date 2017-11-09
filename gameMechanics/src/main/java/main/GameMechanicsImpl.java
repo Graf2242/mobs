@@ -48,7 +48,7 @@ public class GameMechanicsImpl implements GameMechanics {
                             address,
                             Integer.parseInt(serverConfig.getMechanics().getPort()));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
         messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService);
         NodeMessageSender.sendMessage(masterService, new MRegister(this.address, GameMechanics.class, serverConfig.getMechanics().getIp(), serverConfig.getMechanics().getPort()));
@@ -69,8 +69,7 @@ public class GameMechanicsImpl implements GameMechanics {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        LoggerImpl.createLogger("GameMechanics");
-        log = LoggerImpl.getLogger();
+        log = LoggerImpl.createLogger("GameMechanics");
 
         GameMechanics gameMechanics = new GameMechanicsImpl(configPath);
         Thread gameMechanicsThread = new Thread(gameMechanics);

@@ -2,6 +2,7 @@ package utils.MessageSystem;
 
 import base.masterService.Message;
 import utils.Serialization.Serializator;
+import utils.logger.LoggerImpl;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,18 +13,19 @@ import java.util.List;
 public class NodeMessageSender {
 
     public static void sendMessage(Socket socket, Message message) {
+
         DataOutputStream dos = null;
         try {
             dos = new DataOutputStream(socket.getOutputStream());
             dos.writeUTF(Serializator.serializeToString(message));
         } catch (IOException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
         if (dos != null) {
             try {
                 dos.flush();
             } catch (IOException e) {
-                e.printStackTrace();
+                LoggerImpl.getLogger().error(e);
             }
         }
     }
@@ -36,7 +38,7 @@ public class NodeMessageSender {
                 ps.println(message);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
         if (ps != null) {
             ps.flush();

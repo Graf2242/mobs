@@ -2,21 +2,22 @@ package utils.ResourceSystem.Resources.configs;
 
 import base.utils.Resource;
 import utils.Serialization.Serializator;
+import utils.logger.LoggerImpl;
 
 public class ServerConfig implements Resource {
-    NodeConfig master;
+    private NodeConfig master;
 
-    FrontendConfig frontend;
+    private FrontendConfig frontend;
 
-    NodeConfig dbService;
+    private NodeConfig dbService;
 
-    NodeConfig lobby;
+    private NodeConfig lobby;
 
-    NodeConfig mechanics;
+    private NodeConfig mechanics;
 
-    String databasePath;
-    String dbLogin;
-    String dbPass;
+    private String databasePath;
+    private String dbLogin;
+    private String dbPass;
 
     public ServerConfig() {
         master = new NodeConfig();
@@ -30,7 +31,7 @@ public class ServerConfig implements Resource {
         try {
             return (ServerConfig) Serializator.deserializeXmlFile(path);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
         return null;
     }

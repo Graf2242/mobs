@@ -4,6 +4,7 @@ import base.utils.Resource;
 import base.utils.VFS;
 import utils.Serialization.Serializator;
 import utils.VirtualFileSystem.VFSImpl;
+import utils.logger.LoggerImpl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,9 +14,9 @@ import java.util.*;
 
 public class ResourceFactory {
     private static ResourceFactory resourceFactory;
-    Map<String, Resource> resources = new HashMap<>();
-    String homePath;
-    VFS vfs;
+    private Map<String, Resource> resources = new HashMap<>();
+    private String homePath;
+    private VFS vfs;
 
     private ResourceFactory() {
         this.homePath = "data";
@@ -42,7 +43,7 @@ public class ResourceFactory {
         try {
             return Serializator.deserializeXmlFile(path);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
         return null;
     }
@@ -51,7 +52,7 @@ public class ResourceFactory {
         try {
             return Serializator.deserializeXmlFile(path);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
         return null;
     }
@@ -74,7 +75,7 @@ public class ResourceFactory {
                     }
                     num = Integer.parseInt(file.getName());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LoggerImpl.getLogger().error(e);
                 }
                 if (lines != null) {
                     String[] s = new String[lines.size()];
@@ -96,7 +97,7 @@ public class ResourceFactory {
                 try {
                     resources.put(next, Serializator.deserializeXmlFile(next));
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                    e.printStackTrace();
+                    LoggerImpl.getLogger().error(e);
                 }
             }
         }

@@ -8,7 +8,7 @@ import base.masterService.nodes.Address;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.Logger;
 import pages.MainPage;
@@ -30,7 +30,7 @@ public class ClientImpl extends Application implements Client {
     private static String configPath;
     private static Logger log;
     private Stage primaryStage;
-    private AnchorPane rootLayout;
+    private Pane rootLayout;
     private int outPort;
     private String outHost;
     private ClientStatus clientStatus;
@@ -51,8 +51,7 @@ public class ClientImpl extends Application implements Client {
         } catch (Exception ignored) {
         }
         configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        LoggerImpl.createLogger("Client");
-        log = LoggerImpl.getLogger();
+        log = LoggerImpl.createLogger("Client");
 
 
         launch(args);
@@ -78,18 +77,18 @@ public class ClientImpl extends Application implements Client {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Login");
 
-        showLayout("/pageResources/loginPage.fxml", ClientStatus.STARTED);
+        showLayout("pageResources/loginPage.fxml", ClientStatus.STARTED);
 
     }
 
     private void showLayout(String name, ClientStatus status) {
         FXMLLoader loader = new FXMLLoader();
-        URL resource = this.getClass().getResource(name);
+        URL resource = ClassLoader.getSystemResource(name);
         loader.setLocation(resource);
         try {
             rootLayout = loader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
         Scene scene = new Scene(rootLayout);
         primaryStage.setScene(scene);
@@ -106,7 +105,7 @@ public class ClientImpl extends Application implements Client {
 
     public void connectSuccessful() {
         closeWindow();
-        showLayout("/pageResources/MainPage.fxml", ClientStatus.IN_FIGHT);
+        showLayout("pageResources/mainPage.fxml", ClientStatus.IN_FIGHT);
         Thread mainPageThread = new Thread((MainPage) page);
         mainPageThread.setName("Main page");
         mainPageThread.start();
@@ -145,7 +144,7 @@ public class ClientImpl extends Application implements Client {
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error(e);
             }
         }
     }

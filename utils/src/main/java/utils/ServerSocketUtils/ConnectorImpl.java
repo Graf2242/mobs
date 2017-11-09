@@ -1,6 +1,7 @@
 package utils.ServerSocketUtils;
 
 import base.masterService.Connector;
+import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -9,8 +10,8 @@ import java.net.Socket;
 import java.util.List;
 
 public class ConnectorImpl implements Runnable, Connector {
-    final ServerSocket serverSocket;
-    final List<Socket> sockets;
+    private final ServerSocket serverSocket;
+    private final List<Socket> sockets;
     private final TickSleeper tickSleeper = new TickSleeper();
 
     public ConnectorImpl(ServerSocket serverSocket, List<Socket> sockets) {
@@ -35,7 +36,7 @@ public class ConnectorImpl implements Runnable, Connector {
                 Socket s = serverSocket.accept();
                 sockets.add(s);
             } catch (IOException e) {
-                e.printStackTrace();
+                LoggerImpl.getLogger().error(e);
             }
             tickSleeper.tickEnd();
         }

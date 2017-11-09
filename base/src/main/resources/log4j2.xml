@@ -5,19 +5,22 @@
         <Property name="time">${ctx:STARTTIME}</Property>
     </Properties>
     <appenders>
-        <File name="FILE" fileName="logs/${time}/${name}.log" append="false">
+        <File name="FILE" fileName="logs/${time}/${name}.log" append="true">
             <PatternLayout pattern="%d{ISO8601} [%-5p] (%F:%L) - %m%n"/>
         </File>
+        <Async name="Async">
+            <AppenderRef ref="FILE"/>
+        </Async>
         <Console name="STDOUT" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %m%ex%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36}:%L %M - %m%ex%n"/>
         </Console>
     </appenders>
     <loggers>
-        <root level="all">
+        <root level="info">
             <appender-ref ref="STDOUT"/>
         </root>
-        <logger name="Frontend" level="all">
-            <appender-ref ref="FILE"/>
+        <logger name="file" level="info">
+            <appender-ref ref="Async"/>
         </logger>
     </loggers>
 

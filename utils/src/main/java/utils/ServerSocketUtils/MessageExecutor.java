@@ -47,7 +47,7 @@ public class MessageExecutor implements Runnable {
                         }
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LoggerImpl.getLogger().error(e);
                 }
             }
             tickSleeper.tickEnd();

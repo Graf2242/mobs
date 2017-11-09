@@ -7,13 +7,14 @@ import main.MasterServiceImpl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import utils.logger.LoggerImpl;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 public class GameMechanicsTests {
-    static String configPath = "src/test/resources/testConfig";
+    private static String configPath = "src/test/resources/testConfig";
     private static GameMechanics gameMechanics;
     private static MasterService masterService;
 
@@ -63,7 +64,7 @@ public class GameMechanicsTests {
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LoggerImpl.getLogger().error(e);
         }
         Long sessionTime = gms.getSessionTime();
         boolean condition = Math.abs(sessionTime - 1000L) < 50L;
