@@ -21,31 +21,6 @@ public class Start {
         FrontendImpl.main(outArgs);
         LobbyImpl.main(outArgs);
         GameMechanicsImpl.main(outArgs);
-/*
-        MasterService masterService = new MasterServiceImpl(configPath);
-        Thread masterThread = new Thread(masterService);
-        masterThread.start();
-
-        DBService dbService = new HDBServiceImpl(configPath);
-        Thread dbServiceThread = new Thread(dbService);
-        dbServiceThread.setName("DBService");
-        dbServiceThread.start();
-
-        Frontend frontend = new FrontendImpl(configPath);
-        Thread frontendThread = new Thread(frontend);
-        frontendThread.setName("frontend");
-        frontendThread.start();
-
-        Lobby lobby = new LobbyImpl(configPath);
-        Thread lobbyThread = new Thread(lobby);
-        lobbyThread.setName("LOBBY");
-        lobbyThread.start();
-
-        GameMechanics gameMechanics = new GameMechanicsImpl(configPath);
-        Thread gameMechanicsThread = new Thread(gameMechanics);
-        gameMechanicsThread.setName("GameMechanics");
-        gameMechanicsThread.start();
-        */
     }
 
 }

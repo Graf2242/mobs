@@ -25,7 +25,6 @@ public class LAddUser extends _LobbyMessageTemplate {
             lobby = (Lobby) node;
         } catch (Exception ex) {
             logger.error(node);
-
             logger.traceEntry();
             logger.error(ex);
             logger.traceExit();

@@ -14,6 +14,7 @@ import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -66,6 +67,7 @@ public class LobbyImpl implements Lobby {
         Lobby lobby = new LobbyImpl(configPath);
         Thread lobbyThread = new Thread(lobby);
         lobbyThread.setName("LOBBY");
+        lobbyThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         lobbyThread.start();
 
     }

@@ -6,6 +6,8 @@ import base.frontend.UserSessionStatus;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
 import org.apache.logging.log4j.Logger;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.clientMessages.toClient.CUpdateSession;
 import utils.logger.LoggerImpl;
 
 import java.util.Map;
@@ -62,6 +64,7 @@ public class FUpdateSessions extends _FrontendMessageTemplate {
         } else if (type == 2) {
             FrontendUserSession session = frontend.getSessionByUserId(this.userId);
             session.setStatus(status);
+            NodeMessageSender.sendMessage(session.getUserSocket(), new CUpdateSession(session));
         }
     }
 }

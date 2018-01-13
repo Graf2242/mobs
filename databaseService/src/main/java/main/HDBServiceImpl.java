@@ -19,6 +19,7 @@ import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -110,6 +111,7 @@ public class HDBServiceImpl implements DBService {
         DBService dbService = new HDBServiceImpl(configPath);
         Thread dbServiceThread = new Thread(dbService);
         dbServiceThread.setName("DBService");
+        dbServiceThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         dbServiceThread.start();
     }
 
@@ -118,8 +120,7 @@ public class HDBServiceImpl implements DBService {
         HAccountDataSet dataSet = null;
         HAccountsDAO dao = new HAccountsDAO(sessionFactory);
         try {
-            dao.writeAccount(userName, pass);
-            dataSet = dao.get(userName);
+            dataSet = dao.writeAccount(userName, pass);
         } catch (SQLException e) {
             log.error(e);
         }

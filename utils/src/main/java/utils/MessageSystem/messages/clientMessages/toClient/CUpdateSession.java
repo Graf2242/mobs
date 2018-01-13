@@ -14,7 +14,6 @@ public class CUpdateSession extends Message {
     final private Long fightTime;
 
     public CUpdateSession(FrontendUserSession userSession) {
-//        System.out.println("Update session sent");
         this.userID = userSession.getUserId();
         this.userName = userSession.getUserName();
         this.status = userSession.getStatus();

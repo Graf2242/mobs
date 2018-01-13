@@ -22,7 +22,7 @@ public class LoggerImpl {
             log = LogManager.getLogger("file");
         } else {
             log.warn("Code try to create logger twice");
-            printStackTrace();
+            printStackTrace(log);
         }
         return log;
     }
@@ -35,9 +35,9 @@ public class LoggerImpl {
         return log;
     }
 
-    public static void printStackTrace() {
-        log.traceEntry();
+    private static void printStackTrace(Logger log) {
         log.catching(Level.WARN, new Exception());
-        log.traceExit();
     }
+
 }
+

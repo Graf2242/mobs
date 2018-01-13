@@ -13,7 +13,7 @@ public interface Frontend extends Node, Runnable {
 
     Long getSessionId(Long userId);
 
-    void addUser(String login, String pass, Socket clientSocket);
+    Long addUser(String login, String pass, Socket clientSocket);
 
     void updateUserId(Long sessionId, Long userId);
 

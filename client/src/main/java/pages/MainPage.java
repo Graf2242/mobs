@@ -3,8 +3,10 @@ package pages;
 import base.frontend.UserSessionStatus;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import main.ClientImpl;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.clientMessages.fromClient.FConnectLobby;
 import utils.logger.LoggerImpl;
 import utils.tickSleeper.TickSleeper;
 
@@ -17,7 +19,7 @@ import java.util.Objects;
 public class MainPage implements PageTemplate, Runnable {
     private ClientImpl main;
     @FXML
-    private TextField mainField;
+    private TextArea mainField;
 
     public MainPage() {
     }
@@ -27,7 +29,7 @@ public class MainPage implements PageTemplate, Runnable {
             time = 0L;
         }
         Date date = new Date(time);
-        DateFormat formatter = new SimpleDateFormat("mm:ss");
+        DateFormat formatter = new SimpleDateFormat("mm:ss.SSS");
         return formatter.format(date);
     }
 
@@ -42,12 +44,17 @@ public class MainPage implements PageTemplate, Runnable {
     }
 
     public void updatePage(Long userID, String userName, UserSessionStatus status, Long fightTime) {
-        mainField.setText(String.format("MatchTime is %s", getUserDateFull(fightTime)));
+        writeText(String.format("MatchTime is %s", getUserDateFull(fightTime)));
+    }
+
+    private void writeText(String text) {
+        mainField.appendText(text);
+        mainField.appendText(System.lineSeparator());
     }
 
     @Override
     public void run() {
-        mainField.setText("Loading");
+        writeText("Loading");
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -60,6 +67,16 @@ public class MainPage implements PageTemplate, Runnable {
             sleeper.tickStart();
             main.execMessage();
             sleeper.tickEnd();
+        }
+    }
+
+    @FXML
+    private void OnLoginToLobbyPressed(ActionEvent actionEvent) {
+        try {
+            NodeMessageSender.sendMessage(main.getFrontendSocket(), new FConnectLobby(main.getSessionId()));
+            main.setStatus(UserSessionStatus.SEARCH);
+        } catch (Exception ex) {
+            main.getLog().fatal(ex);
         }
     }
 }

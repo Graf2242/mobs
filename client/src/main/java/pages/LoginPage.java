@@ -10,14 +10,18 @@ import javafx.stage.StageStyle;
 import main.ClientImpl;
 import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.clientMessages.fromClient.FCreateAccount;
 import utils.MessageSystem.messages.clientMessages.fromClient.FLogin;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 
 import java.io.IOException;
 
 public class LoginPage implements PageTemplate {
     @FXML
     private Button loginBtn;
+    @FXML
+    private Button createBtn;
     @FXML
     private PasswordField passwordField;
     @FXML
@@ -29,10 +33,44 @@ public class LoginPage implements PageTemplate {
 
     public LoginPage() {
         log = LoggerImpl.getLogger();
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
+    }
+
+    @FXML
+    private void createBtnPressed() {
+        connect();
+        NodeMessageSender.sendMessage(main.getFrontendSocket(), new FCreateAccount(login.getText(), passwordField.getText()));
+        main.setStatus(UserSessionStatus.IN_LOGIN);
+        main.waitForStatusUpdate();
+        if (main.getClientStatus().getStatus().equals(UserSessionStatus.WRONG_LOGIN_INFO)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initStyle(StageStyle.DECORATED);
+            alert.setTitle("Error");
+            alert.setHeaderText("Wrong login info");
+            alert.show();
+        } else if (main.getClientStatus().getStatus().equals(UserSessionStatus.CONNECTED)) {
+            main.connectSuccessful();
+        }
     }
 
     @FXML
     private void loginBtnPressed() {
+        connect();
+        NodeMessageSender.sendMessage(main.getFrontendSocket(), new FLogin(login.getText(), passwordField.getText()));
+        main.setStatus(UserSessionStatus.IN_LOGIN);
+        main.waitForStatusUpdate();
+        if (main.getClientStatus().getStatus().equals(UserSessionStatus.WRONG_LOGIN_INFO)) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initStyle(StageStyle.DECORATED);
+            alert.setTitle("Error");
+            alert.setHeaderText("Wrong login info");
+            alert.show();
+        } else if (main.getClientStatus().getStatus().equals(UserSessionStatus.CONNECTED)) {
+            main.connectSuccessful();
+        }
+    }
+
+    private void connect() {
         try {
             String text = serverAddress.getText();
             main.connectToServer(text);
@@ -43,18 +81,6 @@ public class LoginPage implements PageTemplate {
             alert.setHeaderText("Can't connect to the server");
             alert.show();
             log.error(e);
-        }
-        NodeMessageSender.sendMessage(main.getFrontendSocket(), new FLogin(login.getText(), passwordField.getText()));
-        main.setStatus(UserSessionStatus.IN_LOGIN);
-        main.waitForStatusUpdate();
-        if (main.getStatus().equals(UserSessionStatus.WRONG_LOGIN_INFO)) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.initStyle(StageStyle.DECORATED);
-            alert.setTitle("Error");
-            alert.setHeaderText("Wrong login info");
-            alert.show();
-        } else if (main.getStatus().equals(UserSessionStatus.CONNECTED)) {
-            main.connectSuccessful();
         }
     }
 

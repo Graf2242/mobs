@@ -18,6 +18,8 @@ public interface FrontendUserSession extends Serializable {
 
     UserSessionStatus getStatus();
 
+    void setSessionId(Long sessionId);
+
     void setStatus(UserSessionStatus status);
 
     Long getSessionId();

@@ -56,8 +56,12 @@ public class FrontendUserSessionImpl implements FrontendUserSession {
     }
 
     @Override
+    public void setSessionId(Long sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    @Override
     public void setStatus(UserSessionStatus status) {
-//        System.out.println("Set status = " + status);
         this.status = status;
     }
 

@@ -4,8 +4,6 @@ import base.frontend.Frontend;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
 import org.apache.logging.log4j.Logger;
-import utils.MessageSystem.NodeMessageSender;
-import utils.MessageSystem.messages.Lobby.LAddUser;
 import utils.logger.LoggerImpl;
 
 public class FAddUserMessage extends _FrontendMessageTemplate {
@@ -26,15 +24,11 @@ public class FAddUserMessage extends _FrontendMessageTemplate {
             frontend = (Frontend) node;
         } catch (Exception ex) {
             logger.error(node);
-
-            logger.traceEntry();
             logger.error(ex);
-            logger.traceExit();
         }
         if (frontend == null) {
             return;
         }
         frontend.updateUserId(sessionId, userId);
-        NodeMessageSender.sendMessage(frontend.getMasterService(), new LAddUser(getFrom(), userId, frontend.getSessionByUserId(userId).getUserName()));
     }
 }

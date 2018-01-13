@@ -18,6 +18,7 @@ import utils.Serialization.Serializator;
 import utils.ServerSocketUtils.ConnectorImpl;
 import utils.ServerSocketUtils.MessageExecutor;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.DataOutputStream;
@@ -60,7 +61,7 @@ public class MasterServiceImpl implements MasterService {
 
         List<Socket> sockets = new CopyOnWriteArrayList<>();
         connector = new ConnectorImpl(serverSocket, sockets);
-        new MessageExecutor(unsortedMessages, sockets);
+        new MessageExecutor(unsortedMessages, sockets, log);
 
     }
 
@@ -75,6 +76,7 @@ public class MasterServiceImpl implements MasterService {
 
         MasterService masterService = new MasterServiceImpl(configPath);
         Thread masterThread = new Thread(masterService);
+        masterThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         masterThread.start();
     }
 
@@ -118,7 +120,7 @@ public class MasterServiceImpl implements MasterService {
                         throw new WrongTransaction("unknown node");
                     } catch (WrongTransaction wrongTransaction) {
                         log.info("Message to unknown node:" + message.getTo() + " from: " + message.toString());
-//                        wrongTransaction.printStackTrace();
+                        wrongTransaction.printStackTrace();
                     }
                 }
                 Socket target = targetL[0];

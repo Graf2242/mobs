@@ -13,6 +13,7 @@ import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -74,6 +75,7 @@ public class GameMechanicsImpl implements GameMechanics {
         GameMechanics gameMechanics = new GameMechanicsImpl(configPath);
         Thread gameMechanicsThread = new Thread(gameMechanics);
         gameMechanicsThread.setName("GameMechanics");
+        gameMechanicsThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         gameMechanicsThread.start();
     }
 
@@ -138,6 +140,7 @@ public class GameMechanicsImpl implements GameMechanics {
         FightImpl fight = new FightImpl(2, 5, 0, random);
         Thread tFight = new Thread(fight);
         tFight.setName("Fight");
+        tFight.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         tFight.start();
         session.setFight(fight);
         log.info("New session registered!");

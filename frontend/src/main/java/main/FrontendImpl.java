@@ -9,7 +9,6 @@ import base.masterService.nodes.Address;
 import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
-import utils.MessageSystem.messages.DBService.DBFindUserIdMessage;
 import utils.MessageSystem.messages.clientMessages.toClient.CLoginSuccess;
 import utils.MessageSystem.messages.clientMessages.toClient.CUpdateSession;
 import utils.MessageSystem.messages.clientMessages.toClient.CUpdateSessionStatus;
@@ -19,6 +18,7 @@ import utils.ResourceSystem.Resources.configs.ServerConfig;
 import utils.ServerSocketUtils.ConnectorImpl;
 import utils.ServerSocketUtils.MessageExecutor;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
@@ -81,6 +81,7 @@ public class FrontendImpl implements Frontend {
         Frontend frontend = new FrontendImpl(configPath);
         Thread frontendThread = new Thread(frontend);
         frontendThread.setName("frontend");
+        frontendThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         frontendThread.start();
     }
 
@@ -172,7 +173,7 @@ public class FrontendImpl implements Frontend {
 
         List<Socket> sockets = new CopyOnWriteArrayList<>();
         connector = new ConnectorImpl(serverSocket, sockets);
-        new MessageExecutor(unsortedMessagesFromClients, sockets);
+        new MessageExecutor(unsortedMessagesFromClients, sockets, log);
         log.fatal("Frontend started!");
         /* Jetty
         ServerConfig config = (ServerConfig) resourceFactory.getResource(configPath);
@@ -238,14 +239,14 @@ public class FrontendImpl implements Frontend {
 //    }
 
     @Override
-    public void addUser(String login, String pass, Socket clientSocket) {
+    public Long addUser(String login, String pass, Socket clientSocket) {
         FrontendUserSession userSession = new FrontendUserSessionImpl();
         sessions.put(userSession.getSessionId(), userSession);
         userSession.setUserName(login);
         userSession.setUserSocket(clientSocket);
         userSession.setStatus(UserSessionStatus.IN_LOGIN);
-        NodeMessageSender.sendMessage(masterService, new DBFindUserIdMessage(address, login, pass, userSession.getSessionId()));
         log.fatal("User connected");
+        return userSession.getSessionId();
     }
 
     @Override
@@ -257,7 +258,7 @@ public class FrontendImpl implements Frontend {
         userSession.setUserId(userId);
         UserSessionStatus status = UserSessionStatus.CONNECTED;
         userSession.setStatus(status);
-        NodeMessageSender.sendMessage(userSession.getUserSocket(), new CLoginSuccess(userId, status));
+        NodeMessageSender.sendMessage(userSession.getUserSocket(), new CLoginSuccess(userId, sessionId, status));
     }
 
     @Override

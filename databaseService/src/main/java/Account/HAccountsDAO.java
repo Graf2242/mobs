@@ -2,7 +2,6 @@ package Account;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -39,9 +38,7 @@ public class HAccountsDAO {
         HAccountDataSet accountDataSet = new HAccountDataSet(name, pass);
 
         Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
         session.save(accountDataSet);
-        transaction.commit();
         session.close();
         return get(name);
     }

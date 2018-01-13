@@ -4,14 +4,14 @@ import base.frontend.Frontend;
 import base.masterService.Message;
 import base.masterService.nodes.Node;
 import utils.MessageSystem.NodeMessageSender;
-import utils.MessageSystem.messages.DBService.DBFindUserIdMessage;
+import utils.MessageSystem.messages.DBService.DBCreateUser;
 
-public class FLogin extends Message {
-    private final String login;
-    private final String pass;
+public class FCreateAccount extends Message {
 
+    private String login;
+    private String pass;
 
-    public FLogin(String login, String pass) {
+    public FCreateAccount(String login, String pass) {
         this.login = login;
         this.pass = pass;
     }
@@ -20,7 +20,6 @@ public class FLogin extends Message {
     public void exec(Node node) {
         Frontend frontend = (Frontend) node;
         Long sessionId = frontend.addUser(login, pass, outSocket);
-        NodeMessageSender.sendMessage(frontend.getMasterService(), new DBFindUserIdMessage(frontend.getAddress(), login, pass, sessionId));
-
+        NodeMessageSender.sendMessage(frontend.getMasterService(), new DBCreateUser(frontend.getAddress(), login, pass, sessionId));
     }
 }

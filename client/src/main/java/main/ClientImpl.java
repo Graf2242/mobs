@@ -1,7 +1,6 @@
 package main;
 
 import base.Client.Client;
-import base.frontend.FrontendUserSession;
 import base.frontend.UserSessionStatus;
 import base.masterService.Message;
 import base.masterService.nodes.Address;
@@ -17,6 +16,7 @@ import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
 import utils.MessageSystem.messages.clientMessages.fromClient.FDisconnect;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -32,13 +32,10 @@ public class ClientImpl extends Application implements Client {
     private Stage primaryStage;
     private Pane rootLayout;
     private int outPort;
-    private String outHost;
-    private ClientStatus clientStatus;
+    private ClientStatus clientStatus = new ClientStatus();
     private PageTemplate page;
-    private FrontendUserSession frontendUserSession;
-    private Long userId = null;
-    private UserSessionStatus status;
     private Socket frontendSocket;
+
     private Queue<Message> messages = new LinkedBlockingQueue<>();
 
     public ClientImpl() {
@@ -53,18 +50,12 @@ public class ClientImpl extends Application implements Client {
         configPath = Objects.equals(arg, null) ? "config.xml" : arg;
         log = LoggerImpl.createLogger("Client");
 
-
         launch(args);
     }
 
     @Override
-    public FrontendUserSession getFrontendUserSession() {
-        return frontendUserSession;
-    }
-
-    @Override
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public Logger getLog() {
+        return log;
     }
 
     @Override
@@ -77,37 +68,41 @@ public class ClientImpl extends Application implements Client {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Login");
 
-        showLayout("pageResources/loginPage.fxml", ClientStatus.STARTED);
+        showLayout("pageResources/loginPage.fxml");
 
     }
 
-    private void showLayout(String name, ClientStatus status) {
-        FXMLLoader loader = new FXMLLoader();
-        URL resource = ClassLoader.getSystemResource(name);
-        loader.setLocation(resource);
+    private void showLayout(String name) {
         try {
-            rootLayout = loader.load();
-        } catch (IOException e) {
-            log.error(e);
+            FXMLLoader loader = new FXMLLoader();
+            URL resource = ClassLoader.getSystemResource(name);
+            loader.setLocation(resource);
+            try {
+                rootLayout = loader.load();
+            } catch (IOException e) {
+                log.error(e);
+            }
+            Scene scene = new Scene(rootLayout);
+            primaryStage.setScene(scene);
+            page = loader.getController();
+            page.setMain(this);
+            primaryStage.show();
+        } catch (Exception e) {
+            log.fatal(e);
         }
-        Scene scene = new Scene(rootLayout);
-        primaryStage.setScene(scene);
-        page = loader.getController();
-        page.setMain(this);
-        primaryStage.show();
-        this.clientStatus = status;
     }
 
     public void quit() {
         closeWindow();
-        NodeMessageSender.sendMessage(getFrontendSocket(), new FDisconnect(userId));
+        NodeMessageSender.sendMessage(getFrontendSocket(), new FDisconnect(clientStatus.getUserId()));
     }
 
     public void connectSuccessful() {
         closeWindow();
-        showLayout("pageResources/mainPage.fxml", ClientStatus.IN_FIGHT);
+        showLayout("pageResources/mainPage.fxml");
         Thread mainPageThread = new Thread((MainPage) page);
         mainPageThread.setName("Main page");
+        mainPageThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         mainPageThread.start();
     }
 
@@ -128,34 +123,37 @@ public class ClientImpl extends Application implements Client {
         }
     }
 
-    public UserSessionStatus getStatus() {
-        return status;
-    }
-
-    @Override
-    public void setStatus(UserSessionStatus status) {
-        this.status = status;
-    }
-
     @Override
     public void waitForStatusUpdate() {
-        while (status.equals(UserSessionStatus.IN_LOGIN)) {
+        while (clientStatus.getStatus().equals(UserSessionStatus.IN_LOGIN)) {
             execMessage();
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 log.error(e);
             }
         }
     }
 
+    public ClientStatus getClientStatus() {
+        return clientStatus;
+    }
+
     @Override
     public void updateUserSession(Long userID, String userName, UserSessionStatus status, Long fightTime) {
-        if (clientStatus.equals(ClientStatus.IN_FIGHT)) {
-            //TODO
-            MainPage mainPage = (MainPage) page;
-            mainPage.updatePage(userID, userName, status, fightTime);
-        }
+        MainPage mainPage = (MainPage) page;
+        mainPage.updatePage(userID, userName, status, fightTime);
+
+    }
+
+    @Override
+    public void setStatus(UserSessionStatus status) {
+        clientStatus.setStatus(status);
+    }
+
+    @Override
+    public void setUserId(Long userId) {
+        clientStatus.setUserId(userId);
     }
 
     @Override
@@ -171,5 +169,14 @@ public class ClientImpl extends Application implements Client {
     @Override
     public Socket getMasterService() {
         return null;
+    }
+
+    public Long getSessionId() {
+        return clientStatus.getUserSessionId();
+    }
+
+    @Override
+    public void setSessionId(Long userSessionId) {
+        clientStatus.setUserSessionId(userSessionId);
     }
 }

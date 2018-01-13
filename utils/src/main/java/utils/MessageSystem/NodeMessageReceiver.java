@@ -4,6 +4,7 @@ import base.masterService.Message;
 import org.apache.logging.log4j.Logger;
 import utils.Serialization.Serializator;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.DataInputStream;
@@ -27,6 +28,7 @@ public class NodeMessageReceiver implements Runnable {
         }
         Thread messageReceiver = new Thread(this);
         messageReceiver.setName("MessageReceiver");
+        messageReceiver.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         messageReceiver.start();
     }
 

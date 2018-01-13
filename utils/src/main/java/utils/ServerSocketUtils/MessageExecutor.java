@@ -1,8 +1,10 @@
 package utils.ServerSocketUtils;
 
 import base.masterService.Message;
+import org.apache.logging.log4j.Logger;
 import utils.Serialization.Serializator;
 import utils.logger.LoggerImpl;
+import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.DataInputStream;
@@ -15,13 +17,15 @@ public class MessageExecutor implements Runnable {
     private final TickSleeper tickSleeper = new TickSleeper();
     private Queue<Message> unsortedMessages;
     private List<Socket> sockets;
+    Logger log;
 
 
-    public MessageExecutor(Queue<Message> unsortedMessages, List<Socket> sockets) {
+    public MessageExecutor(Queue<Message> unsortedMessages, List<Socket> sockets, Logger log) {
         this.unsortedMessages = unsortedMessages;
         this.sockets = sockets;
         Thread mExecutor = new Thread(this);
         mExecutor.setName("MessageExecutor");
+        mExecutor.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
         mExecutor.start();
     }
 
