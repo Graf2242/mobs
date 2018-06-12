@@ -1,4 +1,4 @@
-package base.masterService;
+package base.utils;
 
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;

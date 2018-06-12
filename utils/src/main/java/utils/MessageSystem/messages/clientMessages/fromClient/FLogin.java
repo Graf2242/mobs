@@ -1,8 +1,8 @@
 package utils.MessageSystem.messages.clientMessages.fromClient;
 
 import base.frontend.Frontend;
-import base.masterService.Message;
 import base.masterService.nodes.Node;
+import base.utils.Message;
 import utils.MessageSystem.NodeMessageSender;
 import utils.MessageSystem.messages.DBService.DBFindUserIdMessage;
 

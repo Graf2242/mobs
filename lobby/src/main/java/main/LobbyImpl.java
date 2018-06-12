@@ -3,8 +3,8 @@ package main;
 import base.frontend.UserSessionStatus;
 import base.lobby.Lobby;
 import base.lobby.LobbyUserSession;
-import base.masterService.Message;
 import base.masterService.nodes.Address;
+import base.utils.Message;
 import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
@@ -46,13 +46,13 @@ public class LobbyImpl implements Lobby {
         try {
             address = InetAddress.getByName(serverConfig.getLobby().getIp());
             masterService = new Socket(serverConfig.getMaster().getIp(),
-                    Integer.parseInt(serverConfig.getMaster().getPort()), address,
-                    Integer.parseInt(serverConfig.getLobby().getPort()));
+                    Integer.parseInt(serverConfig.getMaster().getMasterPort()), address,
+                    Integer.parseInt(serverConfig.getLobby().getMasterPort()));
         } catch (IOException e) {
             log.error(e);
         }
         messageReceiver = new NodeMessageReceiver(unhandledMessages, masterService);
-        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Lobby.class, serverConfig.getLobby().getIp(), serverConfig.getLobby().getPort()));
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Lobby.class, serverConfig.getLobby().getIp(), serverConfig.getLobby().getMasterPort()));
     }
 
     public static void main(String[] args) {
@@ -62,7 +62,7 @@ public class LobbyImpl implements Lobby {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        log = LoggerImpl.createLogger("Lobby");
+        log = LoggerImpl.getLogger("Lobby");
 
         Lobby lobby = new LobbyImpl(configPath);
         Thread lobbyThread = new Thread(lobby);
@@ -77,7 +77,7 @@ public class LobbyImpl implements Lobby {
     }
 
     @Override
-    public Integer getFIGHT_CAPACITY() {
+    public Integer getCAPACITY() {
         return FIGHT_CAPACITY;
     }
 

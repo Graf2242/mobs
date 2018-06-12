@@ -2,24 +2,29 @@
 <utils.ResourceSystem.Resources.configs.ServerConfig>
     <master>
         <ip>localhost</ip>
-        <port>9095</port>
+        <masterPort>9095</masterPort>
     </master>
     <frontend>
         <ip>localhost</ip>
-        <port>9092</port>
-        <frontendPort>9093</frontendPort>
+        <masterPort>9092</masterPort>
+        <secondPort>9093</secondPort>
     </frontend>
+    <metrics>
+        <ip>localhost</ip>
+        <masterPort>9097</masterPort>
+        <secondPort>9098</secondPort>
+    </metrics>
     <dbService>
         <ip>localhost</ip>
-        <port>9091</port>
+        <masterPort>9091</masterPort>
     </dbService>
     <lobby>
         <ip>localhost</ip>
-        <port>9094</port>
+        <masterPort>9094</masterPort>
     </lobby>
     <mechanics>
         <ip>localhost</ip>
-        <port>9096</port>
+        <masterPort>9096</masterPort>
     </mechanics>
     <databasePath>jdbc:postgresql://localhost:5432/mobs</databasePath>
     <dbLogin>postgres</dbLogin>

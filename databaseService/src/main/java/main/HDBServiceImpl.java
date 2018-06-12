@@ -3,8 +3,8 @@ package main;
 import Account.HAccountDataSet;
 import Account.HAccountsDAO;
 import base.databaseService.DBService;
-import base.masterService.Message;
 import base.masterService.nodes.Address;
+import base.utils.Message;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -15,6 +15,7 @@ import org.hibernate.cfg.Configuration;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
 import utils.MessageSystem.messages.Frontend.FWrongLoginData;
+import utils.MessageSystem.messages.Metrics.MetricsIncrement;
 import utils.MessageSystem.messages.masterService.MRegister;
 import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
@@ -33,14 +34,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class HDBServiceImpl implements DBService {
     private static Logger log;
     final private Address address = new Address();
+    private final NodeMessageReceiver messageReceiver;
     private SessionFactory sessionFactory;
     private ResourceFactory resourceFactory;
-    private final NodeMessageReceiver messageReceiver;
     private ServerConfig serverConfig;
     private String hbm2dll = "update";
     private Socket masterService;
     private Queue<Message> unhandledMessages = new LinkedBlockingQueue<>();
-
+    private boolean masterIsReady;
 
     public HDBServiceImpl(String configPath) {
         resourceFactory = ResourceFactory.instance();
@@ -49,8 +50,8 @@ public class HDBServiceImpl implements DBService {
         try {
             address = InetAddress.getByName(serverConfig.getDbService().getIp());
             masterService = new Socket(serverConfig.getMaster().getIp(),
-                    Integer.parseInt(serverConfig.getMaster().getPort()), address,
-                    Integer.parseInt(serverConfig.getDbService().getPort()));
+                    Integer.parseInt(serverConfig.getMaster().getMasterPort()), address,
+                    Integer.parseInt(serverConfig.getDbService().getMasterPort()));
         } catch (IOException e) {
             log.error(e);
         }
@@ -59,11 +60,25 @@ public class HDBServiceImpl implements DBService {
 
 
         //noinspection InfiniteLoopStatement
-        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, DBService.class, serverConfig.getDbService().getIp(), serverConfig.getDbService().getPort()));
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, DBService.class, serverConfig.getDbService().getIp(), serverConfig.getDbService().getMasterPort()));
 
     }
 
-    private boolean masterIsReady;
+    public static void main(String[] args) {
+        String arg = null;
+        try {
+            arg = args[0];
+        } catch (Exception ignored) {
+        }
+        String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
+        log = LoggerImpl.getLogger("DatabaseService");
+
+        DBService dbService = new HDBServiceImpl(configPath);
+        Thread dbServiceThread = new Thread(dbService);
+        dbServiceThread.setName("DBService");
+        dbServiceThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
+        dbServiceThread.start();
+    }
 
     @Override
     public void setMasterIsReady(boolean masterIsReady) {
@@ -85,6 +100,7 @@ public class HDBServiceImpl implements DBService {
 
     @Override
     public Long getAccountId(String userName, String pass, Long sessionId) {
+        NodeMessageSender.sendMessage(getMasterService(), new MetricsIncrement(getAddress(), "DBRequests", "Executed DB requests"));
         HAccountDataSet dataSet;
         HAccountsDAO dao = new HAccountsDAO(sessionFactory);
         dataSet = dao.get(userName);
@@ -99,24 +115,9 @@ public class HDBServiceImpl implements DBService {
         return dataSet.getId();
     }
 
-    public static void main(String[] args) {
-        String arg = null;
-        try {
-            arg = args[0];
-        } catch (Exception ignored) {
-        }
-        String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        log = LoggerImpl.createLogger("DatabaseService");
-
-        DBService dbService = new HDBServiceImpl(configPath);
-        Thread dbServiceThread = new Thread(dbService);
-        dbServiceThread.setName("DBService");
-        dbServiceThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
-        dbServiceThread.start();
-    }
-
     @Override
     public Long createAccount(String userName, String pass) {
+        NodeMessageSender.sendMessage(getMasterService(), new MetricsIncrement(getAddress(), "DBRequests", "Executed DB requests"));
         HAccountDataSet dataSet = null;
         HAccountsDAO dao = new HAccountsDAO(sessionFactory);
         try {
@@ -146,7 +147,6 @@ public class HDBServiceImpl implements DBService {
         Transaction transaction = session.beginTransaction();
         System.out.append(transaction.getStatus().toString()).append(String.valueOf('\n'));
         session.close();
-
 
 
         TickSleeper tickSleeper = new TickSleeper();
@@ -179,7 +179,7 @@ public class HDBServiceImpl implements DBService {
         configuration.setProperty("hibernate.connection.url", serverConfig.getDatabasePath());
         configuration.setProperty("hibernate.connection.username", serverConfig.getDbLogin());
         configuration.setProperty("hibernate.connection.password", serverConfig.getDbPass());
-        configuration.setProperty("hibernate.show_sql", "false");
+        configuration.setProperty("hibernate.show_sql", "true");
         configuration.setProperty("hibernate.hbm2ddl.auto", hbm2dll);
 
         StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();

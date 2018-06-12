@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class LobbyTests {
-    static String configPath = "src/test/resources/testConfig";
+    static String configPath = "build/bin/config.xml";
     private static Lobby lobby;
     private static MasterService masterService;
 
@@ -29,8 +29,8 @@ public class LobbyTests {
 
     @Test
     public void getCapacity() throws NoSuchFieldException, IllegalAccessException {
-        Assert.assertEquals(lobby.getFIGHT_CAPACITY().intValue(), 1);
-        Assert.assertNotEquals(lobby.getFIGHT_CAPACITY().intValue(), 2);
+        Assert.assertEquals(lobby.getCAPACITY().intValue(), 1);
+        Assert.assertNotEquals(lobby.getCAPACITY().intValue(), 2);
     }
 
     @Test

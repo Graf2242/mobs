@@ -1,14 +1,9 @@
 package utils.VirtualFileSystem;
 
-import base.utils.Resource;
 import base.utils.VFS;
-import utils.Serialization.Serializator;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class VFSImpl implements VFS {
     private final String root;
@@ -45,18 +40,7 @@ public class VFSImpl implements VFS {
     }
 
     @Override
-    public void writeBinResource(Object o, Class<? extends Resource> clazz, String path) {
-        Serializator.serializeToFileBin(o, root + path);
-    }
-
-    @Override
-    public <T> T readBinResource(String path) {
-        return Serializator.deserializeBinFile(path);
-    }
-
-
-    @Override
-    public String getUFT8Text(String file) throws IOException {
+    public String getUTF8Text(String file) throws IOException {
         FileInputStream fis = new FileInputStream(root + file);
         DataInputStream dis = new DataInputStream(fis);
         InputStreamReader isr = new InputStreamReader(dis, "UTF-8");
@@ -91,13 +75,13 @@ public class VFSImpl implements VFS {
         @Override
         public String next() {
             File file = files.peek();
-            if (file.isDirectory()) {
+            if (file != null && file.isDirectory()) {
                 if (file.listFiles() != null) {
                     //noinspection ConstantConditions
                     files.addAll(Arrays.asList(file.listFiles()));
                 }
             }
-            return files.poll().getAbsolutePath();
+            return Objects.requireNonNull(files.poll()).getAbsolutePath();
         }
 
         @Override

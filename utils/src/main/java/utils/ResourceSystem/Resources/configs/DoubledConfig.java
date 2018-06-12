@@ -2,9 +2,10 @@ package utils.ResourceSystem.Resources.configs;
 
 import java.io.Serializable;
 
-public class NodeConfig implements Serializable {
-    protected String ip;
-    protected String masterPort;
+public class DoubledConfig implements Serializable {
+    private String secondPort;
+    private String ip;
+    private String masterPort;
 
     public String getIp() {
         return ip;
@@ -20,5 +21,13 @@ public class NodeConfig implements Serializable {
 
     public void setMasterPort(String masterPort) {
         this.masterPort = masterPort;
+    }
+
+    public String getSecondPort() {
+        return secondPort;
+    }
+
+    public void setSecondPort(String secondPort) {
+        this.secondPort = secondPort;
     }
 }

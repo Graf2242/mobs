@@ -1,10 +1,10 @@
 package utils.ResourceSystem;
 
 import org.apache.logging.log4j.Logger;
-import utils.ResourceSystem.Resources.configs.FrontendConfig;
+import utils.ResourceSystem.Resources.configs.DoubledConfig;
 import utils.ResourceSystem.Resources.configs.NodeConfig;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
-import utils.Serialization.Serializator;
+import utils.Serialization.SerializerHelper;
 import utils.logger.LoggerImpl;
 
 
@@ -15,7 +15,7 @@ public class ResourceCreator {
     public static void main(String[] args) {
         createServerConfig();
         try {
-            LoggerImpl.getLogger().info(Serializator.deserializeXmlFile(path));
+            LoggerImpl.getLogger().info(SerializerHelper.deserializeXmlFile(path));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             Logger logger = LoggerImpl.getLogger();
             logger.traceEntry();
@@ -33,26 +33,26 @@ public class ResourceCreator {
 
         NodeConfig config = new NodeConfig();
         config.setIp("localhost");
-        config.setPort("9091");
+        config.setMasterPort("9091");
         serverConfig.setDbService(config);
-        FrontendConfig fConfig = new FrontendConfig();
+        DoubledConfig fConfig = new DoubledConfig();
         fConfig.setIp("localhost");
-        fConfig.setPort("9092");
-        fConfig.setFrontendPort("9093");
+        fConfig.setMasterPort("9092");
+        fConfig.setSecondPort("9093");
         serverConfig.setFrontend(fConfig);
         config = new NodeConfig();
         config.setIp("localhost");
-        config.setPort("9094");
+        config.setMasterPort("9094");
         serverConfig.setLobby(config);
         config = new NodeConfig();
         config.setIp("localhost");
-        config.setPort("9095");
+        config.setMasterPort("9095");
         serverConfig.setMaster(config);
         config = new NodeConfig();
         config.setIp("localhost");
-        config.setPort("9096");
+        config.setMasterPort("9096");
         serverConfig.setMechanics(config);
 
-        Serializator.serializeXmlFile(serverConfig, path);
+        SerializerHelper.serializeXmlFile(serverConfig, path);
     }
 }

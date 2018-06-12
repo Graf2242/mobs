@@ -24,7 +24,7 @@ import java.lang.reflect.Field;
 import java.util.Base64;
 import java.util.Objects;
 
-public class Serializator {
+public class SerializerHelper {
 
     public static void serializeToFileBin(Object o, String path) {
         FileOutputStream fos;
@@ -185,10 +185,10 @@ public class Serializator {
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(bais);
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
             Logger logger = LoggerImpl.getLogger();
             logger.error(message);
-            logger.error(ignored);
+            logger.error(ex);
         }
         T resource = null;
         if (ois != null) {

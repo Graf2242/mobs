@@ -38,7 +38,9 @@ public class HAccountsDAO {
         HAccountDataSet accountDataSet = new HAccountDataSet(name, pass);
 
         Session session = sessionFactory.openSession();
+        session.beginTransaction();
         session.save(accountDataSet);
+        session.getTransaction().commit();
         session.close();
         return get(name);
     }

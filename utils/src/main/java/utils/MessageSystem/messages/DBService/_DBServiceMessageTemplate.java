@@ -2,8 +2,8 @@ package utils.MessageSystem.messages.DBService;
 
 
 import base.databaseService.DBService;
-import base.masterService.Message;
 import base.masterService.nodes.Address;
+import base.utils.Message;
 
 public abstract class _DBServiceMessageTemplate extends Message {
 

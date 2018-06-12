@@ -4,8 +4,11 @@ import base.gameMechanics.GameMechanics;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
 import org.apache.logging.log4j.Logger;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.Metrics.MetricsIncrement;
 import utils.logger.LoggerImpl;
 
+import java.net.UnknownHostException;
 import java.util.Set;
 
 public class GMStartSession extends _GameMechanicsMessageTemplate {
@@ -32,7 +35,12 @@ public class GMStartSession extends _GameMechanicsMessageTemplate {
         }
         if (!gameMechanics.hasSession(userIds)) {
             logger.info("Session started! UserId" + userIds);
-            gameMechanics.registerGMSession(userIds);
+            try {
+                gameMechanics.registerGMSession(userIds);
+                NodeMessageSender.sendMessage(node.getMasterService(), new MetricsIncrement(node.getAddress(), "CCUMechenics"));
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

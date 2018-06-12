@@ -1,6 +1,7 @@
 package base.masterService;
 
 import base.masterService.nodes.Node;
+import base.utils.Message;
 
 import java.net.Socket;
 import java.util.List;
@@ -13,4 +14,5 @@ public interface MasterService extends Node, Runnable {
 
     void addMessage(Message message);
 
+    void sortMessages();
 }

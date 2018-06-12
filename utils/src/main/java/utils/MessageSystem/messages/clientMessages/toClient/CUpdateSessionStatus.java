@@ -2,8 +2,8 @@ package utils.MessageSystem.messages.clientMessages.toClient;
 
 import base.Client.Client;
 import base.frontend.UserSessionStatus;
-import base.masterService.Message;
 import base.masterService.nodes.Node;
+import base.utils.Message;
 
 public class CUpdateSessionStatus extends Message {
     final private UserSessionStatus status;

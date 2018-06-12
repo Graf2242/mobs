@@ -9,12 +9,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import utils.logger.LoggerImpl;
 
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 public class GameMechanicsTests {
-    private static String configPath = "src/test/resources/testConfig";
+    private static String configPath = "build/bin/config.xml";
     private static GameMechanics gameMechanics;
     private static MasterService masterService;
 
@@ -34,7 +35,11 @@ public class GameMechanicsTests {
         userIds.add(1L);
         userIds.add(2L);
         userIds.add(3L);
-        gameMechanics.registerGMSession(userIds);
+        try {
+            gameMechanics.registerGMSession(userIds);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         for (GameMechanicsSession gameMechanicsSession : gameMechanics.getSessions()) {
             if (gameMechanicsSession.getUserIds().equals(userIds)) {
                 return;
@@ -51,7 +56,11 @@ public class GameMechanicsTests {
         userIds.add(6L);
         Set<Long> idsToCheck = new HashSet<>();
         idsToCheck.add(-1L);
-        gameMechanics.registerGMSession(userIds);
+        try {
+            gameMechanics.registerGMSession(userIds);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         Assert.assertEquals(gameMechanics.hasSession(idsToCheck), false);
         idsToCheck.add(5L);
         Assert.assertEquals(gameMechanics.hasSession(idsToCheck), true);

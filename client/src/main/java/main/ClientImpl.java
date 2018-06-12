@@ -2,8 +2,8 @@ package main;
 
 import base.Client.Client;
 import base.frontend.UserSessionStatus;
-import base.masterService.Message;
 import base.masterService.nodes.Address;
+import base.utils.Message;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -34,12 +34,10 @@ public class ClientImpl extends Application implements Client {
     private int outPort;
     private ClientStatus clientStatus = new ClientStatus();
     private PageTemplate page;
-    private Socket frontendSocket;
+    protected Socket frontendSocket;
 
     private Queue<Message> messages = new LinkedBlockingQueue<>();
-
-    public ClientImpl() {
-    }
+    private Long userID;
 
     public static void main(String[] args) {
         String arg = null;
@@ -48,9 +46,20 @@ public class ClientImpl extends Application implements Client {
         } catch (Exception ignored) {
         }
         configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        log = LoggerImpl.createLogger("Client");
+        log = LoggerImpl.getLogger("Client");
 
         launch(args);
+    }
+
+    public Long getUserID() {
+        return userID;
+    }
+
+    @Override
+    public void connectViaUDP(String ip, int port) {
+        if (!(page instanceof MainPage)) log.error("Try to connect before login");
+        MainPage mainPage = (MainPage) page;
+        mainPage.connectUDP(ip, port);
     }
 
     @Override
@@ -142,7 +151,8 @@ public class ClientImpl extends Application implements Client {
     @Override
     public void updateUserSession(Long userID, String userName, UserSessionStatus status, Long fightTime) {
         MainPage mainPage = (MainPage) page;
-        mainPage.updatePage(userID, userName, status, fightTime);
+        this.userID = userID;
+        mainPage.updatePage(this.userID, userName, status, fightTime);
 
     }
 

@@ -3,8 +3,9 @@ package utils.MessageSystem.messages.clientMessages.toClient;
 import base.Client.Client;
 import base.frontend.FrontendUserSession;
 import base.frontend.UserSessionStatus;
-import base.masterService.Message;
+import base.gameMechanics.GameMechanicsSession;
 import base.masterService.nodes.Node;
+import base.utils.Message;
 
 //Добавить создание этого сообщения во фронтенде каждый тик.
 public class CUpdateSession extends Message {
@@ -17,6 +18,14 @@ public class CUpdateSession extends Message {
         this.userID = userSession.getUserId();
         this.userName = userSession.getUserName();
         this.status = userSession.getStatus();
+        this.fightTime = userSession.getSessionTime();
+    }
+
+    public CUpdateSession(GameMechanicsSession userSession, Long userID) {
+        this.userID = userID;
+        //TODO Вероятно, надо что-то сделать
+        this.userName = "";
+        this.status = UserSessionStatus.FIGHT;
         this.fightTime = userSession.getSessionTime();
     }
 

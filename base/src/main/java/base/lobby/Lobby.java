@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.Set;
 
 public interface Lobby extends Node, Runnable {
-    Integer getFIGHT_CAPACITY();
+    Integer getCAPACITY();
 
     Set<LobbyUserSession> getUsers();
 

@@ -20,8 +20,12 @@ public class MainPage implements PageTemplate, Runnable {
     private ClientImpl main;
     @FXML
     private TextArea mainField;
+    private String GMip;
+    private int GMport;
 
-    public MainPage() {
+    public void connectUDP(String ip, int port) {
+        this.GMip = ip;
+        this.GMport = port;
     }
 
     private static String getUserDateFull(Long time) {
@@ -46,6 +50,7 @@ public class MainPage implements PageTemplate, Runnable {
     public void updatePage(Long userID, String userName, UserSessionStatus status, Long fightTime) {
         writeText(String.format("MatchTime is %s", getUserDateFull(fightTime)));
     }
+
 
     private void writeText(String text) {
         mainField.appendText(text);

@@ -7,6 +7,11 @@ import org.apache.logging.log4j.Logger;
 import java.net.Socket;
 
 public interface Client extends Node {
+
+
+    void connectViaUDP(String ip, int port);
+
+
     Logger getLog();
 
     Socket getFrontendSocket();

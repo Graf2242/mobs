@@ -1,8 +1,8 @@
 package utils.ServerSocketUtils;
 
-import base.masterService.Message;
+import base.utils.Message;
 import org.apache.logging.log4j.Logger;
-import utils.Serialization.Serializator;
+import utils.Serialization.SerializerHelper;
 import utils.logger.LoggerImpl;
 import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
@@ -29,7 +29,6 @@ public class MessageExecutor implements Runnable {
         mExecutor.start();
     }
 
-
     @Override
     public void run() {
         LoggerImpl.getLogger().info("MessageExecutor started!");
@@ -42,7 +41,7 @@ public class MessageExecutor implements Runnable {
                     String msg;
                     while (din.available() > 0) {
                         msg = din.readUTF();
-                        Message e = Serializator.deserializeString(msg);
+                        Message e = SerializerHelper.deserializeString(msg);
                         if (e == null) {
                             LoggerImpl.getLogger().error(msg);
                         } else {

@@ -1,8 +1,8 @@
 package utils.MessageSystem;
 
-import base.masterService.Message;
+import base.utils.Message;
 import org.apache.logging.log4j.Logger;
-import utils.Serialization.Serializator;
+import utils.Serialization.SerializerHelper;
 import utils.logger.LoggerImpl;
 import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
@@ -41,13 +41,12 @@ public class NodeMessageReceiver implements Runnable {
             String messageText;
             try {
                 while (dis.available() > 0) {
-//                    System.out.println("ReadMessage");
                     messageText = dis.readUTF();
-                    Message message = Serializator.deserializeString(messageText);
+                    Message message = SerializerHelper.deserializeString(messageText);
                     this.messages.add(message);
                 }
             } catch (IOException e) {
-                //log.error(e);
+//                log.error(e);
             }
             tickSleeper.tickEnd();
         }

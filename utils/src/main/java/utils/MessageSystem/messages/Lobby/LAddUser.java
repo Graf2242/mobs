@@ -4,6 +4,8 @@ import base.lobby.Lobby;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
 import org.apache.logging.log4j.Logger;
+import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.Metrics.MetricsIncrement;
 import utils.logger.LoggerImpl;
 
 public class LAddUser extends _LobbyMessageTemplate {
@@ -33,5 +35,6 @@ public class LAddUser extends _LobbyMessageTemplate {
             return;
         }
         lobby.registerIfExists(userId, userName);
+        NodeMessageSender.sendMessage(node.getMasterService(), new MetricsIncrement(node.getAddress(), "CCULobby"));
     }
 }

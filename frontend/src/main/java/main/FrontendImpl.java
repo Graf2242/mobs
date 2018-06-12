@@ -4,11 +4,14 @@ import base.frontend.Frontend;
 import base.frontend.FrontendUserSession;
 import base.frontend.UserSessionStatus;
 import base.masterService.Connector;
-import base.masterService.Message;
 import base.masterService.nodes.Address;
+import base.utils.Message;
 import org.apache.logging.log4j.Logger;
 import utils.MessageSystem.NodeMessageReceiver;
 import utils.MessageSystem.NodeMessageSender;
+import utils.MessageSystem.messages.GameMechanics.GMSendUserSockets;
+import utils.MessageSystem.messages.Metrics.MetricsIncrement;
+import utils.MessageSystem.messages.clientMessages.toClient.CConnectViaUDP;
 import utils.MessageSystem.messages.clientMessages.toClient.CLoginSuccess;
 import utils.MessageSystem.messages.clientMessages.toClient.CUpdateSession;
 import utils.MessageSystem.messages.clientMessages.toClient.CUpdateSessionStatus;
@@ -22,7 +25,6 @@ import utils.logger.UncaughtExceptionLog4j2Handler;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -33,7 +35,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class FrontendImpl implements Frontend {
     private final Address address = new Address();
-    private final ServerConfig serverConfig;
+    private ServerConfig serverConfig;
     private final Map<Long, FrontendUserSession> sessions = new HashMap<>();
     final private Queue<Message> unsortedMessagesFromClients = new LinkedBlockingQueue<>();
     private static Logger log;
@@ -48,14 +50,14 @@ public class FrontendImpl implements Frontend {
     public FrontendImpl(String configPath) {
         this.configPath = configPath;
         this.resourceFactory = ResourceFactory.instance();
-
+        log = LoggerImpl.getLogger("Frontend");
         serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
         InetAddress address;
         try {
             address = InetAddress.getByName(serverConfig.getFrontend().getIp());
             masterService = new Socket(serverConfig.getMaster().getIp(),
-                    Integer.parseInt(serverConfig.getMaster().getPort()), address,
-                    Integer.parseInt(serverConfig.getFrontend().getPort()));
+                    Integer.parseInt(serverConfig.getMaster().getMasterPort()), address,
+                    Integer.parseInt(serverConfig.getFrontend().getMasterPort()));
         } catch (IOException e) {
             log.error(e);
         }
@@ -67,7 +69,7 @@ public class FrontendImpl implements Frontend {
             log.error(e);
         }
         new NodeMessageReceiver(unhandledMessages, masterService);
-        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Frontend.class, serverConfig.getFrontend().getIp(), serverConfig.getFrontend().getPort()));
+        NodeMessageSender.sendMessage(masterService, new MRegister(this.address, Frontend.class, serverConfig.getFrontend().getIp(), serverConfig.getFrontend().getMasterPort()));
     }
 
     public static void main(String[] args) {
@@ -76,7 +78,6 @@ public class FrontendImpl implements Frontend {
             arg = args[0];
         } catch (Exception ignored) {
         }
-        log = LoggerImpl.createLogger("Frontend");
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
         Frontend frontend = new FrontendImpl(configPath);
         Thread frontendThread = new Thread(frontend);
@@ -127,6 +128,13 @@ public class FrontendImpl implements Frontend {
         });
     }
 
+    @Override
+    public void redirectUsersToMechanics(Set<Long> userIDs, String ip, int port) {
+        for (Long userID : userIDs) {
+            NodeMessageSender.sendMessage(getSessionByUserId(userID).getUserSocket(), new CConnectViaUDP(ip, port));
+            NodeMessageSender.sendMessage(getMasterService(), new GMSendUserSockets(getAddress(), sessions));
+        }
+    }
 
     private void execNodeMessages() {
         while (!unsortedMessagesFromClients.isEmpty()) {
@@ -168,11 +176,9 @@ public class FrontendImpl implements Frontend {
     }
 
     private void startFrontend() throws IOException {
-        InetAddress inetAddress = Inet4Address.getByName(serverConfig.getFrontend().getIp());
-        serverSocket = new ServerSocket(Integer.parseInt(serverConfig.getFrontend().getFrontendPort()), 10, inetAddress);
-
         List<Socket> sockets = new CopyOnWriteArrayList<>();
-        connector = new ConnectorImpl(serverSocket, sockets);
+        if (serverConfig == null) log.fatal(new RuntimeException("Server config is null"));
+        connector = new ConnectorImpl(serverConfig.getFrontend().getIp(), serverConfig.getFrontend().getSecondPort(), sockets, log);
         new MessageExecutor(unsortedMessagesFromClients, sockets, log);
         log.fatal("Frontend started!");
         /* Jetty
@@ -181,7 +187,7 @@ public class FrontendImpl implements Frontend {
 
         ServerConnector connector = new ServerConnector(server);
         connector.setHost(config.getFrontend().getIp());
-        connector.setPort(Integer.parseInt(config.getFrontend().getFrontendPort()));
+        connector.setMasterPort(Integer.parseInt(config.getFrontend().getSecondPort()));
         server.addConnector(connector);
         server.setHandler(this);
 
@@ -192,6 +198,7 @@ public class FrontendImpl implements Frontend {
         }*/
     }
 
+//    JEtty too
 //    @Override
 //    public void handle(String target,
 //                       Request baseRequest,
@@ -245,7 +252,8 @@ public class FrontendImpl implements Frontend {
         userSession.setUserName(login);
         userSession.setUserSocket(clientSocket);
         userSession.setStatus(UserSessionStatus.IN_LOGIN);
-        log.fatal("User connected");
+        log.info("User connected");
+        NodeMessageSender.sendMessage(masterService, new MetricsIncrement(this.getAddress(), "CCUFrontend", "Count of Connected Users on Frontend"));
         return userSession.getSessionId();
     }
 

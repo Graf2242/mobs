@@ -6,15 +6,15 @@ import base.gameMechanics.GameMechanics;
 import base.lobby.Lobby;
 import base.masterService.Connector;
 import base.masterService.MasterService;
-import base.masterService.Message;
 import base.masterService.nodes.Address;
 import base.masterService.nodes.Node;
+import base.utils.Message;
 import org.apache.logging.log4j.Logger;
 import org.omg.CORBA.WrongTransaction;
 import utils.MessageSystem.messages.MessageMasterIsReady;
 import utils.MessageSystem.messages.masterService._MasterMessageTemplate;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
-import utils.Serialization.Serializator;
+import utils.Serialization.SerializerHelper;
 import utils.ServerSocketUtils.ConnectorImpl;
 import utils.ServerSocketUtils.MessageExecutor;
 import utils.logger.LoggerImpl;
@@ -23,9 +23,6 @@ import utils.tickSleeper.TickSleeper;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,25 +41,14 @@ public class MasterServiceImpl implements MasterService {
     private ServerConfig serverConfig;
     private String configPath;
 
+
     public MasterServiceImpl(String configPath) {
         this.configPath = configPath;
         serverConfig = ServerConfig.newInstance(configPath);
-
-        InetAddress inetAddress;
-        ServerSocket serverSocket = null;
-        try {
-            if (serverConfig != null) {
-                inetAddress = Inet4Address.getByName(serverConfig.getMaster().getIp());
-                serverSocket = new ServerSocket(Integer.parseInt(serverConfig.getMaster().getPort()), 10, inetAddress);
-            }
-        } catch (IOException e) {
-            log.error(e);
-        }
-
         List<Socket> sockets = new CopyOnWriteArrayList<>();
-        connector = new ConnectorImpl(serverSocket, sockets);
+        if (serverConfig == null) log.fatal(new RuntimeException("Server config is null"));
+        connector = new ConnectorImpl(serverConfig.getMaster().getIp(), serverConfig.getMaster().getMasterPort(), sockets, log);
         new MessageExecutor(unsortedMessages, sockets, log);
-
     }
 
     public static void main(String[] args) {
@@ -72,7 +58,7 @@ public class MasterServiceImpl implements MasterService {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        log = LoggerImpl.createLogger("MasterService");
+        log = LoggerImpl.getLogger("MasterService");
 
         MasterService masterService = new MasterServiceImpl(configPath);
         Thread masterThread = new Thread(masterService);
@@ -89,6 +75,7 @@ public class MasterServiceImpl implements MasterService {
         return nodes;
     }
 
+    @Override
     public void addMessage(Message message) {
         unsortedMessages.add(message);
     }
@@ -98,7 +85,8 @@ public class MasterServiceImpl implements MasterService {
         return connector;
     }
 
-    private void sortMessages() {
+    @Override
+    public void sortMessages() {
         while (!unsortedMessages.isEmpty()) {
             Message message = unsortedMessages.poll();
             log.trace("Received message");
@@ -195,7 +183,7 @@ public class MasterServiceImpl implements MasterService {
                     messages.remove(message);
                     try {
                         dos = new DataOutputStream(socket.getOutputStream());
-                        dos.writeUTF(Serializator.serializeToString(message));
+                        dos.writeUTF(SerializerHelper.serializeToString(message));
                     } catch (IOException e) {
                         log.error(e);
                     }

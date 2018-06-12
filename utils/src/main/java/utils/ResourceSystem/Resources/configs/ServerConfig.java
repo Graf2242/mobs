@@ -1,13 +1,15 @@
 package utils.ResourceSystem.Resources.configs;
 
 import base.utils.Resource;
-import utils.Serialization.Serializator;
+import utils.Serialization.SerializerHelper;
 import utils.logger.LoggerImpl;
 
 public class ServerConfig implements Resource {
     private NodeConfig master;
 
-    private FrontendConfig frontend;
+    private DoubledConfig frontend;
+
+    private DoubledConfig metrics;
 
     private NodeConfig dbService;
 
@@ -16,24 +18,35 @@ public class ServerConfig implements Resource {
     private NodeConfig mechanics;
 
     private String databasePath;
+
     private String dbLogin;
+
     private String dbPass;
 
     public ServerConfig() {
         master = new NodeConfig();
-        frontend = new FrontendConfig();
+        frontend = new DoubledConfig();
         dbService = new NodeConfig();
         lobby = new NodeConfig();
         mechanics = new NodeConfig();
+        metrics = new DoubledConfig();
     }
 
     public static ServerConfig newInstance(String path) {
         try {
-            return (ServerConfig) Serializator.deserializeXmlFile(path);
+            return (ServerConfig) SerializerHelper.deserializeXmlFile(path);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             LoggerImpl.getLogger().error(e);
         }
         return null;
+    }
+
+    public DoubledConfig getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(DoubledConfig metrics) {
+        this.metrics = metrics;
     }
 
     public NodeConfig getMaster() {
@@ -44,11 +57,11 @@ public class ServerConfig implements Resource {
         this.master = master;
     }
 
-    public FrontendConfig getFrontend() {
+    public DoubledConfig getFrontend() {
         return frontend;
     }
 
-    public void setFrontend(FrontendConfig frontend) {
+    public void setFrontend(DoubledConfig frontend) {
         this.frontend = frontend;
     }
 

@@ -15,6 +15,8 @@ public class FrontendUserSessionImpl implements FrontendUserSession {
     private Long sessionTime;
     private boolean needUpdate;
     private transient Socket userSocket;
+    private String ip;
+    private int port;
 
     public FrontendUserSessionImpl() {
         this.sessionId = atomicLongSessions.getAndIncrement();
@@ -36,8 +38,20 @@ public class FrontendUserSessionImpl implements FrontendUserSession {
     }
 
     @Override
+    public String getIp() {
+        return ip;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
+    }
+
+    @Override
     public void setUserSocket(Socket userSocket) {
         this.userSocket = userSocket;
+        ip = userSocket.getInetAddress().getHostAddress();
+        port = userSocket.getPort();
     }
 
     @Override

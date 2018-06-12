@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FrontendTests {
-    static String configPath = "src/test/resources/testConfig";
+    static String configPath = "build/bin/config.xml";
     private static Frontend frontend;
     private static MasterService masterService;
 
@@ -38,6 +38,7 @@ public class FrontendTests {
     @Test
     public void updateSessionStatus() {
         FrontendUserSession userSession = new FrontendUserSessionImpl();
+        userSession.setUserSocket(frontend.getMasterService());
         frontend.getSessions().put(userSession.getSessionId(), userSession);
         frontend.updateSessionStatus(userSession.getSessionId(), UserSessionStatus.CONNECTED);
         Assert.assertEquals(UserSessionStatus.CONNECTED, frontend.getSessionBySessionId(userSession.getSessionId()).getStatus());

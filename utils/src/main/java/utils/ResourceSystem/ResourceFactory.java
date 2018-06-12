@@ -2,7 +2,7 @@ package utils.ResourceSystem;
 
 import base.utils.Resource;
 import base.utils.VFS;
-import utils.Serialization.Serializator;
+import utils.Serialization.SerializerHelper;
 import utils.VirtualFileSystem.VFSImpl;
 import utils.logger.LoggerImpl;
 
@@ -41,7 +41,9 @@ public class ResourceFactory {
 
     public Resource getResource(String path) {
         try {
-            return Serializator.deserializeXmlFile(path);
+            Resource resource = SerializerHelper.deserializeXmlFile(path);
+            this.resources.put(path, resource);
+            return resource;
         } catch (NoSuchFieldException | IllegalAccessException e) {
             LoggerImpl.getLogger().error(e);
         }
@@ -50,7 +52,7 @@ public class ResourceFactory {
 
     public Resource getReadResource(String path) {
         try {
-            return Serializator.deserializeXmlFile(path);
+            return SerializerHelper.deserializeXmlFile(path);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             LoggerImpl.getLogger().error(e);
         }
@@ -95,7 +97,7 @@ public class ResourceFactory {
             String next = iterator.next();
             if (!vfs.isDirectory(next)) {
                 try {
-                    resources.put(next, Serializator.deserializeXmlFile(next));
+                    resources.put(next, SerializerHelper.deserializeXmlFile(next));
                 } catch (NoSuchFieldException | IllegalAccessException e) {
                     LoggerImpl.getLogger().error(e);
                 }

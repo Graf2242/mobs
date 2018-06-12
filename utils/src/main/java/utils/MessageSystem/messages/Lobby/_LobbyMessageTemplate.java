@@ -1,8 +1,8 @@
 package utils.MessageSystem.messages.Lobby;
 
 import base.lobby.Lobby;
-import base.masterService.Message;
 import base.masterService.nodes.Address;
+import base.utils.Message;
 
 public abstract class _LobbyMessageTemplate extends Message {
 

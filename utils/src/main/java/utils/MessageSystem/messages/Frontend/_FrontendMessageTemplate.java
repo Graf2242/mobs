@@ -1,8 +1,8 @@
 package utils.MessageSystem.messages.Frontend;
 
 import base.frontend.Frontend;
-import base.masterService.Message;
 import base.masterService.nodes.Address;
+import base.utils.Message;
 
 public abstract class _FrontendMessageTemplate extends Message {
 

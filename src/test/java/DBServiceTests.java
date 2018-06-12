@@ -7,7 +7,7 @@ import org.junit.Test;
 import utils.logger.LoggerImpl;
 
 public class DBServiceTests {
-    private static String configPath = "src/test/resources/testConfig";
+    private static String configPath = "build/bin/config.xml";
     private static DBService dbService;
 
     @BeforeClass

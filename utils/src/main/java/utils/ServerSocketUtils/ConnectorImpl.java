@@ -1,25 +1,31 @@
 package utils.ServerSocketUtils;
 
 import base.masterService.Connector;
-import utils.logger.LoggerImpl;
+import org.apache.logging.log4j.Logger;
 import utils.tickSleeper.TickSleeper;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
 public class ConnectorImpl implements Runnable, Connector {
-    private final ServerSocket serverSocket;
     private final List<Socket> sockets;
     private final TickSleeper tickSleeper = new TickSleeper();
+    private final String ip;
+    private final String port;
+    private Logger log;
 
-    public ConnectorImpl(ServerSocket serverSocket, List<Socket> sockets) {
-        this.serverSocket = serverSocket;
-        Thread tConnector = new Thread(this);
-        tConnector.setName("ServerSocketUtils");
-        tConnector.start();
+    public ConnectorImpl(String ip, String port, List<Socket> sockets, Logger log) {
+        this.ip = ip;
+        this.port = port;
+        this.log = log;
         this.sockets = sockets;
+        Thread tConnector = new Thread(this);
+        tConnector.setName("HTTPConnector");
+        tConnector.start();
     }
 
     @Override
@@ -29,14 +35,22 @@ public class ConnectorImpl implements Runnable, Connector {
 
     @Override
     public void run() {
+        InetAddress inetAddress;
+        ServerSocket serverSocket = null;
+        try {
+            inetAddress = Inet4Address.getByName(ip);
+            serverSocket = new ServerSocket(Integer.parseInt(port), 10, inetAddress);
+        } catch (IOException e) {
+            log.fatal(e);
+        }
         //noinspection InfiniteLoopStatement
         while (true) {
             tickSleeper.tickStart();
             try {
-                Socket s = serverSocket.accept();
+                Socket s = serverSocket != null ? serverSocket.accept() : null;
                 sockets.add(s);
             } catch (IOException e) {
-                LoggerImpl.getLogger().error(e);
+                log.error(e);
             }
             tickSleeper.tickEnd();
         }

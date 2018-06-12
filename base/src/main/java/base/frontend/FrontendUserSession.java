@@ -10,6 +10,10 @@ public interface FrontendUserSession extends Serializable {
 
     Socket getUserSocket();
 
+    String getIp();
+
+    int getPort();
+
     void setUserSocket(Socket userSocket);
 
     Long getSessionTime();

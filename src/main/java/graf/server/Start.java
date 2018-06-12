@@ -21,6 +21,8 @@ public class Start {
         FrontendImpl.main(outArgs);
         LobbyImpl.main(outArgs);
         GameMechanicsImpl.main(outArgs);
+        MetricServiceImpl.main(outArgs);
+        ClientImpl.main(outArgs);
     }
 
 }
