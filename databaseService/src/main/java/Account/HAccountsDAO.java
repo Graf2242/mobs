@@ -33,7 +33,6 @@ public class HAccountsDAO {
         return dataSet;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public HAccountDataSet writeAccount(String name, String pass) throws SQLException {
         HAccountDataSet accountDataSet = new HAccountDataSet(name, pass);
 

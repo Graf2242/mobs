@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FrontendTests {
-    static String configPath = "build/bin/config.xml";
+    static String configPath = "config.xml";
     private static Frontend frontend;
     private static MasterService masterService;
 
