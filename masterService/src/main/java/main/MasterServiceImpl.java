@@ -43,6 +43,7 @@ public class MasterServiceImpl implements MasterService {
 
 
     public MasterServiceImpl(String configPath) {
+        log = LoggerImpl.getLogger("MasterService");
         this.configPath = configPath;
         serverConfig = ServerConfig.newInstance(configPath);
         List<Socket> sockets = new CopyOnWriteArrayList<>();
@@ -58,8 +59,6 @@ public class MasterServiceImpl implements MasterService {
         } catch (Exception ignored) {
         }
         String configPath = Objects.equals(arg, null) ? "config.xml" : arg;
-        log = LoggerImpl.getLogger("MasterService");
-
         MasterService masterService = new MasterServiceImpl(configPath);
         Thread masterThread = new Thread(masterService);
         masterThread.setUncaughtExceptionHandler(new UncaughtExceptionLog4j2Handler(log));
