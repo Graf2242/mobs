@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GameMechanicsTests {
-    private static String configPath = "config.xml";
+    private static String configPath = "base/src/main/resources/configs/config.xml";
     private static GameMechanics gameMechanics;
     private static MasterService masterService;
 

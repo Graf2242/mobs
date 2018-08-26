@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class LobbyTests {
-    static String configPath = "config.xml";
+    static String configPath = "base/src/main/resources/configs/config.xml";
     private static Lobby lobby;
     private static MasterService masterService;
 

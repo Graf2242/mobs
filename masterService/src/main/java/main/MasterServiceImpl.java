@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.omg.CORBA.WrongTransaction;
 import utils.MessageSystem.messages.MessageMasterIsReady;
 import utils.MessageSystem.messages.masterService._MasterMessageTemplate;
+import utils.ResourceSystem.ResourceFactory;
 import utils.ResourceSystem.Resources.configs.ServerConfig;
 import utils.Serialization.SerializerHelper;
 import utils.ServerSocketUtils.ConnectorImpl;
@@ -45,7 +46,8 @@ public class MasterServiceImpl implements MasterService {
     public MasterServiceImpl(String configPath) {
         log = LoggerImpl.getLogger("MasterService");
         this.configPath = configPath;
-        serverConfig = ServerConfig.newInstance(configPath);
+        ResourceFactory resourceFactory = ResourceFactory.instance();
+        serverConfig = (ServerConfig) resourceFactory.getResource(configPath);
         List<Socket> sockets = new CopyOnWriteArrayList<>();
         if (serverConfig == null) log.fatal(new RuntimeException("Server config is null"));
         connector = new ConnectorImpl(serverConfig.getMaster().getIp(), serverConfig.getMaster().getMasterPort(), sockets, log);
