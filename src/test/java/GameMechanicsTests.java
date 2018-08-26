@@ -76,7 +76,7 @@ public class GameMechanicsTests {
             LoggerImpl.getLogger().error(e);
         }
         Long sessionTime = gms.getSessionTime();
-        boolean condition = Math.abs(sessionTime - 1000L) < 50L;
+        boolean condition = Math.abs(sessionTime - 1000L) < 100L;
         boolean isStart1000ms = (new Date().getTime() - sessionTime) - gms.getStartTime() < 50;
         Assert.assertTrue(condition);
         Assert.assertTrue(isStart1000ms);
